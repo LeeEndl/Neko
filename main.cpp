@@ -5,7 +5,6 @@
 #include "slashcommand.hpp"
 using namespace std;
 using namespace this_thread;
-
 int main()
 {
 	SetConsoleTitleA("Starting...");
