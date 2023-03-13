@@ -74,15 +74,14 @@ public:
 	}
 	static bool leaderboard(const dpp::message_create_t& event)
 	{
-		memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
-		if (g_data.prefix.empty()) return false;
+		if (memory::members.empty()) return false;
 		string oriented = "";
-		ifstream r("maps/leaderboard.txt");
-		string line = "";
-		while (std::getline(r, line)) {
-			auto i = memory::explode(line, ' ');
-			memory::UserData data = memory::FindUser(stoull(i[0]));
-			oriented += "**" + data.username + "**: " + i[1] + " :dollar: \n";
+		vector<pair<uint64_t, uint64_t>> buffer;
+		for (auto& member : memory::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+		sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
+		for (auto& i : buffer) {
+			if (i.second == 0) continue;
+			oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";
 		}
 		dpp::embed embed = dpp::embed()
 			.set_color(dpp::colors::cute_blue)
@@ -130,7 +129,7 @@ public:
 
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
-	if (event.msg.member.user_id == bot.me.id) return;
+	if (event.msg.member.user_id == bot.me.id or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
 	bool found = false;  for (auto it = memory::members.begin(); it != memory::members.end(); ++it) {
 		if (it->first == event.msg.member.user_id) found = true;
 	}

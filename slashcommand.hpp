@@ -252,7 +252,7 @@ public:
 				data.dollars += 2 * stoull(amount);
 				data.fish = data.fish - stoi(amount);
 				memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
-				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You got :dollar: " + to_string(2 * stoull(amount)));
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:");
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
 			else
@@ -338,13 +338,14 @@ public:
 		}
 		static bool leaderboard(const dpp::slashcommand_t& event)
 		{
+			if (memory::members.empty()) return false;
 			string oriented = "";
-			ifstream r("maps/leaderboard.txt");
-			string line = "";
-			while (std::getline(r, line)) {
-				auto i = memory::explode(line, ' ');
-				memory::UserData data = memory::FindUser(stoull(i[0]));
-				oriented += "**" + data.username + "**: " + i[1] + " :dollar: \n";
+			vector<pair<uint64_t, uint64_t>> buffer;
+			for (auto& member : memory::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+			sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
+			for (auto& i : buffer) {
+				if (i.second == 0) continue;
+				oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";
 			}
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue)
@@ -394,7 +395,7 @@ public:
 
 vector<thread> slashcommands_executed;
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
-	if (event.command.member.user_id == bot.me.id) return;
+	if (event.command.member.user_id == bot.me.id or event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
 	bool found = false;  for (auto it = memory::members.begin(); it != memory::members.end(); ++it) {
 		if (it->first == event.command.member.user_id) found = true;
 	}
@@ -471,5 +472,25 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
 		data.last_on = time(0);
 		memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+	}
+}
+vector<thread> button_clicked_executed;
+inline void await_on_button_click(const dpp::button_click_t& event) {
+	memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+	vector<string> i = memory::explode(event.custom_id, '_');
+	if (event.custom_id.find("repair_1") not_eq -1 and i[2] == event.command.member.user_id)
+	{
+		if (data.dollars > 12) {
+			data.dollars -= 12;
+			data.rod = to_string(1);
+			data.rod_d = 15;
+			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Repair Complete!");
+			event.reply(dpp::message(event.command.channel_id, embed));
+			memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+		}
+		else {
+			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have enough to repair it!");
+			event.reply(dpp::message(event.command.channel_id, embed));
+		}
 	}
 }

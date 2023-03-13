@@ -215,7 +215,6 @@ namespace memory
 		uint64_t dollars = 0;
 	};
 	map<dpp::snowflake, UserData> members;
-	map<uint64_t, UserData> leaderboard;
 	class GuildData {
 	public:
 		bool failed = false, joined = false;
@@ -410,27 +409,6 @@ namespace memory
 		}
 		return thread();
 	}
-	inline thread StructLeaderboardMap()
-	{
-		while (true) {
-			ifstream r("maps/leaderboard.txt");
-			vector<pair<uint64_t, dpp::snowflake>> buffer;
-			string line;
-			while (getline(r, line)) {
-				auto i = explode(line, ' ');
-				buffer.emplace_back(stoull(i[1]), stoull(i[0]));
-			}
-			sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
-			ofstream w("maps/leaderboard.txt");
-			for (auto& i : buffer) {
-				leaderboard.erase(i.second);
-				leaderboard.emplace(i.first, FindUser(i.second));
-				w << " " << i.second << " " << i.first << endl;
-			}
-			sleep_for(10s);
-		}
-		return thread();
-	}
 	inline void fishing(const dpp::slashcommand_t& event)
 	{
 		{
@@ -480,7 +458,15 @@ namespace memory
 		auto update_time = async(memory::update_time);
 		auto StructUserMap = async(memory::StructUserMap);
 		auto StructGuildMap = async(memory::StructGuildMap);
-		auto StructLeaderboardMap = async(memory::StructLeaderboardMap);
 		return thread();
+	}
+	vector<thread> guild_create_executed;
+	inline void await_on_guild_create(const dpp::guild_create_t& event) {
+		memory::GuildData data = memory::GetGuildData(event.created->id);
+		if (static_cast<bool>(data.failed)) memory::new_guild(event.created->id);
+	}
+	vector<thread> guild_delete_executed;
+	inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
+		memory::delete_guild(event.deleted->id);
 	}
 }
