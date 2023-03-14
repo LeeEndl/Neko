@@ -72,3 +72,4 @@
 #include <dpp/discordevents.h>
 #include <dpp/timed_listener.h>
 #include <dpp/collector.h>
+#include <dpp/timestamp.cpp> // apart from the static library
