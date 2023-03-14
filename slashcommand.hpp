@@ -1,5 +1,4 @@
 #pragma once
-using namespace std;
 class slashcommands {
 public:
 	static void update(command command, bool remove = false)
@@ -121,7 +120,7 @@ public:
 		static bool daily(const dpp::slashcommand_t& event)
 		{
 			memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
-			tm* mt = memory::mold_time(data.daily);
+			tm* mt = dpp::mtm(data.daily);
 			if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq memory::time.month_num + "/" + memory::time.mday)
 			{
 				int dollar = randomx::Int(30, 92);
@@ -135,10 +134,10 @@ public:
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
 			else {
-				time_t ct = memory::change_time(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
+				time_t ct = dpp::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
-					.set_description("You've already claimed todays gift! You can obtain a new gift " + memory::timestamp::relevant(ct) + "");
+					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::timestamp::relevant(ct) + "");
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
 			return true;
@@ -154,7 +153,7 @@ public:
 			if (static_cast<bool>(data.failed)) memory::new_user(bot.user_get_sync(static_cast<dpp::snowflake>(stoull(name))));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
-				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + memory::timestamp::relevant(data.last_on)))
+				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::timestamp::relevant(data.last_on)))
 				.add_field
 				(
 					"Skills: ",
@@ -241,12 +240,12 @@ public:
 		{
 			string id = std::get<std::string>(event.get_parameter("id"));
 			string amount = std::get<std::string>(event.get_parameter("amount"));
-			if (static_cast<string>(id) == static_cast<string>("1"))
+			if (static_cast<string>(id) == "rod" or static_cast<string>(id) == "pole" or static_cast<string>(id) == "fishing_pole" or static_cast<string>(id) == "fishing_rod")
 			{
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You can't sell your fishing rod!");
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
-			else if (static_cast<string>(id) == static_cast<string>("2"))
+			else if (static_cast<string>(id) == "fish")
 			{
 				memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
 				data.dollars += 2 * stoull(amount);
@@ -278,15 +277,9 @@ public:
 					data.once_fishing = true;
 					memory::SaveTempData(data, event.command.member.user_id);
 				}
-				tm* mt = memory::mold_time(data.last_fish);
-				time_t ct = memory::change_time(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
-				dpp::embed embed = dpp::embed()
-					.set_color(dpp::colors::cute_red)
-					.set_description(event.command.member.get_user()->username + ". You can fish again **" + memory::timestamp::relevant(ct) + "**");
-				dpp::message msg = dpp::message();
-				msg.channel_id = event.command.channel_id;
-				msg.add_embed(embed);
-				event.reply(msg);
+				tm* mt = dpp::mtm(data.last_fish);
+				time_t ct = dpp::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+				event.reply(event.command.member.get_user()->username + ". You can fish again **" + dpp::timestamp::relevant(ct) + "**");
 				while (true) {
 					if (data.last_fish + 10 < time(0)) {
 						event.delete_original_response();
@@ -356,26 +349,25 @@ public:
 		}
 		static bool purge(const dpp::slashcommand_t& event)
 		{
-			event.reply("DELETING.."), event.delete_original_response();
 			string amount = std::get<std::string>(event.get_parameter("amount"));
-			int deleted = stoi(amount);
-			if (number(amount) == 0) return true;
+			if (has_char(amount)) return false;
 			if (stoi(amount) <= 1 or stoi(amount) >= 200) return false;
 			else {
+				int deleted = stoi(amount);
 				auto msgs = bot.messages_get_sync(event.command.channel_id, 0, 0, 0, stoi(amount));
 				vector<dpp::snowflake> ids, oids;
 				for (auto& msg : msgs) {
-					tm* mt = memory::mold_time(msg.second.sent);
-					if (memory::time.track_time->tm_mday < mt->tm_mday) {
-						if (mt->tm_mday - memory::time.track_time->tm_mday > 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon or
-							mt->tm_mday - memory::time.track_time->tm_mday < 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon) {
+					tm* tm = dpp::mtm(msg.second.sent);
+					if (memory::time.track_time->tm_mday < tm->tm_mday) {
+						if (tm->tm_mday - memory::time.track_time->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
+							tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}
 					}
 					else
-						if (memory::time.track_time->tm_mday - mt->tm_mday > 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon or
-							mt->tm_mday - memory::time.track_time->tm_mday < 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon) {
+						if (memory::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
+							tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}
@@ -384,9 +376,9 @@ public:
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
-				bot.message_create_sync(dpp::message(event.command.channel_id, embed));
+				event.reply(dpp::message(event.command.channel_id, embed));
 				if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.command.channel_id);
-				if (not oids.empty()) auto mass_delete = async(memory::mass_delete, oids, event.command.channel_id);
+				if (not oids.empty()) async(memory::mass_delete, oids, event.command.channel_id);
 			}
 			return true;
 		}
@@ -395,10 +387,9 @@ public:
 
 vector<thread> slashcommands_executed;
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
-	if (event.command.member.user_id == bot.me.id or event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
-	bool found = false;  for (auto it = memory::members.begin(); it != memory::members.end(); ++it) {
+	bool found = false;
+	for (auto it = memory::members.begin(); it != memory::members.end(); ++it)
 		if (it->first == event.command.member.user_id) found = true;
-	}
 	if (not found) {
 		ofstream w("maps/members.txt", ios::app);
 		w << event.command.member.user_id << '\n';
@@ -410,74 +401,56 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	switch (find_command(event.command.get_command_name()))
 	{
 	case command::daily: {
-		future<bool> daily = async(slashcommands::commands::daily, event);
-		daily.wait();
-		if (not daily.get()) return;
+		async(slashcommands::commands::daily, event);
 		break;
 	}
 	case command::profile: {
-		future<bool> profile = async(slashcommands::commands::profile, event);
-		profile.wait();
-		if (not profile.get()) return;
+		async(slashcommands::commands::profile, event);
 		break;
 	}
 	case command::shop: {
-		future<bool> shop = async(slashcommands::commands::shop, event);
-		shop.wait();
-		if (not shop.get()) return;
+		async(slashcommands::commands::shop, event);
 		break;
 	}
 	case command::buy: {
-		future<bool> buy = async(slashcommands::commands::buy, event);
-		buy.wait();
-		if (not buy.get()) return;
+		async(slashcommands::commands::buy, event);
 		break;
 	}
 	case command::sell: {
-		future<bool> sell = async(slashcommands::commands::sell, event);
-		sell.wait();
-		if (not sell.get()) return;
+		async(slashcommands::commands::sell, event);
 		break;
 	}
 	case command::fish: {
-		future<bool> fish = async(slashcommands::commands::fish, event);
-		fish.wait();
-		if (not fish.get()) return;
+		async(slashcommands::commands::fish, event);
 		break;
 	}
 	case command::repair: {
-		future<bool> repair = async(slashcommands::commands::repair, event);
-		repair.wait();
-		if (not repair.get()) return;
+		async(slashcommands::commands::repair, event);
 		break;
 	}
 	case command::leaderboard: {
-		future<bool> leaderboard = async(slashcommands::commands::leaderboard, event);
-		leaderboard.wait();
-		if (not leaderboard.get()) return;
+		async(slashcommands::commands::leaderboard, event);
 		break;
 	}
 	case command::purge: {
-		future<bool> purge = async(slashcommands::commands::purge, event);
-		purge.wait();
-		if (not purge.get()) {
-			event.reply("You can only purge 1-200 messages at a time!");
-			return;
-		}
+		auto purge = async(slashcommands::commands::purge, event);
+		if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
 		break;
 	}
-	default: return;
+	default: break;
 	}
 	{
 		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
 		data.last_on = time(0);
 		memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 	}
+	event.cancel_event();
+	return;
 }
 vector<thread> button_clicked_executed;
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
-	vector<string> i = memory::explode(event.custom_id, '_');
+	vector<string> i = explode(event.custom_id, '_');
 	if (event.custom_id.find("repair_1") not_eq -1 and i[2] == event.command.member.user_id)
 	{
 		if (data.dollars > 12) {

@@ -1,15 +1,12 @@
 ﻿#pragma once
-#include <ctime>
-#include <random>
-#include <filesystem>
 using namespace std;
 using namespace this_thread;
-namespace fs = std::filesystem;
 dpp::cluster bot(
 	static_cast<string>("MTAwNDUxNDkzNTA1OTAwNTQ3MA.GCLzi3.oyFg9LNfawz4yT2t5ZyH87UbAx4iM9mAO_Ou2w"),
 	static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content)
 );
 map<int, thread> tasks;
+#include <random>
 class randomx {
 public:
 	static int Int(int min, int max) { random_device picker; uniform_int_distribution<int> numbers(min, max); return numbers(picker); }
@@ -29,17 +26,34 @@ struct second {
 		return p(left.second, right.second);
 	}
 };
-bool number(string str) {
-	return any_of(str.begin(), str.end(), ::isdigit);
+const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
+inline void print(string str, color c, bool stop = false) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
+	cerr << str << endl;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
+	if (stop) cin.get();
+}
+bool has_char(string str)
+{
+	for (char c : str) {
+		if (c == 'q' or c == 'w' or c == 'e' or c == 'r' or c == 't' or c == 'y' or c == 'u' or c == 'i' or c == 'o' or c == 'p'
+			or c == 'a' or c == 's' or c == 'd' or c == 'f' or c == 'g' or c == 'h' or c == 'j' or c == 'k' or c == 'l'
+			or c == 'z' or c == 'x' or c == 'c' or c == 'v' or c == 'b' or c == 'n' or c == 'm') return true;
+	}
+	return false;
+}
+vector<string> explode(string source, const char& find)
+{
+	string This = "";
+	vector<string> i;
+	for (auto c : source)
+		if (c not_eq find) This += c;
+		else if (c == find and This not_eq "") i.push_back(This), This = "";
+	if (This not_eq "") i.push_back(This);
+	return i;
 }
 namespace memory
 {
-	inline tm* mold_time(time_t t)
-	{
-		long long _time = t;
-		tm* types = localtime(&_time);
-		return types;
-	}
 	class time_
 	{
 	public:
@@ -52,51 +66,11 @@ namespace memory
 		time_t ftm = mktime(memory::time.track_time);
 		return ftm;
 	}
-	class manipulate {
-	public:
-		time_ t;
-		time_t dynamic = std::time(0);
-		manipulate() {
-			t.track_time = mold_time(std::time(0));
-			t.pm = time.pm;
-			t.am = time.am;
-			t.hour = time.hour;
-			t.min = time.min;
-			t.sec = time.sec;
-			t.wday = time.mday;
-			t.month_num = time.month;
-			t.century = time.century;
-			t.suffix = time.suffix;
-			t.time = time.time;
-			t.dropsec = time.dropsec;
-			t.time = time.time;
-		}
-		string subtime(time_ t1, time_ t2)
-		{
-			string hour = "", min = "", sec = "";
-			if (stoi(t1.hour) < stoi(t2.hour)) hour = to_string(stoi(t2.hour) - stoi(t1.hour));
-			else hour = to_string(stoi(t1.hour) - stoi(t2.hour));
-			if (stoi(t1.min) < stoi(t2.min)) min = to_string(stoi(t2.min) - stoi(t1.min));
-			else min = to_string(stoi(t1.min) - stoi(t2.min));
-			if (stoi(t1.sec) < stoi(t2.sec)) sec = to_string(stoi(t2.sec) - stoi(t1.sec));
-			else sec = to_string(stoi(t1.sec) - stoi(t2.sec));
-			return (hour == "0" ? "" : hour + ":") + (min == "0" ? "" : min + ":") + (sec);
-		}
-	};
-	time_t change_time(tm* old_time, int second, int minute, int hour, int wday, int mday, int month_num) {
-		old_time->tm_sec = second;
-		old_time->tm_min = minute;
-		old_time->tm_hour = hour;
-		old_time->tm_wday = wday;
-		old_time->tm_mday = mday;
-		old_time->tm_mon = month_num;
-		return mktime(old_time);
-	}
 	inline thread update_time()
 	{
 		while (true)
 		{
-			time.track_time = mold_time(std::time(0));
+			time.track_time = dpp::mtm(std::time(0));
 			if (time.track_time->tm_hour == 13) time.hour = "1", time.pm = true, time.am = false;
 			if (time.track_time->tm_hour == 14) time.hour = "2", time.pm = true, time.am = false;
 			if (time.track_time->tm_hour == 15) time.hour = "3", time.pm = true, time.am = false;
@@ -158,47 +132,6 @@ namespace memory
 		}
 		return thread();
 	}
-	class timestamp {
-	public:
-		static string short_t(time_t t)
-		{
-			return "<t:" + to_string(t) + ":t>";
-		}
-		static string long_t(time_t t)
-		{
-			return "<t:" + to_string(t) + ":T>";
-		}
-		static string short_d(time_t t)
-		{
-			return "<t:" + to_string(t) + ":d>";
-		}
-		static string long_d(time_t t)
-		{
-			return "<t:" + to_string(t) + ":D>";
-		}
-		static string long_d_short_t(time_t t)
-		{
-			return "<t:" + to_string(t) + ":f>";
-		}
-		static string full(time_t t)
-		{
-			return "<t:" + to_string(t) + ":F>";
-		}
-		static string relevant(time_t t)
-		{
-			return "<t:" + to_string(t) + ":R>";
-		}
-	};
-	vector<string> explode(string source, const char& find)
-	{
-		string This = "";
-		vector<string> i;
-		for (auto c : source)
-			if (c not_eq find) This += c;
-			else if (c == find and This not_eq "") i.push_back(This), This = "";
-		if (This not_eq "") i.push_back(This);
-		return i;
-	}
 	class TempData {
 	public:
 		bool busy_fishing = false, once_fishing = false;
@@ -222,7 +155,7 @@ namespace memory
 	}; map<dpp::snowflake, GuildData> guilds;
 	inline TempData GetTempData(dpp::snowflake user_id) {
 		TempData data;
-		json j; ifstream r("temp/" + to_string(user_id) + ".txt");
+		json j; ifstream r("database/temp/" + to_string(user_id) + ".txt");
 		if (not r.is_open()) {
 			data.busy_fishing = false;
 			return data;
@@ -234,11 +167,11 @@ namespace memory
 	}
 	inline void SaveTempData(TempData data, dpp::snowflake user_id)
 	{
-		ofstream w("temp/" + to_string(user_id) + ".txt");
+		ofstream w("database/temp/" + to_string(user_id) + ".txt");
 		json j;
 		j.dump(1);
 		j["busy_fishing"] = data.busy_fishing, j["once_fishing"] = data.once_fishing;
-		w << setw(2) << j;
+		w << setw(2) << j; w.close();
 	}
 	inline UserData GetUserData(dpp::user_identified user)
 	{
@@ -304,7 +237,7 @@ namespace memory
 		j.dump(1);
 		j["joined"] = data.joined;
 		j["prefix"] = data.prefix;
-		w << setw(2) << j;
+		w << setw(2) << j; w.close();
 	}
 	inline void SaveUserData(UserData data, dpp::user_identified user)
 	{
@@ -322,7 +255,7 @@ namespace memory
 		j["repair"] = data.repair;
 		j["username"] = data.username;
 		j["user_id"] = data.user_id;
-		w << setw(2) << j;
+		w << setw(2) << j; w.close();
 	}
 	inline void SaveFoundUser(UserData data, dpp::snowflake user)
 	{
@@ -340,7 +273,7 @@ namespace memory
 		j["repair"] = data.repair;
 		j["username"] = data.username;
 		j["user_id"] = data.user_id;
-		w << setw(2) << j;
+		w << setw(2) << j; w.close();
 	}
 	inline void new_user(dpp::user_identified user)
 	{
@@ -367,17 +300,6 @@ namespace memory
 		data.prefix = "!";
 		data.failed = false;
 		memory::SaveGuildData(data, guild_id);
-	}
-	inline void delete_guild(dpp::snowflake guild_id) {
-		ifstream r("maps/guilds.txt");
-		ofstream w("maps/guilds.txt");
-		string line;
-		guilds.erase(guild_id);
-		while (getline(r, line)) {
-			if (line not_eq to_string(guild_id)) {
-				w << line << '\n';
-			}
-		}
 	}
 	inline thread StructUserMap()
 	{
@@ -449,16 +371,29 @@ namespace memory
 			SaveTempData(data, event.command.member.user_id);
 		}
 	}
-	inline void mass_delete(vector<dpp::snowflake> oids, dpp::snowflake channel_id) {
-		for (auto& msg : oids)
-			bot.message_delete(msg, channel_id), sleep_for(200ms);
+	inline thread mass_delete(vector<dpp::snowflake> oids, dpp::snowflake channel_id) {
+		for (auto& msg : oids) bot.message_delete(msg, channel_id), sleep_for(200ms);
+		return thread();
+	}
+	inline thread update_status() {
+		while (true) {
+			bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers"));
+			sleep_for(10s);
+		}
+		return thread();
 	}
 	inline thread ImportThreads()
 	{
 		auto update_time = async(memory::update_time);
+		auto update_status = async(memory::update_status);
 		auto StructUserMap = async(memory::StructUserMap);
 		auto StructGuildMap = async(memory::StructGuildMap);
 		return thread();
+	}
+	vector<thread> ready_executed;
+	inline void await_on_ready(const dpp::ready_t& event) {
+		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
+		memory::ready_executed.emplace_back(thread::thread(memory::ImportThreads));
 	}
 	vector<thread> guild_create_executed;
 	inline void await_on_guild_create(const dpp::guild_create_t& event) {
@@ -467,6 +402,14 @@ namespace memory
 	}
 	vector<thread> guild_delete_executed;
 	inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
-		memory::delete_guild(event.deleted->id);
+		ifstream r("maps/guilds.txt");
+		ofstream w("maps/guilds.txt");
+		string line;
+		guilds.erase(event.deleted->id);
+		while (getline(r, line)) {
+			if (line not_eq to_string(event.deleted->id)) {
+				w << line << '\n';
+			}
+		}
 	}
 }

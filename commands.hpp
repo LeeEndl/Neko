@@ -1,5 +1,4 @@
 #pragma once
-using namespace std;
 
 const enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge };
 static int find_command(string command)
@@ -30,7 +29,7 @@ class commands
 public:
 	static bool prefix(const dpp::message_create_t& event)
 	{
-		auto i = memory::explode(event.msg.content, ' ');
+		auto i = explode(event.msg.content, ' ');
 		dpp::user* user = dpp::find_user(event.msg.member.user_id);
 		dpp::guild* guild = dpp::find_guild(event.msg.guild_id);
 		if (guild->base_permissions(user) & dpp::p_administrator) {
@@ -50,7 +49,7 @@ public:
 		memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
 		if (g_data.prefix.empty()) return false;
 		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
-		tm* mt = memory::mold_time(data.daily);
+		tm* mt = dpp::mtm(data.daily);
 		if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq memory::time.month_num + "/" + memory::time.mday)
 		{
 			int dollar = randomx::Int(30, 92);
@@ -64,10 +63,10 @@ public:
 			event.reply(dpp::message(event.msg.channel_id, embed));
 		}
 		else {
-			time_t ct = memory::change_time(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
+			time_t ct = dpp::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue)
-				.set_description("You've already claimed todays gift! You can obtain a new gift " + memory::timestamp::relevant(ct) + "");
+				.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::timestamp::relevant(ct) + "");
 			event.reply(dpp::message(event.msg.channel_id, embed));
 		}
 		return true;
@@ -92,25 +91,25 @@ public:
 	}
 	static bool purge(const dpp::message_create_t& event)
 	{
-		auto i = memory::explode(event.msg.content, ' ');
-		int deleted = stoi(i[1]);
-		if (number(i[1]) == 0) return true;
+		auto i = explode(event.msg.content, ' ');
+		if (has_char(i[1])) return false;
 		if (stoi(i[1]) <= 1 or stoi(i[1]) >= 200) return false;
 		else {
+			int deleted = stoi(i[1]);
 			auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]) + 1);
 			vector<dpp::snowflake> ids, oids;
 			for (auto& msg : msgs) {
-				tm* mt = memory::mold_time(msg.second.sent);
-				if (memory::time.track_time->tm_mday < mt->tm_mday) {
-					if (mt->tm_mday - memory::time.track_time->tm_mday > 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon or
-						mt->tm_mday - memory::time.track_time->tm_mday < 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon) {
+				tm* tm = dpp::mtm(msg.second.sent);
+				if (memory::time.track_time->tm_mday < tm->tm_mday) {
+					if (tm->tm_mday - memory::time.track_time->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
+						tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
 						oids.emplace_back(msg.second.id);
 						continue;
 					}
 				}
 				else
-					if (memory::time.track_time->tm_mday - mt->tm_mday > 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon or
-						mt->tm_mday - memory::time.track_time->tm_mday < 14 and mt->tm_mon not_eq memory::time.track_time->tm_mon) {
+					if (memory::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
+						tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
 						oids.emplace_back(msg.second.id);
 						continue;
 					}
@@ -121,7 +120,7 @@ public:
 				.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
 			bot.message_create_sync(dpp::message(event.msg.channel_id, embed));
 			if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.msg.channel_id);
-			if (not oids.empty()) auto mass_delete = async(memory::mass_delete, oids, event.msg.channel_id);
+			if (not oids.empty()) async(memory::mass_delete, oids, event.msg.channel_id);
 		}
 		return true;
 	}
@@ -129,44 +128,42 @@ public:
 
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
-	if (event.msg.member.user_id == bot.me.id or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
-	bool found = false;  for (auto it = memory::members.begin(); it != memory::members.end(); ++it) {
+	bool found = false;
+	for (auto it = memory::members.begin(); it != memory::members.end(); ++it)
 		if (it->first == event.msg.member.user_id) found = true;
-	}
 	if (not found) {
 		ofstream w("maps/members.txt", ios::app);
 		w << event.msg.member.user_id << '\n';
 	}
 	memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
 	memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
-	if (static_cast<bool>(data.failed)) memory::new_user(bot.user_get_sync(event.msg.member.user_id));
+	if (data.failed) memory::new_user(bot.user_get_sync(event.msg.member.user_id));
 	switch (find_command_with_prefix(event.msg.content, event.msg.guild_id))
 	{
 	case command::prefix: {
-		future<bool> prefix = async(commands::prefix, event);
-		prefix.wait();
-		if (not prefix.get()) return;
+		async(commands::prefix, event);
 		break;
 	}
 	case command::daily: {
-		future<bool> daily = async(commands::daily, event);
+		async(commands::daily, event);
 		break;
 	}
 	case command::leaderboard: {
-		future<bool> leaderboard = async(commands::leaderboard, event);
-		leaderboard.wait();
-		if (not leaderboard.get()) return;
+		async(commands::leaderboard, event);
 		break;
 	}
 	case command::purge: {
-		future<bool> purge = async(commands::purge, event);
+		auto purge = async(commands::purge, event);
+		if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
 		break;
 	}
-	default: return;
+	default: break;
 	}
 	{
 		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
 		data.last_on = std::time(0);
 		memory::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
 	}
+	event.cancel_event();
+	return;
 }
