@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,15 +21,10 @@
 #pragma once
 #include <dpp/export.h>
 #include <dpp/version.h>
-#include <string>
 #include <map>
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include <ctime>
-#include <string>
-#include <vector>
-#include <map>
 #include <functional>
 #include <dpp/exception.h>
 #include <dpp/snowflake.h>
@@ -72,4 +67,3 @@
 #include <dpp/discordevents.h>
 #include <dpp/timed_listener.h>
 #include <dpp/collector.h>
-#include <dpp/timestamp.cpp> // apart from the static library

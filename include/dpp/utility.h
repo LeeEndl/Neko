@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,56 +22,51 @@
 #include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <functional>
+#include <random>
 
 #ifndef MAX_CND_IMAGE_SIZE
-	#define MAX_CDN_IMAGE_SIZE 4096
+#define MAX_CDN_IMAGE_SIZE 4096
 #endif
 #ifndef MIN_CDN_IMAGE_SIZE
-	#define MIN_CDN_IMAGE_SIZE 16
+#define MIN_CDN_IMAGE_SIZE 16
 #endif
 
-/**
- * @brief The main namespace for D++ functions, classes and types
- */
+ /**
+  * @brief The main namespace for D++ functions, classes and types
+  */
 namespace dpp {
 	/**
 	 * @brief Utility helper functions, generally for logging, running programs, time/date manipulation, etc
 	 */
 	namespace utility {
-
 		/**
 		 * @brief Timestamp formats for dpp::utility::timestamp()
-		 * 
+		 *
 		 * @note These values are the actual character values specified by the Discord API
 		 * and should not be changed unless the Discord API changes the specification!
 		 * They have been sorted into numerical order of their ASCII value to keep C++ happy.
 		 */
 		enum time_format : uint8_t {
 			/// "20 April 2021" - Long Date
-			tf_long_date		=	'D',
+			tf_long_date = 'D',
 			/// "Tuesday, 20 April 2021 16:20" - Long Date/Time
-			tf_long_datetime	=	'F',
-			/// "2 months ago" - Relative Time		
-			tf_relative_time	=	'R',
+			tf_long_datetime = 'F',
+			/// "2 months ago" - Relative Time
+			tf_relative_time = 'R',
 			/// "16:20:30" - Long Time
-			tf_long_time		=	'T',
+			tf_long_time = 'T',
 			/// "20/04/2021" - Short Date
-			tf_short_date		=	'd',
+			tf_short_date = 'd',
 			/// "20 April 2021 16:20" - Short Date/Time
-			tf_short_datetime	=	'f',
+			tf_short_datetime = 'f',
 			/// "16:20" - Short Time
-			tf_short_time		=	't',
+			tf_short_time = 't',
 		};
 
 		/**
 		 * @brief The base URL for CDN content such as profile pictures and guild icons.
 		 */
-		const std::string cdn_host = "https://cdn.discordapp.com"; 
+		const std::string cdn_host = "https://cdn.discordapp.com";
 
 		/**
 		 * @brief Callback for the results of a command executed via dpp::utility::exec
@@ -87,16 +82,34 @@ namespace dpp {
 		 *     std::cout << "Output of 'ls -al': " << output << "\n";
 		 * });
 		 * ```
-		 * 
+		 *
 		 * @param cmd The command to run.
 		 * @param parameters Command line parameters. Each will be escaped using `std::quoted`.
 		 * @param callback The callback to call on completion.
 		 */
 		void DPP_EXPORT exec(const std::string& cmd, std::vector<std::string> parameters = {}, cmd_result_t callback = {});
 
+		/* time manipulation function*/
+		inline tm* mtm(time_t t)
+		{
+			long long _time = t;
+			tm* types = localtime(&_time);
+			return types;
+		}
+		/* time manipulation function*/
+		time_t mt_t(tm* old_time, int second, int minute, int hour, int wday, int mday, int month_num) {
+			old_time->tm_sec = second;
+			old_time->tm_min = minute;
+			old_time->tm_hour = hour;
+			old_time->tm_wday = wday;
+			old_time->tm_mday = mday;
+			old_time->tm_mon = month_num;
+			return mktime(old_time);
+		}
+
 		/**
 		 * @brief Return a mentionable timestamp (used in a message). These timestamps will display the given timestamp in the user's timezone and locale.
-		 * 
+		 *
 		 * @param ts Time stamp to convert
 		 * @param tf Format of timestamp using dpp::utility::time_format
 		 * @return std::string The formatted timestamp
@@ -105,13 +118,13 @@ namespace dpp {
 
 		/**
 		 * @brief Returns current date and time
-		 * 
+		 *
 		 * @return std::string Current date and time in "Y-m-d H:M:S" format
 		 */
 		std::string DPP_EXPORT current_date_time();
 		/**
 		 * @brief Convert a dpp::loglevel enum value to a string
-		 * 
+		 *
 		 * @param in log level to convert
 		 * @return std::string string form of log level
 		 */
@@ -124,7 +137,6 @@ namespace dpp {
 		 * the value back in string form.
 		 */
 		struct DPP_EXPORT iconhash {
-
 			uint64_t first;		//!< High 64 bits
 			uint64_t second;	//!< Low 64 bits
 
@@ -147,28 +159,28 @@ namespace dpp {
 
 			/**
 			 * @brief Construct a new iconhash object
-			 * 
+			 *
 			 * @param hash String hash to construct from.
 			 * Must contain a 32 character hex string.
-			 * 
+			 *
 			 * @throws std::length_error if the provided
 			 * string is not exactly 32 characters long.
 			 */
-			iconhash(const std::string &hash);
+			iconhash(const std::string& hash);
 
 			/**
 			 * @brief Assign from std::string
-			 * 
+			 *
 			 * @param assignment string to assign from.
-			 * 
+			 *
 			 * @throws std::length_error if the provided
 			 * string is not exactly 32 characters long.
 			 */
-			iconhash& operator=(const std::string &assignment);
+			iconhash& operator=(const std::string& assignment);
 
 			/**
 			 * @brief Check if one iconhash is equal to another
-			 * 
+			 *
 			 * @param other other iconhash to compare
 			 * @return True if the iconhash objects match
 			 */
@@ -176,20 +188,20 @@ namespace dpp {
 
 			/**
 			 * @brief Change value of iconhash object
-			 * 
+			 *
 			 * @param hash String hash to change to.
 			 * Must contain a 32 character hex string.
-			 * 
+			 *
 			 * @throws std::length_error if the provided
 			 * string is not exactly 32 characters long.
 			 */
-			void set(const std::string &hash);
+			void set(const std::string& hash);
 
 			/**
 			 * @brief Convert iconhash back to 32 character
 			 * string value.
-			 * 
-			 * @return std::string Hash value 
+			 *
+			 * @return std::string Hash value
 			 */
 			std::string to_string() const;
 		};
@@ -198,21 +210,21 @@ namespace dpp {
 		 * @brief Return the current time with fractions of seconds.
 		 * This is a unix epoch time with the fractional seconds part
 		 * after the decimal place.
-		 * 
+		 *
 		 * @return double time with fractional seconds
 		 */
 		double DPP_EXPORT time_f();
 
 		/**
 		 * @brief Returns true if D++ was built with voice support
-		 * 
-		 * @return bool True if voice support is compiled in (libsodium/libopus) 
+		 *
+		 * @return bool True if voice support is compiled in (libsodium/libopus)
 		 */
 		bool DPP_EXPORT has_voice();
 
 		/**
 		 * @brief Convert a byte count to display value
-		 * 
+		 *
 		 * @param c number of bytes
 		 * @return std::string display value suffixed with M, G, T where necessary
 		 */
@@ -236,35 +248,35 @@ namespace dpp {
 
 			/**
 			 * @brief Construct a new uptime object
-			 * 
+			 *
 			 * @param diff A time_t to initialise the object from
 			 */
 			uptime(time_t diff);
 
 			/**
 			 * @brief Construct a new uptime object
-			 * 
+			 *
 			 * @param diff A time_t to initialise the object from
 			 */
 			uptime(double diff);
 
 			/**
 			 * @brief Get uptime as string
-			 * 
+			 *
 			 * @return std::string Uptime as string
 			 */
 			std::string to_string() const;
 
 			/**
 			 * @brief Get uptime as seconds
-			 * 
+			 *
 			 * @return uint64_t Uptime as seconds
 			 */
 			uint64_t to_secs() const;
 
 			/**
 			 * @brief Get uptime as milliseconds
-			 * 
+			 *
 			 * @return uint64_t Uptime as milliseconds
 			 */
 			uint64_t to_msecs() const;
@@ -272,7 +284,7 @@ namespace dpp {
 
 		/**
 		 * @brief Convert doubles to RGB for sending in embeds
-		 * 
+		 *
 		 * @param red red value, between 0 and 1 inclusive
 		 * @param green green value, between 0 and 1 inclusive
 		 * @param blue blue value, between 0 and 1 inclusive
@@ -290,17 +302,17 @@ namespace dpp {
 		 */
 		uint32_t DPP_EXPORT rgb(int red, int green, int blue);
 
-	        /**
-		 * @brief Convert doubles to CMYK for sending in embeds
-		 *
-		 * @param c cyan value, between 0 and 1 inclusive
-		 * @param m magenta value, between 0 and 1 inclusive
-		 * @param y yellow value, between 0 and 1 inclusive
-		 * @param k key (black) value, between 0 and 1 inclusive
-		 * @return uint32_t returned integer colour value
-		 */
+		/**
+	 * @brief Convert doubles to CMYK for sending in embeds
+	 *
+	 * @param c cyan value, between 0 and 1 inclusive
+	 * @param m magenta value, between 0 and 1 inclusive
+	 * @param y yellow value, between 0 and 1 inclusive
+	 * @param k key (black) value, between 0 and 1 inclusive
+	 * @return uint32_t returned integer colour value
+	 */
 		uint32_t DPP_EXPORT cmyk(double c, double m, double y, double k);
-		
+
 		/**
 		 * @brief Convert ints to CMYK for sending in embeds
 		 *
@@ -314,7 +326,7 @@ namespace dpp {
 
 		/**
 		 * @brief Output hex values of a section of memory for debugging
-		 * 
+		 *
 		 * @param data The start of the data to display
 		 * @param length The length of data to display
 		 */
@@ -322,15 +334,15 @@ namespace dpp {
 
 		/**
 		 * @brief Returns the length of a UTF-8 string in codepoints
-		 * 
+		 *
 		 * @param str string to count length of
 		 * @return size_t length of string (0 for invalid utf8)
 		 */
-		size_t DPP_EXPORT utf8len(const std::string &str);
+		size_t DPP_EXPORT utf8len(const std::string& str);
 
 		/**
 		 * @brief Return substring of a UTF-8 encoded string in codepoints
-		 * 
+		 *
 		 * @param str string to return substring from
 		 * @param start start codepoint offset
 		 * @param length length in codepoints
@@ -352,7 +364,7 @@ namespace dpp {
 		 * @brief Validate a string value
 		 * In the event the length of the string is less than _min, then an exception of type dpp:length_exception
 		 * will be thrown. If the string is longer than _max UTF8 codepoints it will be truncated to fit.
-		 * 
+		 *
 		 * @param value The value to validate
 		 * @param _min Minimum length
 		 * @param _max Maximum length
@@ -364,7 +376,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get the url query parameter for the cdn endpoint. Internally used to build url getters.
-		 * 
+		 *
 		 * @param size size to generate url parameter for. Must be any power of two between 16 and 4096 (inclusive) or it'll return an empty string.
 		 * @return std::string url query parameter e.g. `?size=128`, or an empty string
 		 */
@@ -372,26 +384,26 @@ namespace dpp {
 
 		/**
 		 * @brief Split (tokenize) a string into a vector, using the given separators
-		 * 
+		 *
 		 * @param in Input string
 		 * @param sep Separator characters
-		 * @return std::vector<std::string> Tokenized strings 
+		 * @return std::vector<std::string> Tokenized strings
 		 */
-		std::vector<std::string> DPP_EXPORT tokenize(std::string const &in, const char* sep = "\r\n");
+		std::vector<std::string> DPP_EXPORT tokenize(std::string const& in, const char* sep = "\r\n");
 
 		/**
 		 * @brief Create a bot invite
-		 * 
+		 *
 		 * @param bot_id Bot ID
 		 * @param permissions Permission bitmask of the bot to invite
 		 * @param scopes Scopes to use
 		 * @return Invite URL
 		 */
-		std::string DPP_EXPORT bot_invite_url(const snowflake bot_id, const uint64_t permissions = 0, const std::vector<std::string>& scopes = {"bot", "applications.commands"});
+		std::string DPP_EXPORT bot_invite_url(const snowflake bot_id, const uint64_t permissions = 0, const std::vector<std::string>& scopes = { "bot", "applications.commands" });
 
 		/**
 		 * @brief Escapes Discord's markdown sequences in a string
-		 * 
+		 *
 		 * @param text Text to escape
 		 * @param escape_code_blocks If set to false, then code blocks are not escaped.
 		 * This means that you can still use a code block, and the text within will be left as-is.
@@ -403,11 +415,11 @@ namespace dpp {
 
 		/**
 		 * @brief Encodes a url parameter similar to [php urlencode()](https://www.php.net/manual/en/function.urlencode.php)
-		 * 
+		 *
 		 * @param value String to encode
 		 * @return std::string URL encoded string
 		 */
-		std::string DPP_EXPORT url_encode(const std::string &value);
+		std::string DPP_EXPORT url_encode(const std::string& value);
 
 		/**
 		 * @brief Create a mentionable slashcommand (used in a message).
@@ -416,7 +428,7 @@ namespace dpp {
 		 * @param subcommand Optional: The subcommand name (for mentioning a subcommand)
 		 * @return std::string The formatted mention
 		 */
-		std::string DPP_EXPORT slashcommand_mention(snowflake command_id, const std::string &command_name, const std::string &subcommand = "");
+		std::string DPP_EXPORT slashcommand_mention(snowflake command_id, const std::string& command_name, const std::string& subcommand = "");
 
 		/**
 		 * @brief Create a mentionable slashcommand (used in a message).
@@ -426,13 +438,13 @@ namespace dpp {
 		 * @param subcommand The subcommand name
 		 * @return std::string The formatted mention of the slashcommand with its subcommand
 		 */
-		std::string DPP_EXPORT slashcommand_mention(snowflake command_id, const std::string &command_name, const std::string &subcommand_group, const std::string &subcommand);
+		std::string DPP_EXPORT slashcommand_mention(snowflake command_id, const std::string& command_name, const std::string& subcommand_group, const std::string& subcommand);
 
-        	/**
-		 * @brief Create a mentionable user.
-		 * @param id The ID of the user.
-		 * @return std::string The formatted mention of the user.
-		 */
+		/**
+	 * @brief Create a mentionable user.
+	 * @param id The ID of the user.
+	 * @return std::string The formatted mention of the user.
+	 */
 		std::string DPP_EXPORT user_mention(const snowflake& id);
 
 		/**
@@ -460,7 +472,7 @@ namespace dpp {
 
 		/**
 		 * @brief Returns the library's version string
-		 * 
+		 *
 		 * @return std::string version
 		 */
 		std::string DPP_EXPORT version();
@@ -468,7 +480,7 @@ namespace dpp {
 		/**
 		 * @brief Build a URL parameter string e.g. "?a=b&c=d&e=f" from a map of key/value pairs.
 		 * Entries with empty key names or values are omitted.
-		 * 
+		 *
 		 * @param parameters parameters to create a url query string for
 		 * @return std::string A correctly encoded url query string
 		 */
@@ -477,7 +489,7 @@ namespace dpp {
 		/**
 		 * @brief Build a URL parameter string e.g. "?a=b&c=d&e=f" from a map of key/value pairs.
 		 * Entries with empty key names or zero values are omitted.
-		 * 
+		 *
 		 * @param parameters parameters to create a url query string for
 		 * @return std::string A correctly encoded url query string
 		 */
@@ -485,10 +497,46 @@ namespace dpp {
 
 		/**
 		 * @brief Set the name of the current thread for debugging and statistical reporting
-		 * 
+		 *
 		 * @param name New name to set
 		 */
 		void DPP_EXPORT set_thread_name(const std::string& name);
-
 	};
 };
+
+bool has_char(std::string str) {
+	for (char c : str)
+		if (c == 'q' or c == 'w' or c == 'e' or c == 'r' or c == 't' or c == 'y' or c == 'u' or c == 'i' or c == 'o' or c == 'p'
+			or c == 'a' or c == 's' or c == 'd' or c == 'f' or c == 'g' or c == 'h' or c == 'j' or c == 'k' or c == 'l'
+			or c == 'z' or c == 'x' or c == 'c' or c == 'v' or c == 'b' or c == 'n' or c == 'm') return true;
+	return false;
+}
+const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
+inline void print(std::string str, color c, bool stop = false) {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
+	std::cerr << str << std::endl;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
+	if (stop) std::cin.get();
+}
+class randomx {
+public:
+	static int Int(int min, int max) { std::random_device picker; std::uniform_int_distribution<int> numbers(min, max); return numbers(picker); }
+	static long Long(long min, long max) { std::random_device picker; std::uniform_int_distribution<long> numbers(min, max); return numbers(picker); }
+};
+template <class T1, class T2, class Pred = std::greater<T1> >
+struct first {
+	bool operator()(const std::pair<T1, T2>& left, const std::pair<T1, T2>& right) {
+		Pred p;
+		return p(left.first, right.first);
+	}
+};
+std::vector<std::string> explode(std::string source, const char& find)
+{
+	std::string This = "";
+	std::vector<std::string> i;
+	for (auto c : source)
+		if (c not_eq find) This += c;
+		else if (c == find and This not_eq "") i.push_back(This), This = "";
+	if (This not_eq "") i.push_back(This);
+	return i;
+}
