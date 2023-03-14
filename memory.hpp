@@ -5,53 +5,6 @@ dpp::cluster bot(
 	static_cast<string>("MTAwNDUxNDkzNTA1OTAwNTQ3MA.GCLzi3.oyFg9LNfawz4yT2t5ZyH87UbAx4iM9mAO_Ou2w"),
 	static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content)
 );
-map<int, thread> tasks;
-#include <random>
-class randomx {
-public:
-	static int Int(int min, int max) { random_device picker; uniform_int_distribution<int> numbers(min, max); return numbers(picker); }
-	static long Long(long min, long max) { random_device picker; uniform_int_distribution<long> numbers(min, max); return numbers(picker); }
-};
-template <class T1, class T2, class Pred = greater<T1> >
-struct first {
-	bool operator()(const pair<T1, T2>& left, const pair<T1, T2>& right) {
-		Pred p;
-		return p(left.first, right.first);
-	}
-};
-template <class T1, class T2, class Pred = greater<T2> >
-struct second {
-	bool operator()(const pair<T1, T2>& left, const pair<T1, T2>& right) {
-		Pred p;
-		return p(left.second, right.second);
-	}
-};
-const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
-inline void print(string str, color c, bool stop = false) {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
-	cerr << str << endl;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
-	if (stop) cin.get();
-}
-bool has_char(string str)
-{
-	for (char c : str) {
-		if (c == 'q' or c == 'w' or c == 'e' or c == 'r' or c == 't' or c == 'y' or c == 'u' or c == 'i' or c == 'o' or c == 'p'
-			or c == 'a' or c == 's' or c == 'd' or c == 'f' or c == 'g' or c == 'h' or c == 'j' or c == 'k' or c == 'l'
-			or c == 'z' or c == 'x' or c == 'c' or c == 'v' or c == 'b' or c == 'n' or c == 'm') return true;
-	}
-	return false;
-}
-vector<string> explode(string source, const char& find)
-{
-	string This = "";
-	vector<string> i;
-	for (auto c : source)
-		if (c not_eq find) This += c;
-		else if (c == find and This not_eq "") i.push_back(This), This = "";
-	if (This not_eq "") i.push_back(This);
-	return i;
-}
 namespace memory
 {
 	class time_
@@ -62,15 +15,11 @@ namespace memory
 		string hour, min, sec, wday, mday, month_num, month, year, century = "20", suffix;
 		string time, dropsec;
 	}; time_ time;
-	time_t mtt(tm* tm) {
-		time_t ftm = mktime(memory::time.track_time);
-		return ftm;
-	}
 	inline thread update_time()
 	{
 		while (true)
 		{
-			time.track_time = dpp::mtm(std::time(0));
+			time.track_time = dpp::utility::mtm(std::time(0));
 			if (time.track_time->tm_hour == 13) time.hour = "1", time.pm = true, time.am = false;
 			if (time.track_time->tm_hour == 14) time.hour = "2", time.pm = true, time.am = false;
 			if (time.track_time->tm_hour == 15) time.hour = "3", time.pm = true, time.am = false;
@@ -146,8 +95,7 @@ namespace memory
 		string fishing = "", rod = "", username = "";
 		int rod_d = 0, fish = 0;
 		uint64_t dollars = 0;
-	};
-	map<dpp::snowflake, UserData> members;
+	}; map<dpp::snowflake, UserData> members;
 	class GuildData {
 	public:
 		bool failed = false, joined = false;
@@ -277,7 +225,7 @@ namespace memory
 	}
 	inline void new_user(dpp::user_identified user)
 	{
-		memory::UserData data = memory::GetUserData(user);
+		UserData data = GetUserData(user);
 		ofstream w("maps/members.txt", ios::app);
 		w << user.id << '\n';
 		data.username = user.username;
@@ -289,17 +237,17 @@ namespace memory
 		data.repair = 0;
 		data.user_id = user.id;
 		data.failed = false;
-		memory::SaveUserData(data, user);
+		SaveUserData(data, user);
 	}
 	inline void new_guild(dpp::snowflake guild_id)
 	{
-		memory::GuildData data = memory::GetGuildData(guild_id);
+		GuildData data = GetGuildData(guild_id);
 		ofstream w("maps/guilds.txt", ios::app);
 		w << guild_id << '\n';
 		data.joined = false;
 		data.prefix = "!";
 		data.failed = false;
-		memory::SaveGuildData(data, guild_id);
+		SaveGuildData(data, guild_id);
 	}
 	inline thread StructUserMap()
 	{
@@ -361,7 +309,7 @@ namespace memory
 			event.edit_response(msg);
 			data.rod_d -= 1;
 			data.fish += 1;
-			data.last_fish = mtt(time.track_time);
+			data.last_fish = std::time(0);
 			SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 		}
 		{
@@ -376,29 +324,27 @@ namespace memory
 		return thread();
 	}
 	inline thread update_status() {
-		while (true) {
-			bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers"));
-			sleep_for(10s);
-		}
+		while (true)
+			bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), sleep_for(10s);
 		return thread();
 	}
-	inline thread ImportThreads()
+	inline thread background_tasks()
 	{
-		auto update_time = async(memory::update_time);
-		auto update_status = async(memory::update_status);
-		auto StructUserMap = async(memory::StructUserMap);
-		auto StructGuildMap = async(memory::StructGuildMap);
+		async(update_time);
+		async(update_status);
+		async(StructUserMap);
+		async(StructGuildMap);
 		return thread();
 	}
 	vector<thread> ready_executed;
 	inline void await_on_ready(const dpp::ready_t& event) {
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
-		memory::ready_executed.emplace_back(thread::thread(memory::ImportThreads));
+		ready_executed.emplace_back(thread::thread(background_tasks));
 	}
 	vector<thread> guild_create_executed;
 	inline void await_on_guild_create(const dpp::guild_create_t& event) {
-		memory::GuildData data = memory::GetGuildData(event.created->id);
-		if (static_cast<bool>(data.failed)) memory::new_guild(event.created->id);
+		GuildData data = GetGuildData(event.created->id);
+		if (static_cast<bool>(data.failed)) new_guild(event.created->id);
 	}
 	vector<thread> guild_delete_executed;
 	inline void await_on_guild_delete(const dpp::guild_delete_t& event) {

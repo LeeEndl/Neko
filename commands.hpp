@@ -49,7 +49,7 @@ public:
 		memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
 		if (g_data.prefix.empty()) return false;
 		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
-		tm* mt = dpp::mtm(data.daily);
+		tm* mt = dpp::utility::mtm(data.daily);
 		if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq memory::time.month_num + "/" + memory::time.mday)
 		{
 			int dollar = randomx::Int(30, 92);
@@ -63,10 +63,10 @@ public:
 			event.reply(dpp::message(event.msg.channel_id, embed));
 		}
 		else {
-			time_t ct = dpp::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
+			time_t ct = dpp::utility::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue)
-				.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::timestamp::relevant(ct) + "");
+				.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 			event.reply(dpp::message(event.msg.channel_id, embed));
 		}
 		return true;
@@ -99,7 +99,7 @@ public:
 			auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]) + 1);
 			vector<dpp::snowflake> ids, oids;
 			for (auto& msg : msgs) {
-				tm* tm = dpp::mtm(msg.second.sent);
+				tm* tm = dpp::utility::mtm(msg.second.sent);
 				if (memory::time.track_time->tm_mday < tm->tm_mday) {
 					if (tm->tm_mday - memory::time.track_time->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
 						tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {

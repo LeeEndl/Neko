@@ -4,15 +4,8 @@
 #include "commands.hpp"
 #include "slashcommand.hpp"
 
-
-void Report() {
-	ofstream w("test.txt");
-	w << "crash report" << endl;
-}
-
 int main()
 {
-	atexit(Report);
 	SetConsoleTitleA("");
 	bot.on_log([](const dpp::log_t& event) {
 		print(event.message,
