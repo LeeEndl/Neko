@@ -1,12 +1,14 @@
 ﻿#include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
-#include "memory.hpp"
+#include "SomeTimeStuff.hpp"
+#include "uncategorized.hpp"
 #include "commands.hpp"
 #include "slashcommand.hpp"
 
 int main()
 {
 	SetConsoleTitleA("");
+	uncategorized::StructUserMap(), uncategorized::StructGuildMap();
 	bot.on_log([](const dpp::log_t& event) {
 		print(event.message,
 		event.severity == dpp::ll_trace ? color::gray :
@@ -15,13 +17,13 @@ int main()
 		);
 		});
 	bot.on_ready([](const dpp::ready_t& event) {
-		memory::ready_executed.emplace_back(thread::thread(memory::await_on_ready, event));
+		uncategorized::ready_executed.emplace_back(thread::thread(uncategorized::await_on_ready, event));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
-		memory::guild_create_executed.emplace_back(thread::thread(memory::await_on_guild_create, event));
+		uncategorized::guild_create_executed.emplace_back(thread::thread(uncategorized::await_on_guild_create, event));
 		});
 	bot.on_guild_delete([](const dpp::guild_delete_t& event) {
-		memory::guild_delete_executed.emplace_back(thread::thread(memory::await_on_guild_delete, event));
+		uncategorized::guild_delete_executed.emplace_back(thread::thread(uncategorized::await_on_guild_delete, event));
 		});
 	bot.on_message_create([](const dpp::message_create_t& event) {
 		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;

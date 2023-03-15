@@ -17,7 +17,7 @@ static int find_command(string command)
 }
 static int find_command_with_prefix(string command, dpp::snowflake guild_id)
 {
-	memory::GuildData g_data = memory::GetGuildData(guild_id);
+	uncategorized::GuildData g_data = uncategorized::GetGuildData(guild_id);
 	if (command.find(g_data.prefix + "prefix ") not_eq -1) return command::prefix;
 	else if (command.find(g_data.prefix + "daily") not_eq -1) return command::daily;
 	else if (command.find(g_data.prefix + "leaderboard") not_eq -1) return command::leaderboard;
@@ -33,11 +33,11 @@ public:
 		dpp::user* user = dpp::find_user(event.msg.member.user_id);
 		dpp::guild* guild = dpp::find_guild(event.msg.guild_id);
 		if (guild->base_permissions(user) & dpp::p_administrator) {
-			memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
+			uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
 			if (i[1].size() > 1 or i[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
 			else {
 				g_data.prefix = i[1];
-				memory::SaveGuildData(g_data, event.msg.guild_id);
+				uncategorized::SaveGuildData(g_data, event.msg.guild_id);
 				event.reply("Prefix is now set to: **" + g_data.prefix + "**");
 			}
 		}
@@ -46,16 +46,16 @@ public:
 	}
 	static bool daily(const dpp::message_create_t& event)
 	{
-		memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
+		uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
 		if (g_data.prefix.empty()) return false;
-		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
+		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
 		tm* mt = dpp::utility::mtm(data.daily);
-		if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq memory::time.month_num + "/" + memory::time.mday)
+		if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq SomeTimeStuff::time.month_num + "/" + SomeTimeStuff::time.mday)
 		{
 			int dollar = randomx::Int(30, 92);
 			data.daily = time(0);
 			data.dollars = data.dollars += dollar;
-			memory::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
+			uncategorized::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue)
 				.set_title("Thanks for opening my gift! :tada:")
@@ -73,10 +73,10 @@ public:
 	}
 	static bool leaderboard(const dpp::message_create_t& event)
 	{
-		if (memory::members.empty()) return false;
+		if (uncategorized::members.empty()) return false;
 		string oriented = "";
 		vector<pair<uint64_t, uint64_t>> buffer;
-		for (auto& member : memory::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+		for (auto& member : uncategorized::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
 		sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
 		for (auto& i : buffer) {
 			if (i.second == 0) continue;
@@ -100,16 +100,16 @@ public:
 			vector<dpp::snowflake> ids, oids;
 			for (auto& msg : msgs) {
 				tm* tm = dpp::utility::mtm(msg.second.sent);
-				if (memory::time.track_time->tm_mday < tm->tm_mday) {
-					if (tm->tm_mday - memory::time.track_time->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
-						tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
+				if (SomeTimeStuff::time.track_time->tm_mday < tm->tm_mday) {
+					if (tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
+						tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
 						oids.emplace_back(msg.second.id);
 						continue;
 					}
 				}
 				else
-					if (memory::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
-						tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
+					if (SomeTimeStuff::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
+						tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
 						oids.emplace_back(msg.second.id);
 						continue;
 					}
@@ -120,7 +120,7 @@ public:
 				.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
 			bot.message_create_sync(dpp::message(event.msg.channel_id, embed));
 			if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.msg.channel_id);
-			if (not oids.empty()) async(memory::mass_delete, oids, event.msg.channel_id);
+			if (not oids.empty()) async(uncategorized::mass_delete, oids, event.msg.channel_id);
 		}
 		return true;
 	}
@@ -129,15 +129,14 @@ public:
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
 	bool found = false;
-	for (auto it = memory::members.begin(); it != memory::members.end(); ++it)
-		if (it->first == event.msg.member.user_id) found = true;
+	for (auto& find : uncategorized::members) if (find.first == event.msg.member.user_id) found = true;
 	if (not found) {
 		ofstream w("maps/members.txt", ios::app);
 		w << event.msg.member.user_id << '\n';
 	}
-	memory::GuildData g_data = memory::GetGuildData(event.msg.guild_id);
-	memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
-	if (data.failed) memory::new_user(bot.user_get_sync(event.msg.member.user_id));
+	uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
+	uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
+	if (data.failed) uncategorized::new_user(bot.user_get_sync(event.msg.member.user_id));
 	switch (find_command_with_prefix(event.msg.content, event.msg.guild_id))
 	{
 	case command::prefix: {
@@ -160,9 +159,9 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	default: break;
 	}
 	{
-		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.msg.member.user_id));
+		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
 		data.last_on = std::time(0);
-		memory::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
+		uncategorized::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
 	}
 	event.cancel_event();
 	return;

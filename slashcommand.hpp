@@ -119,14 +119,14 @@ public:
 	public:
 		static bool daily(const dpp::slashcommand_t& event)
 		{
-			memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 			tm* mt = dpp::utility::mtm(data.daily);
-			if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq memory::time.month_num + "/" + memory::time.mday)
+			if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq SomeTimeStuff::time.month_num + "/" + SomeTimeStuff::time.mday)
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
 				data.dollars = data.dollars += dollar;
-				memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+				uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_title("Thanks for opening my gift! :tada:")
@@ -149,8 +149,8 @@ public:
 			name.erase(remove(name.begin(), name.end(), '>'), name.end());
 			name.erase(remove(name.begin(), name.end(), '!'), name.end());
 			name.erase(remove(name.begin(), name.end(), '@'), name.end());
-			memory::UserData data = memory::FindUser(static_cast<dpp::snowflake>(stoull(name)));
-			if (static_cast<bool>(data.failed)) memory::new_user(bot.user_get_sync(static_cast<dpp::snowflake>(stoull(name))));
+			uncategorized::UserData data = uncategorized::FindUser(static_cast<dpp::snowflake>(stoull(name)));
+			if (static_cast<bool>(data.failed)) uncategorized::new_user(bot.user_get_sync(static_cast<dpp::snowflake>(stoull(name))));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
 				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
@@ -195,7 +195,7 @@ public:
 			string amount = std::get<std::string>(event.get_parameter("amount"));
 			if (static_cast<string>(id) == static_cast<string>("1"))
 			{
-				memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+				uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 				int forecast = 15 * stoull(amount);
 				if (static_cast<int>(data.dollars) < static_cast<int>(forecast)) {
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You can't afford it.");
@@ -208,14 +208,14 @@ public:
 				else {
 					data.dollars = data.dollars -= forecast;
 					data.rod = "1", data.rod_d = 15;
-					memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+					uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You've Purchased a Wooden Fishing Rod!");
 					event.reply(dpp::message(event.command.channel_id, embed));
 				}
 			}
 			else if (static_cast<string>(id) == static_cast<string>("2"))
 			{
-				memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+				uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 				int forecast = 2 * stoull(amount);
 				if (static_cast<int>(data.dollars) < static_cast<int>(forecast)) {
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You can't afford it.");
@@ -224,7 +224,7 @@ public:
 				else {
 					data.dollars = data.dollars - forecast;
 					data.fish = data.fish + stoi(amount);
-					memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+					uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You've Purchased a Wooden Fishing Rod!");
 					event.reply(dpp::message(event.command.channel_id, embed));
 				}
@@ -247,10 +247,10 @@ public:
 			}
 			else if (static_cast<string>(id) == "fish")
 			{
-				memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+				uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 				data.dollars += 2 * stoull(amount);
 				data.fish = data.fish - stoi(amount);
-				memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+				uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:");
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
@@ -263,44 +263,40 @@ public:
 		}
 		static bool fish(const dpp::slashcommand_t& event)
 		{
-			memory::TempData Tdata = memory::GetTempData(event.command.member.user_id);
-			memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
-			if (Tdata.busy_fishing) {
-				event.reply(event.command.member.get_user()->username + ". Your still fishing!");
-				sleep_for(1s), event.delete_original_response();
-				return false;
-			}
-			else if (data.last_fish + 10 > time(0)) {
-				{
-					memory::TempData data = memory::GetTempData(event.command.member.user_id);
-					if (data.once_fishing) return false;
-					data.once_fishing = true;
-					memory::SaveTempData(data, event.command.member.user_id);
+			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
+			for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id)
+				if (find.second.busy_fishing) {
+					event.reply(event.command.member.get_user()->username + ". Your still fishing!");
+					sleep_for(1s), event.delete_original_response();
+					return false;
 				}
-				tm* mt = dpp::utility::mtm(data.last_fish);
-				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
-				event.reply(event.command.member.get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**");
-				while (true) {
-					if (data.last_fish + 10 < time(0)) {
-						event.delete_original_response();
-						{
-							memory::TempData data = memory::GetTempData(event.command.member.user_id);
-							data.once_fishing = false;
-							memory::SaveTempData(data, event.command.member.user_id);
+				else if (data.last_fish + 10 > time(0)) {
+					{
+						for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) {
+							if (find.second.once_fishing) return false;
+							find.second.once_fishing = true;
 						}
-						goto escape;
 					}
+					tm* mt = dpp::utility::mtm(data.last_fish);
+					time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+					event.reply(event.command.member.get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**");
+					while (true) {
+						if (data.last_fish + 10 < time(0)) {
+							event.delete_original_response();
+							for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) find.second.once_fishing = false;
+							goto escape;
+						}
+					}
+				escape: return false;
 				}
-			escape: return false;
-			}
-			else if (data.rod == "" or data.rod == "0" or data.rod == "-1") {
-				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have a fishing rod.");
-				event.reply(dpp::message(event.command.channel_id, embed));
-			}
-			else {
-				future<void> fishing = async(memory::fishing, event);
-				fishing.wait();
-			}
+				else if (data.rod == "" or data.rod == "0" or data.rod == "-1") {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have a fishing rod.");
+					event.reply(dpp::message(event.command.channel_id, embed));
+				}
+				else {
+					future<void> fishing = async(uncategorized::fishing, event);
+					fishing.wait();
+				}
 			return true;
 		}
 		static bool repair(const dpp::slashcommand_t& event)
@@ -312,9 +308,6 @@ public:
 			}
 			if (stoi(id) == 1)
 			{
-				memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
-				data.repair = event.command.member.user_id;
-				memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_title(":hammer_pick: Repair").add_field(
 					"Repairing this will cost :dollar: " + value,
 					"Are You Sure?");
@@ -331,10 +324,10 @@ public:
 		}
 		static bool leaderboard(const dpp::slashcommand_t& event)
 		{
-			if (memory::members.empty()) return false;
+			if (uncategorized::members.empty()) return false;
 			string oriented = "";
 			vector<pair<uint64_t, uint64_t>> buffer;
-			for (auto& member : memory::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+			for (auto& member : uncategorized::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
 			sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
 			for (auto& i : buffer) {
 				if (i.second == 0) continue;
@@ -358,16 +351,16 @@ public:
 				vector<dpp::snowflake> ids, oids;
 				for (auto& msg : msgs) {
 					tm* tm = dpp::utility::mtm(msg.second.sent);
-					if (memory::time.track_time->tm_mday < tm->tm_mday) {
-						if (tm->tm_mday - memory::time.track_time->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
-							tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
+					if (SomeTimeStuff::time.track_time->tm_mday < tm->tm_mday) {
+						if (tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
+							tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}
 					}
 					else
-						if (memory::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon or
-							tm->tm_mday - memory::time.track_time->tm_mday < 14 and tm->tm_mon not_eq memory::time.track_time->tm_mon) {
+						if (SomeTimeStuff::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
+							tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}
@@ -378,7 +371,7 @@ public:
 					.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
 				event.reply(dpp::message(event.command.channel_id, embed));
 				if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.command.channel_id);
-				if (not oids.empty()) async(memory::mass_delete, oids, event.command.channel_id);
+				if (not oids.empty()) async(uncategorized::mass_delete, oids, event.command.channel_id);
 			}
 			return true;
 		}
@@ -388,15 +381,14 @@ public:
 vector<thread> slashcommands_executed;
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	bool found = false;
-	for (auto it = memory::members.begin(); it != memory::members.end(); ++it)
-		if (it->first == event.command.member.user_id) found = true;
+	for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) found = true;
 	if (not found) {
 		ofstream w("maps/members.txt", ios::app);
 		w << event.command.member.user_id << '\n';
 	}
 	{
-		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
-		if (static_cast<bool>(data.failed)) memory::new_user(bot.user_get_sync(event.command.member.user_id));
+		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
+		if (data.failed) uncategorized::new_user(bot.user_get_sync(event.command.member.user_id));
 	}
 	switch (find_command(event.command.get_command_name()))
 	{
@@ -440,16 +432,16 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	default: break;
 	}
 	{
-		memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 		data.last_on = time(0);
-		memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+		uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 	}
 	event.cancel_event();
 	return;
 }
 vector<thread> button_clicked_executed;
 inline void await_on_button_click(const dpp::button_click_t& event) {
-	memory::UserData data = memory::GetUserData(bot.user_get_sync(event.command.member.user_id));
+	uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
 	vector<string> i = explode(event.custom_id, '_');
 	if (event.custom_id.find("repair_1") not_eq -1 and i[2] == event.command.member.user_id)
 	{
@@ -459,7 +451,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 			data.rod_d = 15;
 			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Repair Complete!");
 			event.reply(dpp::message(event.command.channel_id, embed));
-			memory::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+			uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 		}
 		else {
 			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have enough to repair it!");
