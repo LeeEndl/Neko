@@ -1,120 +1,102 @@
 #pragma once
-class slashcommands {
-public:
-	static void update(command command, bool remove = false)
+vector<thread> register_slashcommands;
+namespace slashcommand {
+	void update(commands::command sent, bool remove = false)
 	{
-		switch (command) {
-		case command::daily: {
+		switch (sent) {
+		case commands::command::daily: {
 			dpp::slashcommand daily = dpp::slashcommand()
 				.set_name("daily")
 				.set_description("get a small gift from niko once a day")
 				.set_application_id(bot.me.id);
-			bot.global_command_create(daily, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			daily = bot.global_command_create_sync(daily);
+			if (remove) bot.global_command_delete_sync(daily.id);
 			break;
 		}
-		case command::profile: {
+		case commands::command::profile: {
 			dpp::slashcommand profile = dpp::slashcommand()
 				.set_name("profile")
 				.set_description("your profile")
 				.add_option(dpp::command_option(dpp::co_string, "name", "mention user", true))
 				.set_application_id(bot.me.id);
-			bot.global_command_create(profile, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			profile = bot.global_command_create_sync(profile);
+			if (remove) bot.global_command_delete_sync(profile.id);
 			break;
 		}
-		case command::shop: {
+		case commands::command::shop: {
 			dpp::slashcommand shop = dpp::slashcommand()
 				.set_name("shop")
 				.set_description("view the shop")
 				.set_application_id(bot.me.id);
-			bot.global_command_create(shop, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			shop = bot.global_command_create_sync(shop);
+			if (remove) bot.global_command_delete_sync(shop.id);
 			break;
 		}
-		case command::buy: {
+		case commands::command::buy: {
 			dpp::slashcommand buy = dpp::slashcommand()
 				.set_name("buy")
 				.set_description("buy an item from shop")
 				.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
 				.add_option(dpp::command_option(dpp::co_string, "amount", "the amount of the item you wanna buy", true))
 				.set_application_id(bot.me.id);
-			bot.global_command_create(buy, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			buy = bot.global_command_create_sync(buy);
+			if (remove) bot.global_command_delete_sync(buy.id);
 			break;
 		}
-		case command::sell: {
+		case commands::command::sell: {
 			dpp::slashcommand sell = dpp::slashcommand()
 				.set_name("sell")
 				.set_description("sell an item")
 				.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
 				.add_option(dpp::command_option(dpp::co_string, "amount", "the amount of the item you wanna sell", true))
 				.set_application_id(bot.me.id);
-			bot.global_command_create(sell, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			sell = bot.global_command_create_sync(sell);
+			if (remove) bot.global_command_delete_sync(sell.id);
 			break;
 		}
-		case command::fish: {
+		case commands::command::fish: {
 			dpp::slashcommand fish = dpp::slashcommand()
 				.set_name("fish")
 				.set_description("go fishing")
 				.set_application_id(bot.me.id);
-			bot.global_command_create(fish, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			fish = bot.global_command_create_sync(fish);
+			if (remove) bot.global_command_delete_sync(fish.id);
 			break;
 		}
-		case command::repair: {
+		case commands::command::repair: {
 			dpp::slashcommand repair = dpp::slashcommand()
 				.set_name("repair")
 				.set_description("the item you wanna repair/fix")
 				.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
 				.set_application_id(bot.me.id);
-			bot.global_command_create(repair, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			repair = bot.global_command_create_sync(repair);
+			if (remove) bot.global_command_delete_sync(repair.id);
 			break;
 		}
-		case command::leaderboard: {
+		case commands::command::leaderboard: {
 			dpp::slashcommand leaderboard = dpp::slashcommand()
 				.set_name("leaderboard")
 				.set_description("see top players")
 				.set_application_id(bot.me.id);
-			bot.global_command_create(leaderboard, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			leaderboard = bot.global_command_create_sync(leaderboard);
+			if (remove) bot.global_command_delete_sync(leaderboard.id);
 			break;
 		}
-		case command::purge: {
+		case commands::command::purge: {
 			dpp::slashcommand purge = dpp::slashcommand()
 				.set_name("purge")
 				.set_description("mass delete messages in a channel")
 				.add_option(dpp::command_option(dpp::co_string, "amount", "amount of messages to which be deleted", true))
 				.set_default_permissions(dpp::permissions::p_administrator)
 				.set_application_id(bot.me.id);
-			bot.global_command_create(purge, [remove](const auto& callback) {
-				dpp::slashcommand command = get<dpp::slashcommand>(callback.value);
-				if (remove) bot.global_command_delete_sync(command.id);
-				});
+			purge = bot.global_command_create_sync(purge);
+			if (remove) bot.global_command_delete_sync(purge.id);
 			break;
 		}
 		default: break;
 		}
 	}
-	class commands
+	class slashcommands
 	{
 	public:
 		static bool daily(const dpp::slashcommand_t& event)
@@ -376,86 +358,99 @@ public:
 			return true;
 		}
 	};
-};
-
-vector<thread> slashcommands_executed;
-inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
-	bool found = false;
-	for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) found = true;
-	if (not found) {
-		ofstream w("maps/members.txt", ios::app);
-		w << event.command.member.user_id << '\n';
-	}
+	int find_command(string command)
 	{
-		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
-		if (data.failed) uncategorized::new_user(bot.user_get_sync(event.command.member.user_id));
+		if (command == "prefix") return commands::command::prefix;
+		else if (command == "daily") return commands::command::daily;
+		else if (command == "profile") return commands::command::profile;
+		else if (command == "shop") return commands::command::shop;
+		else if (command == "buy") return commands::command::buy;
+		else if (command == "sell") return commands::command::sell;
+		else if (command == "fish") return commands::command::fish;
+		else if (command == "repair") return commands::command::repair;
+		else if (command == "leaderboard") return commands::command::leaderboard;
+		else if (command == "purge") return commands::command::purge;
+		else return -1;
 	}
-	switch (find_command(event.command.get_command_name()))
-	{
-	case command::daily: {
-		async(slashcommands::commands::daily, event);
-		break;
-	}
-	case command::profile: {
-		async(slashcommands::commands::profile, event);
-		break;
-	}
-	case command::shop: {
-		async(slashcommands::commands::shop, event);
-		break;
-	}
-	case command::buy: {
-		async(slashcommands::commands::buy, event);
-		break;
-	}
-	case command::sell: {
-		async(slashcommands::commands::sell, event);
-		break;
-	}
-	case command::fish: {
-		async(slashcommands::commands::fish, event);
-		break;
-	}
-	case command::repair: {
-		async(slashcommands::commands::repair, event);
-		break;
-	}
-	case command::leaderboard: {
-		async(slashcommands::commands::leaderboard, event);
-		break;
-	}
-	case command::purge: {
-		auto purge = async(slashcommands::commands::purge, event);
-		if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
-		break;
-	}
-	default: break;
-	}
-	{
-		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
-		data.last_on = time(0);
-		uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
-	}
-	event.cancel_event();
-	return;
-}
-vector<thread> button_clicked_executed;
-inline void await_on_button_click(const dpp::button_click_t& event) {
-	uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
-	vector<string> i = explode(event.custom_id, '_');
-	if (event.custom_id.find("repair_1") not_eq -1 and i[2] == event.command.member.user_id)
-	{
-		if (data.dollars > 12) {
-			data.dollars -= 12;
-			data.rod = to_string(1);
-			data.rod_d = 15;
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Repair Complete!");
-			event.reply(dpp::message(event.command.channel_id, embed));
+	vector<thread> slashcommands_executed;
+	inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
+		bool found = false;
+		for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) found = true;
+		if (not found) {
+			ofstream w("maps/members.txt", ios::app);
+			w << event.command.member.user_id << '\n';
+		}
+		{
+			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
+			if (data.failed) uncategorized::new_user(bot.user_get_sync(event.command.member.user_id));
+		}
+		switch (find_command(event.command.get_command_name()))
+		{
+		case commands::command::daily: {
+			async(slashcommands::daily, event);
+			break;
+		}
+		case commands::command::profile: {
+			async(slashcommands::profile, event);
+			break;
+		}
+		case commands::command::shop: {
+			async(slashcommands::shop, event);
+			break;
+		}
+		case commands::command::buy: {
+			async(slashcommands::buy, event);
+			break;
+		}
+		case commands::command::sell: {
+			async(slashcommands::sell, event);
+			break;
+		}
+		case commands::command::fish: {
+			async(slashcommands::fish, event);
+			break;
+		}
+		case commands::command::repair: {
+			async(slashcommands::repair, event);
+			break;
+		}
+		case commands::command::leaderboard: {
+			async(slashcommands::leaderboard, event);
+			break;
+		}
+		case commands::command::purge: {
+			auto purge = async(slashcommands::purge, event);
+			if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
+			break;
+		}
+		default: break;
+		}
+		{
+			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
+			data.last_on = time(0);
 			uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
 		}
-		else {
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have enough to repair it!");
-			event.reply(dpp::message(event.command.channel_id, embed));
+		return;
+	}
+	vector<thread> button_clicked_executed;
+	inline void await_on_button_click(const dpp::button_click_t& event) {
+		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.command.member.user_id));
+		vector<string> i = explode(event.custom_id, '_');
+		if (event.custom_id.find("repair_1") not_eq -1 and i[2] == event.command.member.user_id)
+		{
+			if (data.dollars > 12) {
+				data.dollars -= 12;
+				data.rod = to_string(1);
+				data.rod_d = 15;
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Repair Complete!");
+				event.reply(dpp::message(event.command.channel_id, embed));
+				uncategorized::SaveUserData(data, bot.user_get_sync(event.command.member.user_id));
+			}
+			else {
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have enough to repair it!");
+				event.reply(dpp::message(event.command.channel_id, embed));
+			}
 		}
+		return;
 	}
 }

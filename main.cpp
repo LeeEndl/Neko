@@ -27,14 +27,14 @@ int main()
 		});
 	bot.on_message_create([](const dpp::message_create_t& event) {
 		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
-		commands_executed.emplace_back(thread::thread(await_on_message_create, event));
+		commands::commands_executed.emplace_back(thread::thread(commands::await_on_message_create, event));
 		});
 	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
 		if (event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
-		slashcommands_executed.emplace_back(thread::thread(await_on_slashcommand, event));
+		slashcommand::slashcommands_executed.emplace_back(thread::thread(slashcommand::await_on_slashcommand, event));
 		});
 	bot.on_button_click([](const dpp::button_click_t& event) {
-		button_clicked_executed.emplace_back(thread::thread(await_on_button_click, event));
+		slashcommand::button_clicked_executed.emplace_back(thread::thread(slashcommand::await_on_button_click, event));
 		});
 	bot.start(dpp::start_type::st_wait);
 }
