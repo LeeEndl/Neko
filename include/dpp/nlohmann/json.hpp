@@ -25,8 +25,6 @@
 #endif
 #endif
 
-#define JSON_VERSION "3.11.2"
-
 #ifndef JSON_DIAGNOSTICS
 #define JSON_DIAGNOSTICS 0
 #endif
