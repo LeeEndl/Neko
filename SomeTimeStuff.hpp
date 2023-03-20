@@ -7,8 +7,7 @@ namespace SomeTimeStuff {
 	public:
 		tm* track_time;
 		bool pm = false, am = false;
-		string hour, min, sec, wday, mday, month_num, month, year, century = "20", suffix;
-		string time, dropsec;
+		string hour, min, sec, wday, mday, month_num, month, year, century = "20", suffix, time, dropsec;
 	}; time_ time;
 	inline thread update_time()
 	{

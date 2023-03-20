@@ -1,12 +1,14 @@
 #pragma once
 namespace commands {
-	const enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge };
+	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge };
 	int find_command_with_prefix(string command, dpp::snowflake guild_id)
 	{
 		uncategorized::GuildData g_data = uncategorized::GetGuildData(guild_id);
 		if (command.find(g_data.prefix + "prefix ") not_eq -1) return command::prefix;
 		else if (command.find(g_data.prefix + "daily") not_eq -1) return command::daily;
-		else if (command.find(g_data.prefix + "leaderboard") not_eq -1) return command::leaderboard;
+		else if (command.find(g_data.prefix + "profile ") not_eq -1) return command::profile;
+		else if (command.find(g_data.prefix + "shop") not_eq -1) return command::shop;
+		else if (command.find(g_data.prefix + "leaderboard") not_eq -1 or command.find(g_data.prefix + "top") not_eq -1) return command::leaderboard;
 		else if (command.find(g_data.prefix + "purge ") not_eq -1) return command::purge;
 		else return -1;
 	}
@@ -34,14 +36,14 @@ namespace commands {
 		{
 			uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
 			if (g_data.prefix.empty()) return false;
-			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
+			uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
 			tm* mt = dpp::utility::mtm(data.daily);
 			if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq SomeTimeStuff::time.month_num + "/" + SomeTimeStuff::time.mday)
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
 				data.dollars = data.dollars += dollar;
-				uncategorized::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
+				uncategorized::SaveUserData(data, event.msg.member.user_id);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_title("Thanks for opening my gift! :tada:")
@@ -52,9 +54,53 @@ namespace commands {
 				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
-					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
+					.set_description("You've already claimed today's gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.msg.channel_id, embed));
 			}
+			return true;
+		}
+		static bool profile(const dpp::message_create_t& event)
+		{
+			auto i = explode(event.msg.content, ' ');
+			string name = i[1];
+			name.erase(remove(name.begin(), name.end(), '<'), name.end());
+			name.erase(remove(name.begin(), name.end(), '>'), name.end());
+			name.erase(remove(name.begin(), name.end(), '!'), name.end());
+			name.erase(remove(name.begin(), name.end(), '@'), name.end());
+			if (has_char(name)) return false; // safely stoull()
+			uncategorized::UserData data = uncategorized::GetUserData(stoull(name));
+			if (data.failed) uncategorized::new_user(stoull(name));
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
+				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
+				.add_field
+				(
+					"Tools: ", (
+						data.rod == "1" ? "Durability: " + to_string(data.rod_d) + "/15 :fishing_pole_and_fish: \n" :
+						data.rod == "-1" ? "Broken :fishing_pole_and_fish:" : "None")
+				)
+				.add_field
+				(
+					"Inventory: ",
+					static_cast<string>(to_string(data.dollars)) + " :dollar: \n" +
+					(data.fish > 0 ? to_string(data.fish) + " :fish: \n" : "")
+				);
+			event.reply(dpp::message(event.msg.channel_id, embed));
+			return true;
+		}
+		static bool shop(const dpp::message_create_t& event)
+		{
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue)
+				.set_title(":shopping_cart: Shop")
+				.add_field(
+					"Permanent Shop: ",
+					"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Fishing Level Requirement: None\n  - Cost: 15 :dollar:"
+				)
+				.add_field(
+					"How to Buy?",
+					"type /buy {ID} {Amount}");
+			event.reply(dpp::message(event.msg.channel_id, embed));
 			return true;
 		}
 		static bool leaderboard(const dpp::message_create_t& event)
@@ -113,16 +159,9 @@ namespace commands {
 	};
 
 	vector<thread> commands_executed;
-	inline void await_on_message_create(const dpp::message_create_t& event) {
-		bool found = false;
-		for (auto& find : uncategorized::members) if (find.first == event.msg.member.user_id) found = true;
-		if (not found) {
-			ofstream w("maps/members.txt", ios::app);
-			w << event.msg.member.user_id << '\n';
-		}
-		uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
-		uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
-		if (data.failed) uncategorized::new_user(bot.user_get_sync(event.msg.member.user_id));
+	inline thread await_on_message_create(const dpp::message_create_t& event) {
+		uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
+		if (data.failed) uncategorized::new_user(event.msg.member.user_id);
 		switch (find_command_with_prefix(event.msg.content, event.msg.guild_id))
 		{
 		case command::prefix: {
@@ -131,6 +170,15 @@ namespace commands {
 		}
 		case command::daily: {
 			async(commands::daily, event);
+			break;
+		}
+		case command::profile: {
+			auto profile = async(commands::profile, event);
+			if (not profile.get()) event.reply("mention or provide there user ID.");
+			break;
+		}
+		case command::shop: {
+			async(commands::shop, event);
 			break;
 		}
 		case command::leaderboard: {
@@ -145,10 +193,10 @@ namespace commands {
 		default: break;
 		}
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(bot.user_get_sync(event.msg.member.user_id));
+			uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
 			data.last_on = std::time(0);
-			uncategorized::SaveUserData(data, bot.user_get_sync(event.msg.member.user_id));
+			uncategorized::SaveUserData(data, event.msg.member.user_id);
 		}
-		return;
+		return thread();
 	}
 }
