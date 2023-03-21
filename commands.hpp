@@ -1,6 +1,6 @@
 #pragma once
 namespace commands {
-	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge };
+	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar };
 	int find_command_with_prefix(string command, dpp::snowflake guild_id)
 	{
 		uncategorized::GuildData g_data = uncategorized::GetGuildData(guild_id);
@@ -10,6 +10,8 @@ namespace commands {
 		else if (command.find(g_data.prefix + "shop") not_eq -1) return command::shop;
 		else if (command.find(g_data.prefix + "leaderboard") not_eq -1 or command.find(g_data.prefix + "top") not_eq -1) return command::leaderboard;
 		else if (command.find(g_data.prefix + "purge ") not_eq -1) return command::purge;
+		else if (command.find(g_data.prefix + "membercount") not_eq -1) return command::membercount;
+		else if (command.find(g_data.prefix + "avatar ") not_eq -1 or command.find(g_data.prefix + "avatar") not_eq -1) return command::avatar;
 		else return -1;
 	}
 	class commands
@@ -156,6 +158,46 @@ namespace commands {
 			}
 			return true;
 		}
+		static bool membercount(const dpp::message_create_t& event)
+		{
+			uint64_t membercount = 0, after = 0;
+			while (true) {
+				for (auto& members : bot.guild_get_members_sync(event.msg.guild_id, 1000, after)) {
+					membercount++;
+					if (membercount >= 1000) after = members.second.user_id; else after = 0;
+				}
+				if (after == 0) goto leave;
+			} leave:
+
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue)
+				.set_description(bot.guild_get_sync(event.msg.guild_id).name + " (**" + to_string(membercount) + "**)")
+				.set_timestamp(time(0));
+			event.reply(dpp::message(event.msg.channel_id, embed));
+			return true;
+		}
+		static bool avatar(const dpp::message_create_t& event)
+		{
+			string url = ""; dpp::snowflake mention = 0;
+			auto i = explode(event.msg.content, ' ');
+			if (i.size() == 1) url = event.msg.member.get_user()->get_avatar_url(256, dpp::image_type::i_png);
+			else {
+				string name = i[1];
+				name.erase(remove(name.begin(), name.end(), '<'), name.end());
+				name.erase(remove(name.begin(), name.end(), '>'), name.end());
+				name.erase(remove(name.begin(), name.end(), '!'), name.end());
+				name.erase(remove(name.begin(), name.end(), '@'), name.end());
+				if (has_char(name)) return false; // safely stoull()
+				url = bot.user_get_sync(stoull(name)).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(name);
+			}
+			cout << url << endl;
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue)
+				.set_description(("<@") + (url == event.msg.member.get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(event.msg.member.user_id) : to_string(mention)) + (">'s Avatar"))
+				.set_image(url);
+			event.reply(dpp::message(event.msg.channel_id, embed));
+			return true;
+		}
 	};
 
 	vector<thread> commands_executed;
@@ -188,6 +230,14 @@ namespace commands {
 		case command::purge: {
 			auto purge = async(commands::purge, event);
 			if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
+			break;
+		}
+		case command::membercount: {
+			async(commands::membercount, event);
+			break;
+		}
+		case command::avatar: {
+			async(commands::avatar, event);
 			break;
 		}
 		default: break;

@@ -79,12 +79,13 @@ namespace slashcommand {
 				.set_description("see top players")
 				.set_application_id(bot.me.id);
 			leaderboard = bot.global_command_create_sync(leaderboard);
-			if (remove) bot.global_command_delete_sync(leaderboard.id);
 			dpp::slashcommand top = dpp::slashcommand()
 				.set_name("top")
 				.set_description("see top players")
 				.set_application_id(bot.me.id);
 			top = bot.global_command_create_sync(top);
+
+			if (remove) bot.global_command_delete_sync(leaderboard.id);
 			if (remove) bot.global_command_delete_sync(top.id);
 			break;
 		}
@@ -97,6 +98,15 @@ namespace slashcommand {
 				.set_application_id(bot.me.id);
 			purge = bot.global_command_create_sync(purge);
 			if (remove) bot.global_command_delete_sync(purge.id);
+			break;
+		}
+		case commands::command::membercount: {
+			dpp::slashcommand membercount = dpp::slashcommand()
+				.set_name("membercount")
+				.set_description("view all members in server")
+				.set_application_id(bot.me.id);
+			membercount = bot.global_command_create_sync(membercount);
+			if (remove) bot.global_command_delete_sync(membercount.id);
 			break;
 		}
 		default: break;
@@ -139,7 +149,7 @@ namespace slashcommand {
 			name.erase(remove(name.begin(), name.end(), '@'), name.end());
 			if (has_char(name)) return false; // safely stoull()
 			uncategorized::UserData data = uncategorized::GetUserData(stoull(name));
-			if (static_cast<bool>(data.failed)) uncategorized::new_user(stoull(name));
+			if (data.failed) uncategorized::new_user(stoull(name));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
 				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
@@ -359,6 +369,24 @@ namespace slashcommand {
 			}
 			return true;
 		}
+		static bool membercount(const dpp::slashcommand_t& event)
+		{
+			uint64_t membercount = 0, after = 0;
+			while (true) {
+				for (auto& members : bot.guild_get_members_sync(event.command.guild_id, 1000, after)) {
+					membercount++;
+					if (membercount >= 1000) after = members.second.user_id; else after = 0;
+				}
+				if (after == 0) goto leave;
+			} leave:
+
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue)
+				.set_description(bot.guild_get_sync(event.command.guild_id).name + " (**" + to_string(membercount) + "**)")
+				.set_timestamp(time(0));
+			event.reply(dpp::message(event.command.channel_id, embed));
+			return true;
+		}
 	};
 	int find_command(string command)
 	{
@@ -372,6 +400,7 @@ namespace slashcommand {
 		else if (command == "repair") return commands::command::repair;
 		else if (command == "leaderboard" or command == "top") return commands::command::leaderboard;
 		else if (command == "purge") return commands::command::purge;
+		else if (command == "membercount") return commands::command::membercount;
 		else return -1;
 	}
 	vector<thread> slashcommands_executed;
@@ -416,6 +445,10 @@ namespace slashcommand {
 		case commands::command::purge: {
 			auto purge = async(slashcommands::purge, event);
 			if (not purge.get()) event.reply("You can only purge 1-200 messages at a time!");
+			break;
+		}
+		case commands::command::membercount: {
+			async(slashcommands::membercount, event);
 			break;
 		}
 		default: break;

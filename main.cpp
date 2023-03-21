@@ -16,6 +16,7 @@ void main()
 		);
 		});
 	bot.on_ready([](const dpp::ready_t& event) {
+		slashcommand::update(commands::command::membercount);
 		uncategorized::ready_executed.emplace_back(thread::thread(uncategorized::await_on_ready, event));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
