@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="commands.hpp" />
+    <ClInclude Include="uncategorized.hpp" />
+    <ClInclude Include="slashcommand.hpp" />
+    <ClInclude Include="SomeTimeStuff.hpp" />
+    <ClInclude Include="include\dpp\appcommand.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\application.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\auditlog.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\automod.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\ban.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\cache.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\channel.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\cluster.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\cluster_coro_calls.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\cluster_sync_calls.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\collector.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\colors.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\commandhandler.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\coro.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\discordclient.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\discordevents.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\discordvoiceclient.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\dispatcher.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\dns.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\dpp.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\dtemplate.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\emoji.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\etf.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\event.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\event_router.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\exception.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\export.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\guild.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\httpsclient.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\integration.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\intents.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\invite.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\json.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\json_interface.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\managed.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\message.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\misc-enum.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\once.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\permissions.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\presence.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\prune.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\queues.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\restrequest.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\restresults.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\role.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\scheduled_event.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\snowflake.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\socket.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\sslclient.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\stage_instance.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\stringops.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\sync.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\sysdep.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\timed_listener.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\timer.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\user.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\utility.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\version.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\voiceregion.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\voicestate.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\webhook.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\win32_safe_warnings.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dpp\wsclient.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="dpp">
+      <UniqueIdentifier>{3144dec5-1d82-4210-9acf-f16b2bca9ed9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
