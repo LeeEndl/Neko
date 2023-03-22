@@ -1,4 +1,6 @@
 ﻿#pragma once
+using namespace std;
+using namespace this_thread;
 
 dpp::cluster bot("", static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content));
 
@@ -173,7 +175,6 @@ namespace uncategorized
 	}
 	inline thread background_tasks()
 	{
-		async(SomeTimeStuff::update_time);
 		async(update_status);
 		return thread();
 	}

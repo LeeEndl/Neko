@@ -7,7 +7,6 @@
     <ClInclude Include="commands.hpp" />
     <ClInclude Include="uncategorized.hpp" />
     <ClInclude Include="slashcommand.hpp" />
-    <ClInclude Include="SomeTimeStuff.hpp" />
     <ClInclude Include="include\dpp\appcommand.h">
       <Filter>dpp</Filter>
     </ClInclude>

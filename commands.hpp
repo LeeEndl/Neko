@@ -36,11 +36,10 @@ namespace commands {
 		}
 		static bool daily(const dpp::message_create_t& event)
 		{
-			uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
-			if (g_data.prefix.empty()) return false;
 			uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
-			tm* mt = dpp::utility::mtm(data.daily);
-			if (to_string(mt->tm_mon + 1) + "/" + to_string(mt->tm_mday) not_eq SomeTimeStuff::time.month_num + "/" + SomeTimeStuff::time.mday)
+			tm* claimed = dpp::utility::mtm(data.daily);
+			tm* now = dpp::utility::mtm(time(0));
+			if (to_string(claimed->tm_mon) + "/" + to_string(claimed->tm_mday) not_eq to_string(now->tm_mon) + "/" + to_string(now->tm_mday))
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
@@ -53,13 +52,13 @@ namespace commands {
 				event.reply(dpp::message(event.msg.channel_id, embed));
 			}
 			else {
-				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec, mt->tm_min, mt->tm_hour, mt->tm_wday += 1, mt->tm_mday += 1, mt->tm_mon);
+				time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
-					.set_description("You've already claimed today's gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
+					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.msg.channel_id, embed));
+				return true;
 			}
-			return true;
 		}
 		static bool profile(const dpp::message_create_t& event)
 		{
@@ -136,17 +135,18 @@ namespace commands {
 				for (auto& msg : msgs) {
 					if (not msg.second.webhook_id.empty()) continue; // TODO mass delete webhook
 					deleted++;
-					tm* tm = dpp::utility::mtm(msg.second.sent);
-					if (SomeTimeStuff::time.track_time->tm_mday < tm->tm_mday) {
-						if (tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
-							tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
+					tm* creation_time = dpp::utility::mtm(msg.second.sent);
+					tm* now = dpp::utility::mtm(time(0));
+					if (now->tm_mday < creation_time->tm_mday) {
+						if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
+							creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}
 					}
 					else
-						if (SomeTimeStuff::time.track_time->tm_mday - tm->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
-							tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday < 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon) {
+						if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
+							creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
 							oids.emplace_back(msg.second.id);
 							continue;
 						}

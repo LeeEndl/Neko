@@ -131,7 +131,6 @@
     <ClInclude Include="include\dpp\wsclient.h" />
     <ClInclude Include="uncategorized.hpp" />
     <ClInclude Include="slashcommand.hpp" />
-    <ClInclude Include="SomeTimeStuff.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
