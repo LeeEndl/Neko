@@ -129,10 +129,13 @@ namespace commands {
 			if (has_char(i[1])) return false;
 			if (stoi(i[1]) <= 1 or stoi(i[1]) >= 200) return false;
 			else {
-				int deleted = stoi(i[1]);
+				int deleted = 0;
 				auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]) + 1);
 				vector<dpp::snowflake> ids, oids;
+				if (msgs.size() <= 1) return false;
 				for (auto& msg : msgs) {
+					if (not msg.second.webhook_id.empty()) continue; // TODO mass delete webhook
+					deleted++;
 					tm* tm = dpp::utility::mtm(msg.second.sent);
 					if (SomeTimeStuff::time.track_time->tm_mday < tm->tm_mday) {
 						if (tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or

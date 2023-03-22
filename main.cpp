@@ -8,7 +8,7 @@
 void main()
 {
 	if (not ifstream("token").is_open())
-		print("Empty Token.", color::red), 
+		print("Empty Token.", color::red),
 		print("token: ", color::white, true), cin >> bot.token, ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
 
 	getline(ifstream("token"), bot.token);
@@ -21,7 +21,6 @@ void main()
 		);
 		});
 	bot.on_ready([](const dpp::ready_t& event) {
-		slashcommand::update(commands::command::membercount);
 		uncategorized::ready_executed.emplace_back(thread::thread(uncategorized::await_on_ready, event));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {

@@ -109,6 +109,17 @@ namespace slashcommand {
 			if (remove) bot.global_command_delete_sync(membercount.id);
 			break;
 		}
+		case commands::command::avatar: {
+			dpp::slashcommand avatar = dpp::slashcommand()
+				.set_name("avatar")
+				.set_description("view someone's avatar")
+				.add_option(dpp::command_option(dpp::co_string, "name", "person's avatar you wanna view, empty if yourself.", false))
+				.set_default_permissions(dpp::permissions::p_administrator)
+				.set_application_id(bot.me.id);
+			avatar = bot.global_command_create_sync(avatar);
+			if (remove) bot.global_command_delete_sync(avatar.id);
+			break;
+		}
 		default: break;
 		}
 	}
@@ -340,10 +351,13 @@ namespace slashcommand {
 			if (has_char(amount)) return false;
 			if (stoi(amount) <= 1 or stoi(amount) >= 200) return false;
 			else {
-				int deleted = stoi(amount);
+				int deleted = 0;
 				auto msgs = bot.messages_get_sync(event.command.channel_id, 0, 0, 0, stoi(amount));
 				vector<dpp::snowflake> ids, oids;
+				if (msgs.size() <= 1) return false;
 				for (auto& msg : msgs) {
+					if (not msg.second.webhook_id.empty()) continue; // TODO mass delete webhook
+					deleted++;
 					tm* tm = dpp::utility::mtm(msg.second.sent);
 					if (SomeTimeStuff::time.track_time->tm_mday < tm->tm_mday) {
 						if (tm->tm_mday - SomeTimeStuff::time.track_time->tm_mday > 14 and tm->tm_mon not_eq SomeTimeStuff::time.track_time->tm_mon or
@@ -387,6 +401,26 @@ namespace slashcommand {
 			event.reply(dpp::message(event.command.channel_id, embed));
 			return true;
 		}
+		static bool avatar(const dpp::slashcommand_t& event)
+		{
+			string url = ""; dpp::snowflake mention = 0;
+			if (event.get_parameter("name").index() == 0) url = event.command.member.get_user()->get_avatar_url(256, dpp::image_type::i_png);
+			else {
+				string name = get<string>(event.get_parameter("name"));
+				name.erase(remove(name.begin(), name.end(), '<'), name.end());
+				name.erase(remove(name.begin(), name.end(), '>'), name.end());
+				name.erase(remove(name.begin(), name.end(), '!'), name.end());
+				name.erase(remove(name.begin(), name.end(), '@'), name.end());
+				if (has_char(name)) return false; // safely stoull()
+				url = bot.user_get_sync(stoull(name)).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(name);
+			}
+			dpp::embed embed = dpp::embed()
+				.set_color(dpp::colors::cute_blue)
+				.set_description(("<@") + (url == event.command.member.get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(event.command.member.user_id) : to_string(mention)) + (">'s Avatar"))
+				.set_image(url);
+			event.reply(dpp::message(event.command.channel_id, embed));
+			return true;
+		}
 	};
 	int find_command(string command)
 	{
@@ -401,6 +435,7 @@ namespace slashcommand {
 		else if (command == "leaderboard" or command == "top") return commands::command::leaderboard;
 		else if (command == "purge") return commands::command::purge;
 		else if (command == "membercount") return commands::command::membercount;
+		else if (command == "avatar") return commands::command::avatar;
 		else return -1;
 	}
 	vector<thread> slashcommands_executed;
@@ -449,6 +484,10 @@ namespace slashcommand {
 		}
 		case commands::command::membercount: {
 			async(slashcommands::membercount, event);
+			break;
+		}
+		case commands::command::avatar: {
+			async(slashcommands::avatar, event);
 			break;
 		}
 		default: break;
