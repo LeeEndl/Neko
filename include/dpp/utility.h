@@ -512,9 +512,10 @@ bool has_char(std::string str) {
 	return false;
 }
 const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
-inline void print(std::string str, color c, bool stop = false) {
+inline void print(std::string str, color c, bool Inline = false, bool stop = false) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
-	std::cerr << str << std::endl;
+	std::cerr << str;
+	Inline ? std::cerr << std::flush : std::cerr << std::endl;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 	if (stop) std::cin.get();
 }
