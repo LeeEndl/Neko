@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@
 #include <stddef.h>
 
 namespace dpp {
-
 	/** @brief Supported image types for profile pictures and CDN endpoints */
 	enum image_type {
 		/// image/png
@@ -51,5 +50,4 @@ namespace dpp {
 		/// Critical
 		ll_critical
 	};
-
 };

@@ -27,8 +27,8 @@
  */
 namespace dpp {
 	/**
-     * @brief predefined color constants
-    */
+	 * @brief predefined color constants
+	*/
 	namespace colors {
 		const uint32_t
 			cute_blue = 0x5d9cff,

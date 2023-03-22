@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,6 @@
 #include <string>
 
 namespace dpp {
-
 	/** @brief The managed class is the base class for various types that can
 	 * be stored in a cache that are identified by a dpp::snowflake id.
 	 */
@@ -48,7 +47,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get the creation time of this object according to Discord.
-		 * 
+		 *
 		 * @return double creation time inferred from the snowflake ID.
 		 * The minimum possible value is the first second of 2015.
 		 */
@@ -56,7 +55,7 @@ namespace dpp {
 
 		/**
 		 * @brief Comparison operator for comparing two managed objects by id
-		 * 
+		 *
 		 * @param other Other object to compare against
 		 * @return true objects are the same id
 		 * @return false objects are not the same id
@@ -65,12 +64,11 @@ namespace dpp {
 
 		/**
 		 * @brief Comparison operator for comparing two managed objects by id
-		 * 
+		 *
 		 * @param other Other object to compare against
 		 * @return true objects are not the same id
 		 * @return false objects are the same id
 		 */
 		bool operator!=(const managed& other) const noexcept;
 	};
-
 };

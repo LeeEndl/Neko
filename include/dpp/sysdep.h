@@ -1,8 +1,8 @@
 /*
  * Discord erlpack - tidied up for D++, Craig Edwards 2021.
- * 
+ *
  * MessagePack system dependencies modified for erlpack.
- * 
+ *
  * Copyright (C) 2008-2010 FURUHASHI Sadayuki
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@
 #ifdef _WIN32
 
 #ifdef __cplusplus
-/* numeric_limits<T>::min,max */
+ /* numeric_limits<T>::min,max */
 #ifdef max
 #undef max
 #endif
@@ -52,7 +52,6 @@
 #define __LITTLE_ENDIAN__
 #endif
 #endif
-
 
 #ifdef __LITTLE_ENDIAN__
 

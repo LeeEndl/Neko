@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
  *
  ************************************************************************************/
 #ifdef DPP_USE_EXTERNAL_JSON
-	#include <nlohmann/json.hpp>
+#include <nlohmann/json.hpp>
 #else
-	#include <dpp/nlohmann/json.hpp>
+#include <dpp/nlohmann/json.hpp>
 #endif

@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2022 Craig Edwards and D++ contributors 
+ * Copyright 2022 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ namespace dpp {
 	 * @brief Represents an interface for an object that can optionally implement functions
 	 * for converting to and from nlohmann::json. In the event either parse_from_json() or
 	 * build_json() are not implemented and are called, they will throw at runtime.
-	 * 
+	 *
 	 * @tparam T Type of class that implements the interface
 	 */
 	template<typename T> struct DPP_EXPORT json_interface {
@@ -39,7 +39,7 @@ namespace dpp {
 	public:
 		/**
 		 * @brief Convert object from nlohmann::json
-		 * 
+		 *
 		 * @param j nlohmann::json object
 		 * @return T& Reference to self for fluent calling
 		 */
@@ -49,7 +49,7 @@ namespace dpp {
 
 		/**
 		 * @brief Build JSON string from the object
-		 * 
+		 *
 		 * @param with_id Include the ID in the JSON
 		 * @return std::string JSON string version of object
 		 */

@@ -28,68 +28,66 @@
 #include <string>
 
 namespace dpp {
-
-/**
- * @brief A timed_listener is a way to temporarily attach to an event for a specific timeframe, then detach when complete.
- * A lambda may also be optionally called when the timeout is reached. Destructing the timed_listener detaches any attached
- * event listeners, and cancels any created timers, but does not call any timeout lambda.
- * 
- * @tparam attached_event Event within cluster to attach to within the cluster::dispatch member (dpp::dispatcher object)
- * @tparam listening_function Definition of lambda function that matches up with the attached_event.
- */
-template <typename attached_event, class listening_function> class timed_listener 
-{
-private:
-	/// Owning cluster
-	cluster* owner;
-
-	/// Duration of listen
-	time_t duration;
-
-	/// Reference to attached event in cluster
-	//event_router_t<thread_member_update_t> on_thread_member_update;
-	attached_event& ev;
-
-	/// Timer handle
-	timer th;
-
-	/// Event handle
-	event_handle listener_handle;
-	
-public:
 	/**
-	 * @brief Construct a new timed listener object
-	 * 
-	 * @param cl Owning cluster
-	 * @param _duration Duration of timed event in seconds
-	 * @param event Event to hook, e.g. cluster.on_message_create
-	 * @param on_end An optional void() lambda to trigger when the timed_listener times out.
-	 * Calling the destructor before the timeout is reached does not call this lambda.
-	 * @param listener Lambda to receive events. Type must match up properly with that passed into the 'event' parameter.
+	 * @brief A timed_listener is a way to temporarily attach to an event for a specific timeframe, then detach when complete.
+	 * A lambda may also be optionally called when the timeout is reached. Destructing the timed_listener detaches any attached
+	 * event listeners, and cancels any created timers, but does not call any timeout lambda.
+	 *
+	 * @tparam attached_event Event within cluster to attach to within the cluster::dispatch member (dpp::dispatcher object)
+	 * @tparam listening_function Definition of lambda function that matches up with the attached_event.
 	 */
-	timed_listener(cluster* cl, uint64_t _duration, attached_event& event, listening_function listener, timer_callback_t on_end = {})
-	: owner(cl), duration(_duration), ev(event)
+	template <typename attached_event, class listening_function> class timed_listener
 	{
-		/* Attach event */
-		listener_handle = ev(listener);
-		/* Create timer */
-		th = cl->start_timer([this](dpp::timer timer_handle) {
-			/* Timer has finished, detach it from event.
-			 * Only allowed to tick once.
-			 */
+	private:
+		/// Owning cluster
+		cluster* owner;
+
+		/// Duration of listen
+		time_t duration;
+
+		/// Reference to attached event in cluster
+		//event_router_t<thread_member_update_t> on_thread_member_update;
+		attached_event& ev;
+
+		/// Timer handle
+		timer th;
+
+		/// Event handle
+		event_handle listener_handle;
+
+	public:
+		/**
+		 * @brief Construct a new timed listener object
+		 *
+		 * @param cl Owning cluster
+		 * @param _duration Duration of timed event in seconds
+		 * @param event Event to hook, e.g. cluster.on_message_create
+		 * @param on_end An optional void() lambda to trigger when the timed_listener times out.
+		 * Calling the destructor before the timeout is reached does not call this lambda.
+		 * @param listener Lambda to receive events. Type must match up properly with that passed into the 'event' parameter.
+		 */
+		timed_listener(cluster* cl, uint64_t _duration, attached_event& event, listening_function listener, timer_callback_t on_end = {})
+			: owner(cl), duration(_duration), ev(event)
+		{
+			/* Attach event */
+			listener_handle = ev(listener);
+			/* Create timer */
+			th = cl->start_timer([this](dpp::timer timer_handle) {
+				/* Timer has finished, detach it from event.
+				 * Only allowed to tick once.
+				 */
+				ev.detach(listener_handle);
+				owner->stop_timer(th);
+				}, duration, on_end);
+		}
+
+		/**
+		 * @brief Destroy the timed listener object
+		 */
+		~timed_listener() {
+			/* Stop timer and detach event, but do not call on_end */
 			ev.detach(listener_handle);
 			owner->stop_timer(th);
-		}, duration, on_end);
-	}
-
-	/**
-	 * @brief Destroy the timed listener object
-	 */
-	~timed_listener() {
-		/* Stop timer and detach event, but do not call on_end */
-		ev.detach(listener_handle);
-		owner->stop_timer(th);
-	}
-};
-
+		}
+	};
 };

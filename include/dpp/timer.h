@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,96 +29,92 @@
 #include <functional>
 
 namespace dpp {
-
-/**
- * @brief Represents a timer handle.
- * Returned from cluster::start_timer and used by cluster::stop_timer.
- * This is obtained from a simple incrementing value, internally.
- */
-typedef size_t timer;
-
-/**
- * @brief The type for a timer callback
- */
-typedef std::function<void(timer)> timer_callback_t;
-
-/**
- * @brief Used internally to store state of active timers
- */
-struct DPP_EXPORT timer_t {
 	/**
-	 * @brief Timer handle
+	 * @brief Represents a timer handle.
+	 * Returned from cluster::start_timer and used by cluster::stop_timer.
+	 * This is obtained from a simple incrementing value, internally.
 	 */
-	timer handle;
-	/**
-	 * @brief Next timer tick as unix epoch
-	 */
-	time_t next_tick;
-	/**
-	 * @brief Frequency between ticks
-	 */
-	uint64_t frequency;
-	/**
-	 * @brief Lambda to call on tick
-	 */
-	timer_callback_t on_tick;
-	/**
-	 * @brief Lambda to call on stop (optional)
-	 */
-	timer_callback_t on_stop;
-};
-
-/**
- * @brief A map of timers, ordered by earliest first so that map::begin() is always the 
- * soonest to be due.
- */
-typedef std::multimap<time_t, timer_t*> timer_next_t;
-
-/**
- * @brief A map of timers stored by handle
- */
-typedef std::unordered_map<timer, timer_t*> timer_reg_t;
-
-/**
- * @brief Trigger a timed event once.
- * The provided callback is called only once.
- */
-class DPP_EXPORT oneshot_timer
-{
-private:
-	/// Owning cluster
-	class cluster* owner;
-	/// Timer handle
-	timer th;
-public:
-	/**
-	 * @brief Construct a new oneshot timer object
-	 * 
-	 * @param cl cluster owner
-	 * @param duration duration before firing
-	 * @param callback callback to call on firing
-	 */
-	oneshot_timer(class cluster* cl, uint64_t duration, timer_callback_t callback);
+	typedef size_t timer;
 
 	/**
-	 * @brief Get the handle for the created one-shot timer
-	 * 
-	 * @return timer handle for use with stop_timer
+	 * @brief The type for a timer callback
 	 */
-	timer get_handle();
+	typedef std::function<void(timer)> timer_callback_t;
 
 	/**
-	 * @brief Cancel the one shot timer immediately.
-	 * Callback function is not called.
+	 * @brief Used internally to store state of active timers
 	 */
-	void cancel();
+	struct DPP_EXPORT timer_t {
+		/**
+		 * @brief Timer handle
+		 */
+		timer handle;
+		/**
+		 * @brief Next timer tick as unix epoch
+		 */
+		time_t next_tick;
+		/**
+		 * @brief Frequency between ticks
+		 */
+		uint64_t frequency;
+		/**
+		 * @brief Lambda to call on tick
+		 */
+		timer_callback_t on_tick;
+		/**
+		 * @brief Lambda to call on stop (optional)
+		 */
+		timer_callback_t on_stop;
+	};
 
 	/**
-	 * @brief Destroy the oneshot timer object
+	 * @brief A map of timers, ordered by earliest first so that map::begin() is always the
+	 * soonest to be due.
 	 */
-	~oneshot_timer();
-};
+	typedef std::multimap<time_t, timer_t*> timer_next_t;
 
+	/**
+	 * @brief A map of timers stored by handle
+	 */
+	typedef std::unordered_map<timer, timer_t*> timer_reg_t;
 
+	/**
+	 * @brief Trigger a timed event once.
+	 * The provided callback is called only once.
+	 */
+	class DPP_EXPORT oneshot_timer
+	{
+	private:
+		/// Owning cluster
+		class cluster* owner;
+		/// Timer handle
+		timer th;
+	public:
+		/**
+		 * @brief Construct a new oneshot timer object
+		 *
+		 * @param cl cluster owner
+		 * @param duration duration before firing
+		 * @param callback callback to call on firing
+		 */
+		oneshot_timer(class cluster* cl, uint64_t duration, timer_callback_t callback);
 
+		/**
+		 * @brief Get the handle for the created one-shot timer
+		 *
+		 * @return timer handle for use with stop_timer
+		 */
+		timer get_handle();
+
+		/**
+		 * @brief Cancel the one shot timer immediately.
+		 * Callback function is not called.
+		 */
+		void cancel();
+
+		/**
+		 * @brief Destroy the oneshot timer object
+		 */
+		~oneshot_timer();
+	};
 };

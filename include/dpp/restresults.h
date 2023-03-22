@@ -46,91 +46,89 @@
 using  json = nlohmann::json;
 
 namespace dpp {
-
 #ifdef _WIN32
-	#ifdef _DEBUG
-		extern "C" DPP_EXPORT void you_are_using_a_debug_build_of_dpp_on_a_release_project();
-	#else
-		extern "C" DPP_EXPORT void you_are_using_a_release_build_of_dpp_on_a_debug_project();
-	#endif
+#ifdef _DEBUG
+	extern "C" DPP_EXPORT void you_are_using_a_debug_build_of_dpp_on_a_release_project();
+#else
+	extern "C" DPP_EXPORT void you_are_using_a_release_build_of_dpp_on_a_debug_project();
+#endif
 #endif
 
-struct DPP_EXPORT version_checker {
-	version_checker() {
-		#ifdef _WIN32
-			#ifdef _DEBUG
-				you_are_using_a_debug_build_of_dpp_on_a_release_project();
-			#else
-				you_are_using_a_release_build_of_dpp_on_a_debug_project();
-			#endif
-		#endif
-	}
-};
+	struct DPP_EXPORT version_checker {
+		version_checker() {
+#ifdef _WIN32
+#ifdef _DEBUG
+			you_are_using_a_debug_build_of_dpp_on_a_release_project();
+#else
+			you_are_using_a_release_build_of_dpp_on_a_debug_project();
+#endif
+#endif
+		}
+	};
 
-static version_checker dpp_vc;
-
-
-/**
- * @brief A list of shards
- */
-typedef std::map<uint32_t, class discord_client*> shard_list;
-
-/**
- * @brief Represents the various information from the 'get gateway bot' api call
- */
-struct DPP_EXPORT gateway {
-	/// Gateway websocket url
-	std::string url;
-
-	/// Number of suggested shards to start
-	uint32_t shards;
-
-	/// Total number of sessions that can be started
-	uint32_t session_start_total;
-
-	/// How many sessions are left
-	uint32_t session_start_remaining;
-
-	/// How many seconds until the session start quota resets
-	uint32_t session_start_reset_after;
-
-	/// How many sessions can be started at the same time
-	uint32_t session_start_max_concurrency;
+	static version_checker dpp_vc;
 
 	/**
-	 * @brief Construct a new gateway object
+	 * @brief A list of shards
+	 */
+	typedef std::map<uint32_t, class discord_client*> shard_list;
+
+	/**
+	 * @brief Represents the various information from the 'get gateway bot' api call
+	 */
+	struct DPP_EXPORT gateway {
+		/// Gateway websocket url
+		std::string url;
+
+		/// Number of suggested shards to start
+		uint32_t shards;
+
+		/// Total number of sessions that can be started
+		uint32_t session_start_total;
+
+		/// How many sessions are left
+		uint32_t session_start_remaining;
+
+		/// How many seconds until the session start quota resets
+		uint32_t session_start_reset_after;
+
+		/// How many sessions can be started at the same time
+		uint32_t session_start_max_concurrency;
+
+		/**
+		 * @brief Construct a new gateway object
+		 *
+		 * @param j JSON data to construct from
+		 */
+		gateway(nlohmann::json* j);
+
+		/**
+		 * @brief Construct a new gateway object
+		 */
+		gateway();
+
+		/**
+		 * @brief Fill this object from json
+		 *
+		 * @param j json to fill from
+		 * @return gateway& reference to self
+		 */
+		gateway& fill_from_json(nlohmann::json* j);
+	};
+
+	/**
+	 * @brief Confirmation object represents any true or false simple REST request
 	 *
-	 * @param j JSON data to construct from
 	 */
-	gateway(nlohmann::json* j);
+	struct DPP_EXPORT confirmation {
+		bool success;
+	};
 
 	/**
-	 * @brief Construct a new gateway object
+	 * @brief A container for types that can be returned for a REST API call
+	 *
 	 */
-	gateway();
-
-	/**
-	 * @brief Fill this object from json
-	 * 
-	 * @param j json to fill from
-	 * @return gateway& reference to self
-	 */
-	gateway& fill_from_json(nlohmann::json* j);
-};
-
-/**
- * @brief Confirmation object represents any true or false simple REST request
- *
- */
-struct DPP_EXPORT confirmation {
-	bool success;
-};
-
-/**
- * @brief A container for types that can be returned for a REST API call
- *
- */
-typedef std::variant<
+	typedef std::variant <
 		application_role_connection,
 		application_role_connection_metadata_list,
 		confirmation,
@@ -192,124 +190,124 @@ typedef std::variant<
 		automod_rule_map
 	> confirmable_t;
 
-/**
- * @brief The details of a field in an error response
- */
-struct DPP_EXPORT error_detail {
 	/**
-	 * @brief Object name which is in error
+	 * @brief The details of a field in an error response
 	 */
-	std::string object;
-	/**
-	 * @brief Field name which is in error
-	 */
-	std::string field;
-	/**
-	 * @brief Error code
-	 */
-	std::string code;
-	/**
-	 * @brief Error reason (full message)
-	 */
-	std::string reason;
-};
-
-/**
- * @brief The full details of an error from a REST response
- */
-struct DPP_EXPORT error_info {
-	/**
-	 * @brief Error code
-	 */
-	uint32_t code = 0;
-	/**
-	 * @brief Error message
-	 *
-	 */
-	std::string message;
-	/**
-	 * @brief Field specific error descriptions
-	 */
-	std::vector<error_detail> errors;
-};
-
-/**
- * @brief The results of a REST call wrapped in a convenient struct
- */
-struct DPP_EXPORT confirmation_callback_t {
-	/** Information about the HTTP call used to make the request */
-	http_request_completion_t http_info;
-
-	/** Value returned, wrapped in variant */
-	confirmable_t value;
-
-	/** Owner/creator of the callback object */
-	const class cluster* bot;
+	struct DPP_EXPORT error_detail {
+		/**
+		 * @brief Object name which is in error
+		 */
+		std::string object;
+		/**
+		 * @brief Field name which is in error
+		 */
+		std::string field;
+		/**
+		 * @brief Error code
+		 */
+		std::string code;
+		/**
+		 * @brief Error reason (full message)
+		 */
+		std::string reason;
+	};
 
 	/**
-	 * @brief Construct a new confirmation callback t object
+	 * @brief The full details of an error from a REST response
 	 */
-	confirmation_callback_t() = default;
+	struct DPP_EXPORT error_info {
+		/**
+		 * @brief Error code
+		 */
+		uint32_t code = 0;
+		/**
+		 * @brief Error message
+		 *
+		 */
+		std::string message;
+		/**
+		 * @brief Field specific error descriptions
+		 */
+		std::vector<error_detail> errors;
+	};
 
 	/**
-	 * @brief Construct a new confirmation callback t object
-	 * 
-	 * @param creator owning cluster object
+	 * @brief The results of a REST call wrapped in a convenient struct
 	 */
-	confirmation_callback_t(cluster* creator);
+	struct DPP_EXPORT confirmation_callback_t {
+		/** Information about the HTTP call used to make the request */
+		http_request_completion_t http_info;
+
+		/** Value returned, wrapped in variant */
+		confirmable_t value;
+
+		/** Owner/creator of the callback object */
+		const class cluster* bot;
+
+		/**
+		 * @brief Construct a new confirmation callback t object
+		 */
+		confirmation_callback_t() = default;
+
+		/**
+		 * @brief Construct a new confirmation callback t object
+		 *
+		 * @param creator owning cluster object
+		 */
+		confirmation_callback_t(cluster* creator);
+
+		/**
+		 * @brief Construct a new confirmation callback object
+		 *
+		 * @param _http The HTTP metadata from the REST call
+		 */
+		confirmation_callback_t(const http_request_completion_t& _http);
+
+		/**
+		 * @brief Construct a new confirmation callback object
+		 *
+		 * @param creator owning cluster object
+		 * @param _value The value to encapsulate in the confirmable_t
+		 * @param _http The HTTP metadata from the REST call
+		 */
+		confirmation_callback_t(cluster* creator, const confirmable_t& _value, const http_request_completion_t& _http);
+
+		/**
+		 * @brief Returns true if the call resulted in an error rather than a legitimate value in the
+		 * confirmation_callback_t::value member.
+		 *
+		 * @return true There was an error who's details can be obtained by get_error()
+		 * @return false There was no error
+		 */
+		bool is_error() const;
+
+		/**
+		 * @brief Get the error_info object.
+		 * The error_info object contains the details of any REST error, if there is an error
+		 * (to find out if there is an error check confirmation_callback_t::is_error())
+		 *
+		 * @return error_info The details of the error message
+		 */
+		error_info get_error() const;
+
+		/**
+		 * @brief Get the stored value via std::get
+		 * @tparam T type to get
+		 * @return stored value as type T
+		 */
+		template<typename T>
+		T get() const {
+			return std::get<T>(value);
+		}
+	};
 
 	/**
-	 * @brief Construct a new confirmation callback object
-	 *
-	 * @param _http The HTTP metadata from the REST call
+	 * @brief A callback upon command completion
 	 */
-	confirmation_callback_t(const http_request_completion_t& _http);
+	typedef std::function<void(const confirmation_callback_t&)> command_completion_event_t;
 
 	/**
-	 * @brief Construct a new confirmation callback object
-	 *
-	 * @param creator owning cluster object
-	 * @param _value The value to encapsulate in the confirmable_t
-	 * @param _http The HTTP metadata from the REST call
+	 * @brief Automatically JSON encoded HTTP result
 	 */
-	confirmation_callback_t(cluster* creator, const confirmable_t& _value, const http_request_completion_t& _http);
-
-	/**
-	 * @brief Returns true if the call resulted in an error rather than a legitimate value in the
-	 * confirmation_callback_t::value member.
-	 *
-	 * @return true There was an error who's details can be obtained by get_error()
-	 * @return false There was no error
-	 */
-	bool is_error() const;
-
-	/**
-	 * @brief Get the error_info object.
-	 * The error_info object contains the details of any REST error, if there is an error
-	 * (to find out if there is an error check confirmation_callback_t::is_error())
-	 *
-	 * @return error_info The details of the error message
-	 */
-	error_info get_error() const;
-
-	/**
-	 * @brief Get the stored value via std::get
-	 * @tparam T type to get
-	 * @return stored value as type T
-	 */
-	template<typename T>
-	T get() const {
-		return std::get<T>(value);
-	}
-};
-
-/**
- * @brief A callback upon command completion
- */
-typedef std::function<void(const confirmation_callback_t&)> command_completion_event_t;
-
-/**
- * @brief Automatically JSON encoded HTTP result
- */
-typedef std::function<void(json&, const http_request_completion_t&)> json_encode_t;
+	typedef std::function<void(json&, const http_request_completion_t&)> json_encode_t;
 };

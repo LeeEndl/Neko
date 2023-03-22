@@ -2,7 +2,7 @@
  *
  * D++, A Lightweight C++ library for Discord
  *
- * Copyright 2021 Craig Edwards and D++ contributors 
+ * Copyright 2021 Craig Edwards and D++ contributors
  * (https://github.com/brainboxdotcc/DPP/graphs/contributors)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,186 +27,184 @@
 #include <dpp/sslclient.h>
 
 namespace dpp {
-
-/**
- * @brief Websocket protocol types available on Discord
- */
-enum websocket_protocol_t : uint8_t {
 	/**
-	 * @brief JSON data, text, UTF-8 character set
+	 * @brief Websocket protocol types available on Discord
 	 */
-	ws_json = 0,
-	/**
-	 * @brief Erlang Term Format (ETF) binary protocol
-	 */
-	ws_etf = 1
-};
-
-/**
- * @brief Websocket connection status
- */
-enum ws_state : uint8_t {
-	/**
-	 * @brief Sending/receiving HTTP headers, acting as a standard HTTP connection.
-	 * This is the state prior to receiving "HTTP/1.1 101 Switching Protocols" from the
-	 * server side.
-	 */
-	HTTP_HEADERS,
+	enum websocket_protocol_t : uint8_t {
+		/**
+		 * @brief JSON data, text, UTF-8 character set
+		 */
+		ws_json = 0,
+		/**
+		 * @brief Erlang Term Format (ETF) binary protocol
+		 */
+		ws_etf = 1
+	};
 
 	/**
-	 * @brief Connected as a websocket, and "upgraded". Now talking using binary frames.
+	 * @brief Websocket connection status
 	 */
-	CONNECTED
-};
+	enum ws_state : uint8_t {
+		/**
+		 * @brief Sending/receiving HTTP headers, acting as a standard HTTP connection.
+		 * This is the state prior to receiving "HTTP/1.1 101 Switching Protocols" from the
+		 * server side.
+		 */
+		HTTP_HEADERS,
 
-/**
- * @brief Low-level websocket opcodes for frames
- */
-enum ws_opcode : uint8_t
-{
-        OP_CONTINUATION = 0x00,	//!< Continuation
-        OP_TEXT = 0x01,		//!< Text frame
-        OP_BINARY = 0x02,	//!< Binary frame
-        OP_CLOSE = 0x08,	//!< Close notification with close code
-        OP_PING = 0x09,		//!< Low level ping
-        OP_PONG = 0x0a		//!< Low level pong
-};
-
-/**
- * @brief Implements a websocket client based on the SSL client
- */
-class DPP_EXPORT websocket_client : public ssl_client
-{
-	/**
-	 * @brief Connection key used in the HTTP headers
-	 */
-	std::string key;
+		/**
+		 * @brief Connected as a websocket, and "upgraded". Now talking using binary frames.
+		 */
+		CONNECTED
+	};
 
 	/**
-	 * @brief Current websocket state
+	 * @brief Low-level websocket opcodes for frames
 	 */
-	ws_state state;
+	enum ws_opcode : uint8_t
+	{
+		OP_CONTINUATION = 0x00,	//!< Continuation
+		OP_TEXT = 0x01,		//!< Text frame
+		OP_BINARY = 0x02,	//!< Binary frame
+		OP_CLOSE = 0x08,	//!< Close notification with close code
+		OP_PING = 0x09,		//!< Low level ping
+		OP_PONG = 0x0a		//!< Low level pong
+	};
 
 	/**
-	 * @brief Path part of URL for websocket
+	 * @brief Implements a websocket client based on the SSL client
 	 */
-	std::string path;
+	class DPP_EXPORT websocket_client : public ssl_client
+	{
+		/**
+		 * @brief Connection key used in the HTTP headers
+		 */
+		std::string key;
 
-	/**
-	 * @brief Data opcode, represents the type of frames we send
-	 */
-	ws_opcode data_opcode;
+		/**
+		 * @brief Current websocket state
+		 */
+		ws_state state;
 
-	/**
-	 * @brief HTTP headers received on connecting/upgrading
-	 */
-	std::map<std::string, std::string> http_headers;
+		/**
+		 * @brief Path part of URL for websocket
+		 */
+		std::string path;
 
-	/**
-	 * @brief Parse headers for a websocket frame from the buffer.
-	 * @param buffer The buffer to operate on. Will modify the string removing completed items from the head of the queue
-	 * @return true if a complete header has been received
-	 */
-	bool parseheader(std::string &buffer);
+		/**
+		 * @brief Data opcode, represents the type of frames we send
+		 */
+		ws_opcode data_opcode;
 
-	/**
-	 * @brief Unpack a frame and pass completed frames up the stack.
-	 * @param buffer The buffer to operate on. Gets modified to remove completed frames on the head of the buffer
-	 * @param offset The offset to start at (reserved for future use)
-	 * @param first True if is the first element (reserved for future use)
-	 * @return true if a complete frame has been received
-	 */
-	bool unpack(std::string &buffer, uint32_t offset, bool first = true);
+		/**
+		 * @brief HTTP headers received on connecting/upgrading
+		 */
+		std::map<std::string, std::string> http_headers;
 
-	/**
-	 * @brief Fill a header for outbound messages
-	 * @param outbuf The raw frame to fill
-	 * @param sendlength The size of the data to encapsulate
-	 * @param opcode the ws_opcode to send in the header
-	 * @return size of filled header
-	 */
-	size_t fill_header(unsigned char* outbuf, size_t sendlength, ws_opcode opcode);
+		/**
+		 * @brief Parse headers for a websocket frame from the buffer.
+		 * @param buffer The buffer to operate on. Will modify the string removing completed items from the head of the queue
+		 * @return true if a complete header has been received
+		 */
+		bool parseheader(std::string& buffer);
 
-	/**
-	 * @brief Handle ping and pong requests.
-	 * @param ping True if this is a ping, false if it is a pong 
-	 * @param payload The ping payload, to be returned as-is for a ping
-	 */
-	void handle_ping_pong(bool ping, const std::string &payload);
+		/**
+		 * @brief Unpack a frame and pass completed frames up the stack.
+		 * @param buffer The buffer to operate on. Gets modified to remove completed frames on the head of the buffer
+		 * @param offset The offset to start at (reserved for future use)
+		 * @param first True if is the first element (reserved for future use)
+		 * @return true if a complete frame has been received
+		 */
+		bool unpack(std::string& buffer, uint32_t offset, bool first = true);
 
-protected:
+		/**
+		 * @brief Fill a header for outbound messages
+		 * @param outbuf The raw frame to fill
+		 * @param sendlength The size of the data to encapsulate
+		 * @param opcode the ws_opcode to send in the header
+		 * @return size of filled header
+		 */
+		size_t fill_header(unsigned char* outbuf, size_t sendlength, ws_opcode opcode);
 
-	/**
-	 * @brief (Re)connect
-	 */
-	virtual void connect();
+		/**
+		 * @brief Handle ping and pong requests.
+		 * @param ping True if this is a ping, false if it is a pong
+		 * @param payload The ping payload, to be returned as-is for a ping
+		 */
+		void handle_ping_pong(bool ping, const std::string& payload);
 
-	/**
-	 * @brief Get websocket state
-	 * @return websocket state
-	 */
-	ws_state get_state();
+	protected:
 
-public:
+		/**
+		 * @brief (Re)connect
+		 */
+		virtual void connect();
 
-	/**
-	 * @brief Connect to a specific websocket server.
-	 * @param hostname Hostname to connect to
-	 * @param port Port to connect to
-	 * @param urlpath The URL path components of the HTTP request to send
-	 * @param opcode The encoding type to use, either OP_BINARY or OP_TEXT
-	 * @note Voice websockets only support OP_TEXT, and other websockets must be
-	 * OP_BINARY if you are going to send ETF.
-	 */
-        websocket_client(const std::string &hostname, const std::string &port = "443", const std::string &urlpath = "", ws_opcode opcode = OP_BINARY);
+		/**
+		 * @brief Get websocket state
+		 * @return websocket state
+		 */
+		ws_state get_state();
 
-	/**
-	 * @brief Destroy the websocket client object
-	 */
-        virtual ~websocket_client();
+	public:
 
-	/**
-	 * @brief Write to websocket. Encapsulates data in frames if the status is CONNECTED.
-	 * @param data The data to send.
-	 */
-        virtual void write(const std::string &data);
+		/**
+		 * @brief Connect to a specific websocket server.
+		 * @param hostname Hostname to connect to
+		 * @param port Port to connect to
+		 * @param urlpath The URL path components of the HTTP request to send
+		 * @param opcode The encoding type to use, either OP_BINARY or OP_TEXT
+		 * @note Voice websockets only support OP_TEXT, and other websockets must be
+		 * OP_BINARY if you are going to send ETF.
+		 */
+		websocket_client(const std::string& hostname, const std::string& port = "443", const std::string& urlpath = "", ws_opcode opcode = OP_BINARY);
 
-	/**
-	 * @brief Processes incoming frames from the SSL socket input buffer.
-	 * @param buffer The buffer contents. Can modify this value removing the head elements when processed.
-	 */
-        virtual bool handle_buffer(std::string &buffer);
+		/**
+		 * @brief Destroy the websocket client object
+		 */
+		virtual ~websocket_client();
 
-	/**
-	 * @brief Close websocket
-	 */
-        virtual void close();
+		/**
+		 * @brief Write to websocket. Encapsulates data in frames if the status is CONNECTED.
+		 * @param data The data to send.
+		 */
+		virtual void write(const std::string& data);
 
-	/**
-	 * @brief Receives raw frame content only without headers
-	 * 
-	 * @param buffer The buffer contents
-	 * @return True if the frame was successfully handled. False if no valid frame is in the buffer.
-	 */
-	virtual bool handle_frame(const std::string &buffer);
+		/**
+		 * @brief Processes incoming frames from the SSL socket input buffer.
+		 * @param buffer The buffer contents. Can modify this value removing the head elements when processed.
+		 */
+		virtual bool handle_buffer(std::string& buffer);
 
-	/**
-	 * @brief Called upon error frame.
-	 * 
-	 * @param errorcode The error code from the websocket server
-	 */
-	virtual void error(uint32_t errorcode);
+		/**
+		 * @brief Close websocket
+		 */
+		virtual void close();
 
-	/**
-	 * @brief Fires every second from the underlying socket I/O loop, used for sending websocket pings
-	 */
-	virtual void one_second_timer();
+		/**
+		 * @brief Receives raw frame content only without headers
+		 *
+		 * @param buffer The buffer contents
+		 * @return True if the frame was successfully handled. False if no valid frame is in the buffer.
+		 */
+		virtual bool handle_frame(const std::string& buffer);
 
-	/**
-	 * @brief Send OP_CLOSE error code 1000 to the other side of the connection.
-	 * This indicates graceful close.
-	 */
-	void send_close_packet();
-};
+		/**
+		 * @brief Called upon error frame.
+		 *
+		 * @param errorcode The error code from the websocket server
+		 */
+		virtual void error(uint32_t errorcode);
 
+		/**
+		 * @brief Fires every second from the underlying socket I/O loop, used for sending websocket pings
+		 */
+		virtual void one_second_timer();
+
+		/**
+		 * @brief Send OP_CLOSE error code 1000 to the other side of the connection.
+		 * This indicates graceful close.
+		 */
+		void send_close_packet();
+	};
 };
