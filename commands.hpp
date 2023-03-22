@@ -190,7 +190,6 @@ namespace commands {
 				if (has_char(name)) return false; // safely stoull()
 				url = bot.user_get_sync(stoull(name)).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(name);
 			}
-			cout << url << endl;
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue)
 				.set_description(("<@") + (url == event.msg.member.get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(event.msg.member.user_id) : to_string(mention)) + (">'s Avatar"))

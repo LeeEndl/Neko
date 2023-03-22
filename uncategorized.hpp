@@ -1,8 +1,6 @@
 ﻿#pragma once
-dpp::cluster bot(
-	static_cast<string>("MTAwNDUxNDkzNTA1OTAwNTQ3MA.GCLzi3.oyFg9LNfawz4yT2t5ZyH87UbAx4iM9mAO_Ou2w"),
-	static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content)
-);
+
+dpp::cluster bot("", static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content));
 
 namespace uncategorized
 {

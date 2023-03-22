@@ -7,6 +7,11 @@
 
 void main()
 {
+	if (not ifstream("token").is_open())
+		print("Empty Token.", color::red), 
+		print("token: ", color::white, true), cin >> bot.token, ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
+
+	getline(ifstream("token"), bot.token);
 	uncategorized::StructUserMap(), uncategorized::StructGuildMap();
 	bot.on_log([](const dpp::log_t& event) {
 		print(event.message,
