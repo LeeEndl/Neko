@@ -1,6 +1,4 @@
 #pragma once
-using namespace std;
-using namespace this_thread;
 
 class UserData
 {

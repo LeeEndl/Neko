@@ -114,27 +114,36 @@ namespace slashcommand {
 				.set_name("avatar")
 				.set_description("view someone's avatar")
 				.add_option(dpp::command_option(dpp::co_string, "name", "person's avatar you wanna view, empty if yourself.", false))
-				.set_default_permissions(dpp::permissions::p_administrator)
 				.set_application_id(bot.me.id);
 			avatar = bot.global_command_create_sync(avatar);
 			if (remove) bot.global_command_delete_sync(avatar.id);
+			break;
+		}
+		case commands::command::invite: {
+			dpp::slashcommand invite = dpp::slashcommand()
+				.set_name("invite")
+				.set_description("invite " + bot.me.username + " to your server")
+				.set_application_id(bot.me.id);
+			invite = bot.global_command_create_sync(invite);
+			if (remove) bot.global_command_delete_sync(invite.id);
 			break;
 		}
 		default: break;
 		}
 	}
 	void update_all(bool remove = false) {
-		update(commands::command::daily);
-		update(commands::command::profile);
-		update(commands::command::shop);
-		update(commands::command::buy);
-		update(commands::command::sell);
-		update(commands::command::fish);
-		update(commands::command::repair);
-		update(commands::command::leaderboard);
-		update(commands::command::purge);
-		update(commands::command::membercount);
-		update(commands::command::avatar);
+		update(commands::command::daily, remove);
+		update(commands::command::profile, remove);
+		update(commands::command::shop, remove);
+		update(commands::command::buy, remove);
+		update(commands::command::sell, remove);
+		update(commands::command::fish, remove);
+		update(commands::command::repair, remove);
+		update(commands::command::leaderboard, remove);
+		update(commands::command::purge, remove);
+		update(commands::command::membercount, remove);
+		update(commands::command::avatar, remove);
+		update(commands::command::invite, remove);
 	}
 	class slashcommands
 	{
@@ -163,8 +172,8 @@ namespace slashcommand {
 					.set_color(dpp::colors::cute_blue)
 					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.command.channel_id, embed));
-				return true;
 			}
+			return true;
 		}
 		static bool profile(const dpp::slashcommand_t& event)
 		{
@@ -314,8 +323,39 @@ namespace slashcommand {
 					event.reply(dpp::message(event.command.channel_id, embed));
 				}
 				else {
-					future<void> fishing = async(uncategorized::fishing, event);
-					fishing.wait();
+					auto fishing = [&]()
+					{
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = true;
+						UserData data = GetUserData(event.command.member.user_id);
+						if (data.rod not_eq "-1" and data.rod_d == 0)
+						{
+							dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("Your fishing rod broke! **/repair 1**");
+							event.reply(dpp::message(event.command.channel_id, embed));
+							data.rod = "-1";
+						}
+						SaveUserData(data, event.command.member.user_id);
+						{
+							UserData data = GetUserData(event.command.member.user_id);
+							if (data.rod_d not_eq 0)
+							{
+								dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Waiting for the fish to bite...");
+								dpp::message msg = dpp::message();
+								msg.channel_id = event.command.channel_id;
+								msg.add_embed(embed);
+								event.reply(msg);
+								async(Sleep, randomx::Int(6000, 11000));
+								for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
+								event.edit_response(msg);
+								data.rod_d -= 1;
+								data.fish += 1;
+								data.last_fish = std::time(0);
+								SaveUserData(data, event.command.member.user_id);
+							}
+						}
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = false, find.second.busy_fishing = false;
+					};
+					auto _fishing = async(fishing);
+					_fishing.wait();
 				}
 			return true;
 		}
@@ -394,8 +434,11 @@ namespace slashcommand {
 					.set_color(dpp::colors::cute_blue)
 					.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
 				event.reply(dpp::message(event.command.channel_id, embed));
+				auto mass_delete = [&]() {
+					for (auto& msg : oids) bot.message_delete(msg, event.command.channel_id), sleep_for(200ms);
+				};
 				if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.command.channel_id);
-				if (not oids.empty()) async(uncategorized::mass_delete, oids, event.command.channel_id);
+				if (not oids.empty()) async(mass_delete);
 			}
 			return true;
 		}
@@ -437,6 +480,13 @@ namespace slashcommand {
 			event.reply(dpp::message(event.command.channel_id, embed));
 			return true;
 		}
+		static bool invite(const dpp::slashcommand_t& event)
+		{
+			event.reply("https://discord.com/api/oauth2/authorize?client_id=" +
+				to_string(bot.me.id) +
+				"&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands");
+			return true;
+		}
 	};
 	int find_command(string command)
 	{
@@ -452,6 +502,7 @@ namespace slashcommand {
 		else if (command == "purge") return commands::command::purge;
 		else if (command == "membercount") return commands::command::membercount;
 		else if (command == "avatar") return commands::command::avatar;
+		else if (command == "invite") return commands::command::invite;
 		else return -1;
 	}
 	vector<thread> slashcommands_executed;
@@ -504,6 +555,10 @@ namespace slashcommand {
 		}
 		case commands::command::avatar: {
 			async(slashcommands::avatar, event);
+			break;
+		}
+		case commands::command::invite: {
+			async(slashcommands::invite, event);
 			break;
 		}
 		default: break;

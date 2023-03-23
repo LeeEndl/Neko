@@ -42,11 +42,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4858</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,17 +90,14 @@
     <ClInclude Include="include\dpp\dpp.h" />
     <ClInclude Include="include\dpp\dtemplate.h" />
     <ClInclude Include="include\dpp\emoji.h" />
-    <ClInclude Include="include\dpp\etf.h" />
     <ClInclude Include="include\dpp\event.h" />
     <ClInclude Include="include\dpp\event_router.h" />
     <ClInclude Include="include\dpp\exception.h" />
-    <ClInclude Include="include\dpp\export.h" />
     <ClInclude Include="include\dpp\guild.h" />
     <ClInclude Include="include\dpp\httpsclient.h" />
     <ClInclude Include="include\dpp\integration.h" />
     <ClInclude Include="include\dpp\intents.h" />
     <ClInclude Include="include\dpp\invite.h" />
-    <ClInclude Include="include\dpp\json.h" />
     <ClInclude Include="include\dpp\json_interface.h" />
     <ClInclude Include="include\dpp\managed.h" />
     <ClInclude Include="include\dpp\message.h" />
@@ -119,7 +117,6 @@
     <ClInclude Include="include\dpp\stage_instance.h" />
     <ClInclude Include="include\dpp\stringops.h" />
     <ClInclude Include="include\dpp\sync.h" />
-    <ClInclude Include="include\dpp\sysdep.h" />
     <ClInclude Include="include\dpp\timed_listener.h" />
     <ClInclude Include="include\dpp\timer.h" />
     <ClInclude Include="include\dpp\user.h" />
@@ -130,7 +127,6 @@
     <ClInclude Include="include\dpp\webhook.h" />
     <ClInclude Include="include\dpp\win32_safe_warnings.h" />
     <ClInclude Include="include\dpp\wsclient.h" />
-    <ClInclude Include="uncategorized.hpp" />
     <ClInclude Include="slashcommand.hpp" />
     <ClInclude Include="user.hpp" />
   </ItemGroup>

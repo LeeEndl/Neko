@@ -1,6 +1,4 @@
 #pragma once
-using namespace std;
-using namespace this_thread;
 
 class GuildData {
 public:
@@ -23,7 +21,7 @@ inline GuildData GetGuildData(dpp::snowflake guild_id)
 inline void SaveGuildData(GuildData data, dpp::snowflake guild_id)
 {
 	json j;
-	j.dump(1)
+	j.dump(1);
 	j["joined"] = data.joined;
 	j["prefix"] = data.prefix;
 	ofstream("database/guild/" + to_string(guild_id) + ".txt") << setw(2) << j;

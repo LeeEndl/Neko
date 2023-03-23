@@ -5,7 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="commands.hpp" />
-    <ClInclude Include="uncategorized.hpp" />
     <ClInclude Include="slashcommand.hpp" />
     <ClInclude Include="include\dpp\appcommand.h">
       <Filter>dpp</Filter>
@@ -73,9 +72,6 @@
     <ClInclude Include="include\dpp\emoji.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\etf.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\event.h">
       <Filter>dpp</Filter>
     </ClInclude>
@@ -83,9 +79,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\exception.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\export.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\guild.h">
@@ -101,9 +94,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\invite.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\json.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\json_interface.h">
@@ -161,9 +151,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\sync.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\sysdep.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\timed_listener.h">

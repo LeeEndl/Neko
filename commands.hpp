@@ -1,6 +1,6 @@
 #pragma once
 namespace commands {
-	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar };
+	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar, invite };
 	int find_command_with_prefix(string command, dpp::snowflake guild_id)
 	{
 		GuildData g_data = GetGuildData(guild_id);
@@ -12,6 +12,7 @@ namespace commands {
 		else if (command.find(g_data.prefix + "purge ") not_eq -1) return command::purge;
 		else if (command.find(g_data.prefix + "membercount") not_eq -1) return command::membercount;
 		else if (command.find(g_data.prefix + "avatar ") not_eq -1 or command.find(g_data.prefix + "avatar") not_eq -1) return command::avatar;
+		else if (command.find(g_data.prefix + "invite") not_eq -1) return command::invite;
 		else return -1;
 	}
 	class commands
@@ -58,8 +59,8 @@ namespace commands {
 					.set_color(dpp::colors::cute_blue)
 					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.msg.channel_id, embed));
-				return true;
 			}
+			return true;
 		}
 		static bool profile(const dpp::message_create_t& event)
 		{
@@ -156,9 +157,12 @@ namespace commands {
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
-				bot.message_create_sync(dpp::message(event.msg.channel_id, embed));
+				event.reply(dpp::message(event.msg.channel_id, embed));
+				auto mass_delete = [&]() {
+					for (auto& msg : oids) bot.message_delete(msg, event.msg.channel_id), sleep_for(200ms);
+				};
 				if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.msg.channel_id);
-				if (not oids.empty()) async(uncategorized::mass_delete, oids, event.msg.channel_id);
+				if (not oids.empty()) async(mass_delete);
 			}
 			return true;
 		}
@@ -201,6 +205,13 @@ namespace commands {
 			event.reply(dpp::message(event.msg.channel_id, embed));
 			return true;
 		}
+		static bool invite(const dpp::message_create_t& event)
+		{
+			event.reply("https://discord.com/api/oauth2/authorize?client_id=" +
+				to_string(bot.me.id) +
+				"&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands");
+			return true;
+		}
 	};
 
 	vector<thread> commands_executed;
@@ -241,6 +252,10 @@ namespace commands {
 		}
 		case command::avatar: {
 			async(commands::avatar, event);
+			break;
+		}
+		case command::invite: {
+			async(commands::invite, event);
 			break;
 		}
 		default: break;
