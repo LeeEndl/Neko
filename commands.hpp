@@ -3,7 +3,7 @@ namespace commands {
 	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar };
 	int find_command_with_prefix(string command, dpp::snowflake guild_id)
 	{
-		uncategorized::GuildData g_data = uncategorized::GetGuildData(guild_id);
+		GuildData g_data = GetGuildData(guild_id);
 		if (command.find(g_data.prefix + "prefix ") not_eq -1) return command::prefix;
 		else if (command.find(g_data.prefix + "daily") not_eq -1) return command::daily;
 		else if (command.find(g_data.prefix + "profile ") not_eq -1) return command::profile;
@@ -23,11 +23,11 @@ namespace commands {
 			dpp::user* user = dpp::find_user(event.msg.member.user_id);
 			dpp::guild* guild = dpp::find_guild(event.msg.guild_id);
 			if (guild->base_permissions(user) & dpp::p_administrator) {
-				uncategorized::GuildData g_data = uncategorized::GetGuildData(event.msg.guild_id);
+				GuildData g_data = GetGuildData(event.msg.guild_id);
 				if (i[1].size() > 1 or i[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
 				else {
 					g_data.prefix = i[1];
-					uncategorized::SaveGuildData(g_data, event.msg.guild_id);
+					SaveGuildData(g_data, event.msg.guild_id);
 					event.reply("Prefix is now set to: **" + g_data.prefix + "**");
 				}
 			}
@@ -36,22 +36,23 @@ namespace commands {
 		}
 		static bool daily(const dpp::message_create_t& event)
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
-			tm* claimed = dpp::utility::mtm(data.daily);
+			UserData data = GetUserData(event.msg.member.user_id);
 			tm* now = dpp::utility::mtm(time(0));
-			if (to_string(claimed->tm_mon) + "/" + to_string(claimed->tm_mday) not_eq to_string(now->tm_mon) + "/" + to_string(now->tm_mday))
+			tm* claimed = dpp::utility::mtm(data.daily);
+			if (claimed->tm_mon + claimed->tm_mday not_eq now->tm_mon + now->tm_mday or data.daily == 0)
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
 				data.dollars = data.dollars += dollar;
-				uncategorized::SaveUserData(data, event.msg.member.user_id);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_title("Thanks for opening my gift! :tada:")
 					.set_description("- " + static_cast<string>(to_string(dollar)) + " :dollar:");
 				event.reply(dpp::message(event.msg.channel_id, embed));
+				SaveUserData(data, event.msg.member.user_id);
 			}
 			else {
+				tm* claimed = dpp::utility::mtm(data.daily);
 				time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
@@ -69,8 +70,8 @@ namespace commands {
 			name.erase(remove(name.begin(), name.end(), '!'), name.end());
 			name.erase(remove(name.begin(), name.end(), '@'), name.end());
 			if (has_char(name)) return false; // safely stoull()
-			uncategorized::UserData data = uncategorized::GetUserData(stoull(name));
-			if (data.failed) uncategorized::new_user(stoull(name));
+			UserData data = GetUserData(stoull(name));
+			if (data.failed) new_user(stoull(name));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
 				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
@@ -106,10 +107,10 @@ namespace commands {
 		}
 		static bool leaderboard(const dpp::message_create_t& event)
 		{
-			if (uncategorized::members.empty()) return false;
+			if (members.empty()) return false;
 			string oriented = "";
 			vector<pair<uint64_t, uint64_t>> buffer;
-			for (auto& member : uncategorized::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+			for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id);
 			sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
 			for (auto& i : buffer) {
 				if (i.second == 0) continue;
@@ -204,8 +205,8 @@ namespace commands {
 
 	vector<thread> commands_executed;
 	inline thread await_on_message_create(const dpp::message_create_t& event) {
-		uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
-		if (data.failed) uncategorized::new_user(event.msg.member.user_id);
+		UserData data = GetUserData(event.msg.member.user_id);
+		if (data.failed) new_user(event.msg.member.user_id);
 		switch (find_command_with_prefix(event.msg.content, event.msg.guild_id))
 		{
 		case command::prefix: {
@@ -245,9 +246,9 @@ namespace commands {
 		default: break;
 		}
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(event.msg.member.user_id);
+			UserData data = GetUserData(event.msg.member.user_id);
 			data.last_on = std::time(0);
-			uncategorized::SaveUserData(data, event.msg.member.user_id);
+			SaveUserData(data, event.msg.member.user_id);
 		}
 		return thread();
 	}

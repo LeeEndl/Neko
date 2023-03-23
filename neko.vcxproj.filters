@@ -196,6 +196,8 @@
     <ClInclude Include="include\dpp\wsclient.h">
       <Filter>dpp</Filter>
     </ClInclude>
+    <ClInclude Include="user.hpp" />
+    <ClInclude Include="guild.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="dpp">

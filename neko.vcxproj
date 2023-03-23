@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="commands.hpp" />
+    <ClInclude Include="guild.hpp" />
     <ClInclude Include="include\dpp\appcommand.h" />
     <ClInclude Include="include\dpp\application.h" />
     <ClInclude Include="include\dpp\auditlog.h" />
@@ -131,6 +132,7 @@
     <ClInclude Include="include\dpp\wsclient.h" />
     <ClInclude Include="uncategorized.hpp" />
     <ClInclude Include="slashcommand.hpp" />
+    <ClInclude Include="user.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -123,34 +123,48 @@ namespace slashcommand {
 		default: break;
 		}
 	}
+	void update_all(bool remove = false) {
+		update(commands::command::daily);
+		update(commands::command::profile);
+		update(commands::command::shop);
+		update(commands::command::buy);
+		update(commands::command::sell);
+		update(commands::command::fish);
+		update(commands::command::repair);
+		update(commands::command::leaderboard);
+		update(commands::command::purge);
+		update(commands::command::membercount);
+		update(commands::command::avatar);
+	}
 	class slashcommands
 	{
 	public:
 		static bool daily(const dpp::slashcommand_t& event)
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
-			tm* claimed = dpp::utility::mtm(data.daily);
+			UserData data = GetUserData(event.command.member.user_id);
 			tm* now = dpp::utility::mtm(time(0));
-			if (to_string(claimed->tm_mon) + "/" + to_string(claimed->tm_mday) not_eq to_string(now->tm_mon) + "/" + to_string(now->tm_mday))
+			tm* claimed = dpp::utility::mtm(data.daily);
+			if (claimed->tm_mon + claimed->tm_mday not_eq now->tm_mon + now->tm_mday or data.daily == 0)
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
 				data.dollars = data.dollars += dollar;
-				uncategorized::SaveUserData(data, event.command.member.user_id);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_title("Thanks for opening my gift! :tada:")
 					.set_description("- " + static_cast<string>(to_string(dollar)) + " :dollar:");
 				event.reply(dpp::message(event.command.channel_id, embed));
+				SaveUserData(data, event.command.member.user_id);
 			}
 			else {
+				tm* claimed = dpp::utility::mtm(data.daily);
 				time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::cute_blue)
 					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.command.channel_id, embed));
+				return true;
 			}
-			return true;
 		}
 		static bool profile(const dpp::slashcommand_t& event)
 		{
@@ -160,8 +174,8 @@ namespace slashcommand {
 			name.erase(remove(name.begin(), name.end(), '!'), name.end());
 			name.erase(remove(name.begin(), name.end(), '@'), name.end());
 			if (has_char(name)) return false; // safely stoull()
-			uncategorized::UserData data = uncategorized::GetUserData(stoull(name));
-			if (data.failed) uncategorized::new_user(stoull(name));
+			UserData data = GetUserData(stoull(name));
+			if (data.failed) new_user(stoull(name));
 			dpp::embed embed = dpp::embed()
 				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
 				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
@@ -201,7 +215,7 @@ namespace slashcommand {
 			string amount = std::get<std::string>(event.get_parameter("amount"));
 			if (id == "1")
 			{
-				uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
+				UserData data = GetUserData(event.command.member.user_id);
 				int forecast = 15 * stoull(amount);
 				if (data.dollars < forecast) {
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You can't afford it.");
@@ -214,14 +228,14 @@ namespace slashcommand {
 				else {
 					data.dollars = data.dollars -= forecast;
 					data.rod = "1", data.rod_d = 15;
-					uncategorized::SaveUserData(data, event.command.member.user_id);
+					SaveUserData(data, event.command.member.user_id);
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You've Purchased a Wooden Fishing Rod!");
 					event.reply(dpp::message(event.command.channel_id, embed));
 				}
 			}
 			else if (id == "2")
 			{
-				uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
+				UserData data = GetUserData(event.command.member.user_id);
 				int forecast = 2 * stoull(amount);
 				if (static_cast<int>(data.dollars) < static_cast<int>(forecast)) {
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You can't afford it.");
@@ -230,7 +244,7 @@ namespace slashcommand {
 				else {
 					data.dollars = data.dollars - forecast;
 					data.fish = data.fish + stoi(amount);
-					uncategorized::SaveUserData(data, event.command.member.user_id);
+					SaveUserData(data, event.command.member.user_id);
 					dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You've Purchased a Wooden Fishing Rod!");
 					event.reply(dpp::message(event.command.channel_id, embed));
 				}
@@ -253,10 +267,10 @@ namespace slashcommand {
 			}
 			else if (static_cast<string>(id) == "fish")
 			{
-				uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
+				UserData data = GetUserData(event.command.member.user_id);
 				data.dollars += 2 * stoull(amount);
 				data.fish = data.fish - stoi(amount);
-				uncategorized::SaveUserData(data, event.command.member.user_id);
+				SaveUserData(data, event.command.member.user_id);
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:");
 				event.reply(dpp::message(event.command.channel_id, embed));
 			}
@@ -269,8 +283,8 @@ namespace slashcommand {
 		}
 		static bool fish(const dpp::slashcommand_t& event)
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
-			for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id)
+			UserData data = GetUserData(event.command.member.user_id);
+			for (auto& find : members) if (find.first == event.command.member.user_id)
 				if (find.second.busy_fishing) {
 					event.reply(event.command.member.get_user()->username + ". Your still fishing!");
 					sleep_for(1s), event.delete_original_response();
@@ -278,7 +292,7 @@ namespace slashcommand {
 				}
 				else if (data.last_fish + 10 > time(0)) {
 					{
-						for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) {
+						for (auto& find : members) if (find.first == event.command.member.user_id) {
 							if (find.second.once_fishing) return false;
 							find.second.once_fishing = true;
 						}
@@ -289,7 +303,7 @@ namespace slashcommand {
 					while (true) {
 						if (data.last_fish + 10 < time(0)) {
 							event.delete_original_response();
-							for (auto& find : uncategorized::members) if (find.first == event.command.member.user_id) find.second.once_fishing = false;
+							for (auto& find : members) if (find.first == event.command.member.user_id) find.second.once_fishing = false;
 							goto escape;
 						}
 					}
@@ -330,10 +344,10 @@ namespace slashcommand {
 		}
 		static bool leaderboard(const dpp::slashcommand_t& event)
 		{
-			if (uncategorized::members.empty()) return false;
+			if (members.empty()) return false;
 			string oriented = "";
 			vector<pair<uint64_t, uint64_t>> buffer;
-			for (auto& member : uncategorized::members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+			for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id);
 			sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
 			for (auto& i : buffer) {
 				if (i.second == 0) continue;
@@ -442,8 +456,8 @@ namespace slashcommand {
 	}
 	vector<thread> slashcommands_executed;
 	inline thread await_on_slashcommand(const dpp::slashcommand_t& event) {
-		uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
-		if (data.failed) uncategorized::new_user(event.command.member.user_id);
+		UserData data = GetUserData(event.command.member.user_id);
+		if (data.failed) new_user(event.command.member.user_id);
 		switch (find_command(event.command.get_command_name()))
 		{
 		case commands::command::daily: {
@@ -495,15 +509,15 @@ namespace slashcommand {
 		default: break;
 		}
 		{
-			uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
+			UserData data = GetUserData(event.command.member.user_id);
 			data.last_on = time(0);
-			uncategorized::SaveUserData(data, event.command.member.user_id);
+			SaveUserData(data, event.command.member.user_id);
 		}
 		return thread();
 	}
 	vector<thread> button_clicked_executed;
 	inline void await_on_button_click(const dpp::button_click_t& event) {
-		uncategorized::UserData data = uncategorized::GetUserData(event.command.member.user_id);
+		UserData data = GetUserData(event.command.member.user_id);
 		vector<string> i = explode(event.custom_id, '_');
 		if (event.custom_id.find("repair_1") not_eq -1 and i[2] == to_string(event.command.member.user_id))
 		{
@@ -513,7 +527,7 @@ namespace slashcommand {
 				data.rod_d = 15;
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_blue).set_description("Repair Complete!");
 				event.reply(dpp::message(event.command.channel_id, embed));
-				uncategorized::SaveUserData(data, event.command.member.user_id);
+				SaveUserData(data, event.command.member.user_id);
 			}
 			else {
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::cute_red).set_description("You don't have enough to repair it!");

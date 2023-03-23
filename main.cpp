@@ -1,5 +1,7 @@
 ﻿#include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
+#include "user.hpp"
+#include "guild.hpp"
 #include "uncategorized.hpp"
 #include "commands.hpp"
 #include "slashcommand.hpp"
@@ -9,9 +11,8 @@ void main()
 	if (not ifstream("token").is_open())
 		print("Empty Token.", color::red),
 		print("token: ", color::white, true), cin >> bot.token, ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
-
 	getline(ifstream("token"), bot.token);
-	uncategorized::StructUserMap(), uncategorized::StructGuildMap();
+	StructUserMap(), StructGuildMap();
 	bot.on_log([](const dpp::log_t& event) {
 		print(event.message,
 		event.severity == dpp::ll_trace ? color::gray :
@@ -23,13 +24,14 @@ void main()
 		uncategorized::ready_executed.emplace_back(thread::thread(uncategorized::await_on_ready, event));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
-		uncategorized::guild_create_executed.emplace_back(thread::thread(uncategorized::await_on_guild_create, event));
+		guild_create_executed.emplace_back(thread::thread(await_on_guild_create, event));
 		});
 	bot.on_guild_delete([](const dpp::guild_delete_t& event) {
-		uncategorized::guild_delete_executed.emplace_back(thread::thread(uncategorized::await_on_guild_delete, event));
+		guild_delete_executed.emplace_back(thread::thread(await_on_guild_delete, event));
 		});
 	bot.on_message_create([](const dpp::message_create_t& event) {
 		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
+		//register_slashcommands.emplace_back(thread::thread(slashcommand::update_all));
 		commands::commands_executed.emplace_back(commands::await_on_message_create, event);
 		});
 	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
