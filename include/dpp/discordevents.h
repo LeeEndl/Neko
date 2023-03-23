@@ -20,8 +20,6 @@
  ************************************************************************************/
 #pragma once
 
-#include <dpp/export.h>
-
 namespace dpp {
 	/** @brief Returns a snowflake id from a json field value, if defined, else returns 0
 	 * @param j nlohmann::json instance to retrieve value from

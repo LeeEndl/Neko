@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/misc-enum.h>
 #include <string>
 #include <functional>

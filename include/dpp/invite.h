@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <dpp/stage_instance.h>
 #include <unordered_map>

@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/snowflake.h>
 
 #define event_decl(x,wstype) /** @brief Internal event handler for wstype websocket events. Called for each websocket message of this type. @internal */ \

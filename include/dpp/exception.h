@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <string>
 #include <exception>
 #include <algorithm>

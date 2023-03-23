@@ -20,7 +20,6 @@
  ************************************************************************************/
 
 #pragma once
-#include <dpp/export.h>
 #include <dpp/exception.h>
 
 namespace dpp {

@@ -19,7 +19,6 @@
  */
 #pragma once
 
-#include <dpp/export.h>
 #include <dpp/cluster.h>
 #include <dpp/timed_listener.h>
 #include <time.h>

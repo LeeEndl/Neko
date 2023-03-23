@@ -20,7 +20,6 @@
  ************************************************************************************/
 #pragma once
 #include <variant>
-#include <dpp/export.h>
 #include <dpp/managed.h>
 #include <dpp/permissions.h>
 #include <dpp/guild.h>

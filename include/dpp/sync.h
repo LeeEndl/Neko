@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <future>
 #include <utility>

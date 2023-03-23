@@ -19,7 +19,8 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
+#define DPP_EXPORT __declspec(dllimport)
+#include <WinSock2.h>
 #include <dpp/version.h>
 #include <map>
 #include <vector>
@@ -67,3 +68,7 @@
 #include <dpp/discordevents.h>
 #include <dpp/timed_listener.h>
 #include <dpp/collector.h>
+using namespace std;
+using namespace this_thread;
+dpp::cluster bot("", static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content));
+vector<thread> ready_executed;

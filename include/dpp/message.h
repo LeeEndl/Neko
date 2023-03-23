@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/queues.h>
 #include <dpp/snowflake.h>
 #include <dpp/managed.h>

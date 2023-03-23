@@ -20,7 +20,6 @@
  ************************************************************************************/
 
 #pragma once
-#include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <optional>
 #include <dpp/json_interface.h>

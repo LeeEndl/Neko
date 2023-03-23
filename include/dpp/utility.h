@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-#include <dpp/export.h>
 #include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>
 #include <random>
@@ -512,9 +511,10 @@ bool has_char(std::string str) {
 	return false;
 }
 const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
-inline void print(std::string str, color c, bool Inline = false, bool stop = false) {
+template <class T>
+inline void print(std::vector<T> msg, color c, bool Inline = false, bool stop = false) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
-	std::cerr << str;
+	for (auto& _ : msg) std::cerr << _;
 	Inline ? std::cerr << std::flush : std::cerr << std::endl;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 	if (stop) std::cin.get();

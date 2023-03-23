@@ -20,8 +20,6 @@
  ************************************************************************************/
 #pragma once
 
-#include <dpp/export.h>
-
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
