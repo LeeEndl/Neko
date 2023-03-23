@@ -131,7 +131,7 @@ namespace commands {
 			if (stoi(i[1]) <= 1 or stoi(i[1]) >= 200) return false;
 			else {
 				int deleted = 0;
-				auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]) + 1);
+				auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]));
 				vector<dpp::snowflake> ids, oids;
 				if (msgs.size() <= 1) return false;
 				for (auto& msg : msgs) {
