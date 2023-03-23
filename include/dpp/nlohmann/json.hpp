@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-#include <utility>
-
 #ifndef JSON_SKIP_LIBRARY_VERSION_CHECK
 #if defined(NLOHMANN_JSON_VERSION_MAJOR) && defined(NLOHMANN_JSON_VERSION_MINOR) && defined(NLOHMANN_JSON_VERSION_PATCH)
 #if NLOHMANN_JSON_VERSION_MAJOR != 3 || NLOHMANN_JSON_VERSION_MINOR != 11 || NLOHMANN_JSON_VERSION_PATCH != 2
@@ -99,31 +97,16 @@
     }
 #endif
 
-#include <algorithm>
 #include <array>
 #include <forward_list>
-#include <iterator>
 #include <map>
-#include <string>
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
-#include <utility>
 #include <valarray>
-
-#include <cstddef>
 #include <exception>
 #include <stdexcept>
-#include <string>
-#include <vector>
-
-#include <array>
-#include <cstddef>
 #include <cstdint>
-#include <string>
-
-#include <utility>
-#include <type_traits>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -2711,8 +2694,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstddef>
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -2730,10 +2711,9 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <array>
-#include <cstddef>
-#include <type_traits>
-#include <utility>
+
+
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -2831,11 +2811,9 @@ namespace detail
 NLOHMANN_JSON_NAMESPACE_END
 
 #include <limits>
-#include <type_traits>
-#include <utility>
-#include <tuple>
 
-#include <iterator>
+
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -2894,11 +2872,8 @@ NLOHMANN_JSON_NAMESPACE_END
 #ifndef INCLUDE_NLOHMANN_JSON_FWD_HPP_
 #define INCLUDE_NLOHMANN_JSON_FWD_HPP_
 
-#include <cstdint>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -3550,8 +3525,6 @@ namespace detail
 NLOHMANN_JSON_NAMESPACE_END
 
 #include <cstring>
-#include <string>
-#include <utility>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -4348,20 +4321,12 @@ namespace
 
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <algorithm>
-#include <iterator>
-#include <string>
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include <valarray>
-#include <vector>
 
-#include <cstddef>
-#include <iterator>
-#include <string>
-#include <tuple>
-#include <utility>
+
+
+
+
+
 
 #if JSON_HAS_RANGES
 #include <ranges>
@@ -4983,9 +4948,8 @@ struct adl_serializer
 
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstdint>
-#include <tuple>
-#include <utility>
+
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -5060,9 +5024,7 @@ private:
 
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstdint>
-#include <cstddef>
-#include <functional>
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -5163,28 +5125,20 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <algorithm>
-#include <array>
+
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
+
+
 #include <cstdio>
 #include <cstring>
-#include <iterator>
-#include <limits>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include <array>
-#include <cstddef>
+#include <limits>
+
+
+
 #include <cstring>
-#include <iterator>
-#include <memory>
-#include <numeric>
-#include <string>
-#include <type_traits>
-#include <utility>
+
+
 
 #ifndef JSON_NO_IO
 #include <cstdio>
@@ -5597,11 +5551,6 @@ namespace detail
 	};
 }
 NLOHMANN_JSON_NAMESPACE_END
-
-#include <cstddef>
-#include <string>
-#include <utility>
-#include <vector>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -6157,15 +6106,11 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <array>
+
 #include <clocale>
-#include <cstddef>
+
 #include <cstdio>
 #include <cstdlib>
-#include <initializer_list>
-#include <string>
-#include <utility>
-#include <vector>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -7511,9 +7456,7 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstdint>
-#include <utility>
-#include <string>
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -10264,11 +10207,7 @@ namespace detail
 NLOHMANN_JSON_NAMESPACE_END
 
 #include <cmath>
-#include <cstdint>
-#include <functional>
-#include <string>
-#include <utility>
-#include <vector>
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -10673,7 +10612,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstddef>
 #include <limits>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
@@ -10790,8 +10728,7 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <iterator>
-#include <type_traits>
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -11356,10 +11293,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cstddef>
-#include <iterator>
-#include <utility>
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -11436,18 +11369,13 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cstdlib>
 #ifndef JSON_NO_IO
-#include <iosfwd>
+
 #endif
 #include <limits>
-#include <numeric>
-#include <string>
-#include <utility>
-#include <vector>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -12187,9 +12115,6 @@ inline bool operator<(const json_pointer<RefStringTypeLhs>& lhs,
 
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <initializer_list>
-#include <utility>
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -12250,23 +12175,12 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <algorithm>
-#include <array>
-#include <map>
+
+
 #include <cmath>
-#include <cstdint>
+
 #include <cstring>
 #include <limits>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <algorithm>
-#include <cstddef>
-#include <iterator>
-#include <memory>
-#include <string>
-#include <vector>
 
 #ifndef JSON_NO_IO
 #include <ios>
@@ -13977,25 +13891,23 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <algorithm>
-#include <array>
+
 #include <clocale>
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
+
+
 #include <cstdio>
 #include <limits>
-#include <string>
-#include <iomanip>
-#include <type_traits>
-#include <utility>
 
-#include <array>
+#include <iomanip>
+
+
+
 #include <cmath>
-#include <cstdint>
+
 #include <cstring>
 #include <limits>
-#include <type_traits>
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -15338,14 +15250,8 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <memory>
-#include <stdexcept>
-#include <type_traits>
-#include <utility>
-#include <vector>
+
+
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
