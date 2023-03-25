@@ -44,7 +44,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4858</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4858;26800</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
@@ -86,9 +86,7 @@
     <ClInclude Include="include\dpp\discordevents.h" />
     <ClInclude Include="include\dpp\discordvoiceclient.h" />
     <ClInclude Include="include\dpp\dispatcher.h" />
-    <ClInclude Include="include\dpp\dns.h" />
     <ClInclude Include="include\dpp\dpp.h" />
-    <ClInclude Include="include\dpp\dtemplate.h" />
     <ClInclude Include="include\dpp\emoji.h" />
     <ClInclude Include="include\dpp\event.h" />
     <ClInclude Include="include\dpp\event_router.h" />
@@ -98,7 +96,6 @@
     <ClInclude Include="include\dpp\integration.h" />
     <ClInclude Include="include\dpp\intents.h" />
     <ClInclude Include="include\dpp\invite.h" />
-    <ClInclude Include="include\dpp\json_interface.h" />
     <ClInclude Include="include\dpp\managed.h" />
     <ClInclude Include="include\dpp\message.h" />
     <ClInclude Include="include\dpp\misc-enum.h" />
@@ -125,7 +122,6 @@
     <ClInclude Include="include\dpp\voiceregion.h" />
     <ClInclude Include="include\dpp\voicestate.h" />
     <ClInclude Include="include\dpp\webhook.h" />
-    <ClInclude Include="include\dpp\win32_safe_warnings.h" />
     <ClInclude Include="include\dpp\wsclient.h" />
     <ClInclude Include="slashcommand.hpp" />
     <ClInclude Include="user.hpp" />

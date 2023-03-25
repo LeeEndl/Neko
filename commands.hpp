@@ -8,6 +8,8 @@ namespace commands {
 		else if (command.find(g_data.prefix + "daily") not_eq -1) return command::daily;
 		else if (command.find(g_data.prefix + "profile ") not_eq -1) return command::profile;
 		else if (command.find(g_data.prefix + "shop") not_eq -1) return command::shop;
+		else if (command.find(g_data.prefix + "buy ") not_eq -1) return command::buy;
+		else if (command.find(g_data.prefix + "sell ") not_eq -1) return command::sell;
 		else if (command.find(g_data.prefix + "leaderboard") not_eq -1 or command.find(g_data.prefix + "top") not_eq -1) return command::leaderboard;
 		else if (command.find(g_data.prefix + "purge ") not_eq -1) return command::purge;
 		else if (command.find(g_data.prefix + "membercount") not_eq -1) return command::membercount;
@@ -46,7 +48,7 @@ namespace commands {
 				data.daily = time(0);
 				data.dollars = data.dollars += dollar;
 				dpp::embed embed = dpp::embed()
-					.set_color(dpp::colors::cute_blue)
+					.set_color(dpp::colors::PS)
 					.set_title("Thanks for opening my gift! :tada:")
 					.set_description("- " + static_cast<string>(to_string(dollar)) + " :dollar:");
 				event.reply(dpp::message(event.msg.channel_id, embed));
@@ -56,7 +58,7 @@ namespace commands {
 				tm* claimed = dpp::utility::mtm(data.daily);
 				time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
 				dpp::embed embed = dpp::embed()
-					.set_color(dpp::colors::cute_blue)
+					.set_color(dpp::colors::PS)
 					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
 				event.reply(dpp::message(event.msg.channel_id, embed));
 			}
@@ -73,14 +75,20 @@ namespace commands {
 			if (has_char(name)) return false; // safely stoull()
 			UserData data = GetUserData(stoull(name));
 			if (data.failed) new_user(stoull(name));
+			string sort = "";
+			for (auto& tool : data.tools) {
+				sort += (tool.type == 1 ? "Durability: " + to_string(tool.durability) + "/15 :fishing_pole_and_fish: \n" :
+					tool.type == -1 ? "Broken :fishing_pole_and_fish:" : "") +
+					(tool.type == 2 ? "Durability: " + to_string(tool.durability) + "/15 :knife: \n" :
+						tool.type == -2 ? "Broken :knife:" : "");
+			}
 			dpp::embed embed = dpp::embed()
-				.set_color(dpp::colors::cute_blue).set_title(":mag_right: Profile Viewer")
+				.set_color(dpp::colors::PS).set_title(":mag_right: Profile Viewer")
 				.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
 				.add_field
 				(
-					"Tools: ", (
-						data.rod == "1" ? "Durability: " + to_string(data.rod_d) + "/15 :fishing_pole_and_fish: \n" :
-						data.rod == "-1" ? "Broken :fishing_pole_and_fish:" : "None")
+					"Tools: ",
+					sort.empty() ? "None" : sort
 				)
 				.add_field
 				(
@@ -94,16 +102,102 @@ namespace commands {
 		static bool shop(const dpp::message_create_t& event)
 		{
 			dpp::embed embed = dpp::embed()
-				.set_color(dpp::colors::cute_blue)
+				.set_color(dpp::colors::PS)
 				.set_title(":shopping_cart: Shop")
-				.add_field(
-					"Permanent Shop: ",
-					"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Fishing Level Requirement: None\n  - Cost: 15 :dollar:"
+				.set_description(
+					"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Cost: 15 :dollar:\n\
+                     `[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
 				)
 				.add_field(
 					"How to Buy?",
-					"type /buy {ID} {Amount}");
+					"type !buy {ID} {Amount}");
 			event.reply(dpp::message(event.msg.channel_id, embed));
+			return true;
+		}
+		static bool buy(const dpp::message_create_t& event)
+		{
+			auto i = explode(event.msg.content, ' ');
+			string id = i[1];
+			string amount = i[2];
+			if (id == "1" or id == "pole" or id == "fishing_pole")
+			{
+				bool found = false;
+				UserData data = GetUserData(event.msg.member.user_id);
+				for (auto& tool : data.tools) if (tool.type == 1) found = true;
+				int forecast = 15 * stoull(amount);
+				if (data.dollars < forecast) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You can't afford it.");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else if (found or stoi(amount) > 1) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You can only purchase one!");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else {
+					data.dollars = data.dollars -= forecast;
+					tools buf;
+					buf.type = 1, buf.durability = 15;
+					data.tools.emplace_back(buf);
+					SaveUserData(data, event.msg.member.user_id);
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("You've Purchased a :fishing_pole_and_fish:");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+			}
+			if (id == "3" or id == "knife")
+			{
+				bool found = false;
+				UserData data = GetUserData(event.msg.member.user_id);
+				for (auto& tool : data.tools) if (tool.type == 2) found = true;
+				int forecast = 80 * stoull(amount);
+				if (data.dollars < forecast) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You can't afford it.");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else if (found or stoi(amount) > 1) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You can only purchase one!");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else {
+					data.dollars = data.dollars -= forecast;
+					tools buf;
+					buf.type = 2, buf.durability = 15;
+					data.tools.emplace_back(buf);
+					SaveUserData(data, event.msg.member.user_id);
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("You've Purchased a :knife:");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+			}
+			else
+			{
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Invalid ID");
+				event.reply(dpp::message(event.msg.channel_id, embed));
+			}
+			return true;
+		}
+		static bool sell(const dpp::message_create_t& event)
+		{
+			auto i = explode(event.msg.content, ' ');
+			string id = i[1];
+			string amount = i[2];
+			if (id == "1" or id == "pole" or id == "fishing_pole" or id == "3" or id == "knife")
+			{
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You can't sell your fishing rod!");
+				event.reply(dpp::message(event.msg.channel_id, embed));
+			}
+			else if (id == "fish")
+			{
+				UserData data = GetUserData(event.msg.member.user_id);
+				data.dollars += 2 * stoull(amount);
+				data.fish = data.fish - stoi(amount);
+				SaveUserData(data, event.msg.member.user_id);
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:");
+				event.reply(dpp::message(event.msg.channel_id, embed));
+			}
+			else
+			{
+				dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Invalid ID");
+				event.reply(dpp::message(event.msg.channel_id, embed));
+			}
 			return true;
 		}
 		static bool leaderboard(const dpp::message_create_t& event)
@@ -118,7 +212,7 @@ namespace commands {
 				oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";
 			}
 			dpp::embed embed = dpp::embed()
-				.set_color(dpp::colors::cute_blue)
+				.set_color(dpp::colors::PS)
 				.set_title("Leaderboard: ")
 				.set_description(oriented);
 			event.reply(dpp::message(event.msg.channel_id, embed));
@@ -155,11 +249,11 @@ namespace commands {
 					ids.emplace_back(msg.second.id);
 				}
 				dpp::embed embed = dpp::embed()
-					.set_color(dpp::colors::cute_blue)
+					.set_color(dpp::colors::PS)
 					.set_description("Deleted `" + to_string(deleted) + "` Message(s)");
 				event.reply(dpp::message(event.msg.channel_id, embed));
-				auto mass_delete = [&]() {
-					for (auto& msg : oids) bot.message_delete(msg, event.msg.channel_id), sleep_for(200ms);
+				function<void()> mass_delete = [&]() {
+					for (auto& msg : oids) bot.message_delete(msg, event.msg.channel_id), sleep_for(500ms);
 				};
 				if (not ids.empty()) bot.message_delete_bulk_sync(ids, event.msg.channel_id);
 				if (not oids.empty()) async(mass_delete);
@@ -178,7 +272,7 @@ namespace commands {
 			} leave:
 
 			dpp::embed embed = dpp::embed()
-				.set_color(dpp::colors::cute_blue)
+				.set_color(dpp::colors::PS)
 				.set_description(bot.guild_get_sync(event.msg.guild_id).name + " (**" + to_string(membercount) + "**)")
 				.set_timestamp(time(0));
 			event.reply(dpp::message(event.msg.channel_id, embed));
@@ -199,7 +293,7 @@ namespace commands {
 				url = bot.user_get_sync(stoull(name)).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(name);
 			}
 			dpp::embed embed = dpp::embed()
-				.set_color(dpp::colors::cute_blue)
+				.set_color(dpp::colors::PS)
 				.set_description(("<@") + (url == event.msg.member.get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(event.msg.member.user_id) : to_string(mention)) + (">'s Avatar"))
 				.set_image(url);
 			event.reply(dpp::message(event.msg.channel_id, embed));
@@ -235,6 +329,14 @@ namespace commands {
 		}
 		case command::shop: {
 			async(commands::shop, event);
+			break;
+		}
+		case command::buy: {
+			async(commands::buy, event);
+			break;
+		}
+		case command::sell: {
+			async(commands::sell, event);
 			break;
 		}
 		case command::leaderboard: {

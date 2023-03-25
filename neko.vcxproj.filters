@@ -60,13 +60,7 @@
     <ClInclude Include="include\dpp\dispatcher.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\dns.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\dpp.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\dtemplate.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\emoji.h">
@@ -94,9 +88,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\invite.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\json_interface.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\managed.h">
@@ -175,9 +166,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\webhook.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\win32_safe_warnings.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\wsclient.h">

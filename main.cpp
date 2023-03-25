@@ -29,15 +29,15 @@ int main()
 		);
 		});
 	bot.on_ready([](const dpp::ready_t& event) {
-		auto status = [&]() {
-			int64_t last_guilds_size = 0;
-			while (true) if (guilds.size() not_eq last_guilds_size)
-				bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last_guilds_size = guilds.size(),
+		function<void()> status = [&]() {
+			int64_t last = 0;
+			while (true) if (guilds.size() not_eq last)
+				bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(),
 				sleep_for(1s);
 		};
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		ready_executed.emplace_back(thread::thread(status));
-		//register_slashcommands.emplace_back(thread::thread(slashcommand::update_all, false));
+		register_slashcommands.emplace_back(thread::thread(slashcommand::update_all, false));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
 		guild_create_executed.emplace_back(thread::thread(await_on_guild_create, event));
@@ -58,3 +58,8 @@ int main()
 		});
 	bot.start(dpp::start_type::st_wait);
 }
+
+#ifndef CUSTOM_VERSION
+#error "recommended to run neko on custom version: https://github.com/LeeEndl/Neko \
+do not worry, we stay up-to-date with D++ version"
+#endif
