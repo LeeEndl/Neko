@@ -31,9 +31,9 @@ int main()
 	bot.on_ready([](const dpp::ready_t& event) {
 		function<void()> status = [&]() {
 			int64_t last = 0;
-			while (true) if (guilds.size() not_eq last)
-				bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(),
-				sleep_for(1s);
+			while (true)
+				if (guilds.size() not_eq last)
+					bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(), sleep_for(500ms);
 		};
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		ready_executed.emplace_back(thread::thread(status));
