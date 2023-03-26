@@ -132,18 +132,21 @@ namespace slashcommand {
 		}
 	}
 	void update_all(bool remove = false) {
-		update(commands::command::daily, remove);
-		update(commands::command::profile, remove);
-		update(commands::command::shop, remove);
-		update(commands::command::buy, remove);
-		update(commands::command::sell, remove);
-		update(commands::command::fish, remove);
-		update(commands::command::repair, remove);
-		update(commands::command::leaderboard, remove);
-		update(commands::command::purge, remove);
-		update(commands::command::membercount, remove);
-		update(commands::command::avatar, remove);
-		update(commands::command::invite, remove);
+		async(update, commands::command::daily, remove).wait();
+		async(update, commands::command::profile, remove).wait();
+		async(update, commands::command::shop, remove).wait();
+		async(update, commands::command::buy, remove).wait();
+		async(update, commands::command::sell, remove).wait();
+		async(update, commands::command::fish, remove).wait();
+		async(update, commands::command::repair, remove).wait();
+		async(update, commands::command::leaderboard, remove).wait();
+		async(update, commands::command::purge, remove).wait();
+		async(update, commands::command::membercount, remove).wait();
+		async(update, commands::command::avatar, remove).wait();
+		async(update, commands::command::invite, remove).wait();
+		print<string>({
+			"updated all ", to_string(commands::command::invite), " slashcommands"
+			}, color::normal);
 	}
 	class slashcommands
 	{
