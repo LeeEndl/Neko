@@ -145,7 +145,8 @@ namespace slashcommand {
 		async(update, commands::command::avatar, remove).wait();
 		async(update, commands::command::invite, remove).wait();
 		print<string>({
-			"updated all ", to_string(commands::command::invite), " slashcommands"
+			bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ",
+			"updated ", to_string(stoi(SLASHCOMMAND_VERSION) - version), " slashcommand", stoi(SLASHCOMMAND_VERSION) - version <= 1 ? "" : "s"
 			}, color::normal);
 	}
 	class slashcommands
