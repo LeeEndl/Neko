@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 namespace commands {
-	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar, invite };
+	enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar, invite, hunt };
 	int find_command_with_prefix(string command, dpp::snowflake guild_id)
 	{
 		GuildData g_data = GetGuildData(guild_id);
@@ -10,11 +10,14 @@ namespace commands {
 		else if (command.find(g_data.prefix + "shop") not_eq -1) return command::shop;
 		else if (command.find(g_data.prefix + "buy ") not_eq -1) return command::buy;
 		else if (command.find(g_data.prefix + "sell ") not_eq -1) return command::sell;
+		else if (command.find(g_data.prefix + "fish") not_eq -1) return command::fish;
+		else if (command.find(g_data.prefix + "repair ") not_eq -1) return command::repair;
 		else if (command.find(g_data.prefix + "leaderboard") not_eq -1 or command.find(g_data.prefix + "top") not_eq -1) return command::leaderboard;
 		else if (command.find(g_data.prefix + "purge ") not_eq -1) return command::purge;
 		else if (command.find(g_data.prefix + "membercount") not_eq -1) return command::membercount;
 		else if (command.find(g_data.prefix + "avatar ") not_eq -1 or command.find(g_data.prefix + "avatar") not_eq -1) return command::avatar;
 		else if (command.find(g_data.prefix + "invite") not_eq -1) return command::invite;
+		else if (command.find(g_data.prefix + "hunt") not_eq -1) return command::hunt;
 		else return -1;
 	}
 	class commands
@@ -42,7 +45,8 @@ namespace commands {
 			UserData data = GetUserData(event.msg.member.user_id);
 			tm* now = dpp::utility::mtm(time(0));
 			tm* claimed = dpp::utility::mtm(data.daily);
-			if (claimed->tm_mon + claimed->tm_mday not_eq now->tm_mon + now->tm_mday or data.daily == 0)
+			time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
+			if (ct < time(0))
 			{
 				int dollar = randomx::Int(30, 92);
 				data.daily = time(0);
@@ -55,8 +59,6 @@ namespace commands {
 				SaveUserData(data, event.msg.member.user_id);
 			}
 			else {
-				tm* claimed = dpp::utility::mtm(data.daily);
-				time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
 				dpp::embed embed = dpp::embed()
 					.set_color(dpp::colors::PS)
 					.set_description("You've already claimed todays gift! You can obtain a new gift " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "");
@@ -106,7 +108,7 @@ namespace commands {
 				.set_title(":shopping_cart: Shop")
 				.set_description(
 					"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Cost: 15 :dollar:\n\
-                     `[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
+                     `\n[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
 				)
 				.add_field(
 					"How to Buy?",
@@ -200,6 +202,91 @@ namespace commands {
 			}
 			return true;
 		}
+		static bool fish(const dpp::message_create_t& event)
+		{
+			bool found = false;
+			UserData data = GetUserData(event.msg.member.user_id);
+			for (auto& tool : data.tools) if (tool.type == 1) found = true;
+			for (auto& find : members) if (find.first == event.msg.member.user_id)
+				if (find.second.busy_fishing) {
+					dpp::message msg = bot.message_create_sync(dpp::message(event.msg.channel_id, event.msg.member.get_user()->username + ". Your still fishing!"));
+					event.reply(event.msg.member.get_user()->username + ". Your still fishing!");
+					sleep_for(2s), bot.message_delete_sync(msg.id, event.msg.channel_id);
+					return false;
+				}
+				else if (find.second.last_fish + 10 > time(0)) {
+					if (find.second.once_fishing) return false;
+					find.second.once_fishing = true;
+					tm* mt = dpp::utility::mtm(find.second.last_fish);
+					time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+					dpp::message msg = bot.message_create_sync(dpp::message(event.msg.channel_id, event.msg.member.get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**"));
+					while (true) {
+						if (find.second.last_fish + 10 < time(0)) {
+							bot.message_delete_sync(msg.id, event.msg.channel_id);
+							find.second.once_fishing = false;
+							goto escape;
+						}
+					}
+				escape: return false;
+				}
+				else if (not found) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a fishing rod.");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else {
+					function<void()> fishing = [&]()
+					{
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.busy_fishing = true;
+						UserData data = GetUserData(event.msg.member.user_id);
+						for (auto& tool : data.tools) if (tool.type == 1)
+							if (tool.durability == 0)
+							{
+								dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your fishing rod broke! **/repair 1**");
+								event.reply(dpp::message(event.msg.channel_id, embed));
+								for (auto& tool : data.tools) if (tool.type == 1) tool.type = -1;
+								SaveUserData(data, event.msg.member.user_id);
+								return false;
+							}
+						dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
+						dpp::message msg = dpp::message();
+						msg.channel_id = event.msg.channel_id;
+						msg.add_embed(embed);
+						event.reply(msg);
+						async(Sleep, randomx::Int(6000, 11000));
+						for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
+						bot.message_edit_sync(msg);
+						data.fish += 1;
+						for (auto& tool : data.tools) if (tool.type == 1) tool.durability -= 1;
+						SaveUserData(data, event.msg.member.user_id);
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.last_fish = std::time(0);
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.busy_fishing = false;
+					}; async(fishing);
+				}
+			return true;
+		}
+		static bool repair(const dpp::message_create_t& event)
+		{
+			auto i = explode(event.msg.content, ' ');
+			string id = i[1];
+			string value = "";
+			switch (stoi(id)) {
+			case 1: value = to_string(12);
+			case 3: value = to_string(66);
+			}
+			if (value.empty()) return false;
+			dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_title(":hammer_pick: Repair").add_field(
+				"Repairing this will cost :dollar: " + value,
+				"Are You Sure?");
+			event.reply(dpp::message(event.msg.channel_id, embed).add_component(
+				dpp::component().add_component(dpp::component()
+					.set_label("Repair")
+					.set_type(dpp::cot_button)
+					.set_style(dpp::cos_success)
+					.set_id("repair_" + id + "_" + to_string(event.msg.member.user_id))
+				)
+			));
+			return true;
+		}
 		static bool leaderboard(const dpp::message_create_t& event)
 		{
 			if (members.empty()) return false;
@@ -222,14 +309,14 @@ namespace commands {
 		{
 			auto i = explode(event.msg.content, ' ');
 			if (has_char(i[1])) return false;
-			if (stoi(i[1]) <= 1 or stoi(i[1]) >= 200) return false;
+			if (stoi(i[1]) <= 1 or stoi(i[1]) > 100) return false;
 			else {
 				int deleted = 0;
 				auto msgs = bot.messages_get_sync(event.msg.channel_id, 0, 0, 0, stoull(i[1]));
 				vector<dpp::snowflake> ids, oids;
 				if (msgs.size() <= 1) return false;
 				for (auto& msg : msgs) {
-					if (not msg.second.webhook_id.empty()) continue; // TODO mass delete webhook
+					if (msg.second.author.username.empty()) continue;
 					deleted++;
 					tm* creation_time = dpp::utility::mtm(msg.second.sent);
 					tm* now = dpp::utility::mtm(time(0));
@@ -306,6 +393,104 @@ namespace commands {
 				"&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands");
 			return true;
 		}
+		static bool hunt(const dpp::message_create_t& event)
+		{
+			bool found = false;
+			UserData data = GetUserData(event.msg.member.user_id);
+			for (auto& tool : data.tools) if (tool.type == 2) found = true;
+			for (auto& find : members) if (find.first == event.msg.member.user_id)
+				if (find.second.busy_hunting) {
+					dpp::message msg = bot.message_create_sync(dpp::message(event.msg.channel_id, event.msg.member.get_user()->username + ". Your still hunting!"));
+					sleep_for(2s), bot.message_delete_sync(msg.id, event.msg.channel_id);
+					return false;
+				}
+				else if (find.second.last_hunt + 20 > time(0)) {
+					if (find.second.once_hunting) return false;
+					find.second.once_hunting = true;
+					tm* mt = dpp::utility::mtm(find.second.last_hunt);
+					time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 22, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+					dpp::message msg = bot.message_create_sync(dpp::message(event.msg.channel_id, event.msg.member.get_user()->username + ". You can hunt again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**"));
+					while (true) {
+						if (find.second.last_hunt + 20 < time(0)) {
+							bot.message_delete_sync(msg.id, event.msg.channel_id);
+							find.second.once_hunting = false;
+							goto escape;
+						}
+					}
+				escape: return false;
+				}
+				else if (not found) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a weapon.");
+					event.reply(dpp::message(event.msg.channel_id, embed));
+				}
+				else {
+					function<void()> hunt = [&]() {
+						for (auto& tool : data.tools) if (tool.type == 2)
+							if (tool.durability == 0)
+							{
+								dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your knife broke! **/repair 3**");
+								event.reply(dpp::message(event.msg.channel_id, embed));
+								for (auto& tool : data.tools) if (tool.type == 2) tool.type = -2;
+								SaveUserData(data, event.msg.member.user_id);
+								return false;
+							}
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.busy_hunting = true;
+						map<int, string> animals{ {1, ":worm:"}, {2, ":lady_beetle:"}, {3, ":rat:"} };
+						string enemy = animals[randomx::Int(1, 3)];
+						for (auto& a : animal) if (a.first == enemy);
+						stats me{ 1, 3, 5 }; // TODO store in JSON
+						int eHP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), HP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), eleft = 0, left = 0;
+						dpp::embed embed = dpp::embed().set_title("a wild " + enemy + " appeared.\n")
+							.add_field(event.msg.member.get_user()->username + " HP:", u8"`▰▰▰▰▰▰▰▰▰▰`", true)
+							.add_field(enemy + " HP:", u8"`▰▰▰▰▰▰▰▰▰▰`", true);
+						dpp::message msg = bot.message_create_sync(dpp::message(event.msg.channel_id, embed));
+						while (true) {
+						end_turn:
+							if (eHP < 1) goto end;
+							sleep_for(300ms);
+							for (auto& a : animal) if (a.first == enemy)
+								if (randomx::Int(1, 13) < a.second.Agility) {
+									if (a.second.Agility not_eq 0 or a.second.ATK not_eq 0) {
+										for (short i = 0; i < a.second.ATK; i++) {
+											if (randomx::Int(1, 20) > me.DEF) i++;
+											HP -= strlen(u8"▰");
+											for (dpp::embed& e : msg.embeds)
+												e.fields[0].value.replace(
+													e.fields[0].value.begin() + HP + strlen("`"),
+													e.fields[0].value.end() - strlen(u8"▰") * left - strlen("`"), u8"▱"
+												), left++;
+										}
+										msg = bot.message_edit_sync(msg);
+									}
+									goto end_turn;
+								}
+							for (auto& a : animal) if (a.first == enemy)
+								if (randomx::Int(1, 13) < me.Agility) {
+									for (short i = 0; i < me.ATK; i++) {
+										if (randomx::Int(1, 20) > a.second.DEF) i++;
+										eHP -= strlen(u8"▰");
+										for (dpp::embed& e : msg.embeds)
+											e.fields[1].value.replace(
+												e.fields[1].value.begin() + eHP + strlen("`"),
+												e.fields[1].value.end() - strlen(u8"▰") * eleft - strlen("`"), u8"▱"
+											), eleft++;
+									}
+									msg = bot.message_edit_sync(msg);
+									goto end_turn;
+								}
+						} end:
+						int dollar = randomx::Int(6, 20);
+						if (HP > 1) msg.content = "You killed it and got " + to_string(dollar) + " :dollar:";
+						bot.message_edit_sync(msg);
+						data.dollars += dollar;
+						for (auto& tool : data.tools) if (tool.type == 2) tool.durability -= 1;
+						SaveUserData(data, event.msg.member.user_id);
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.last_hunt = std::time(0);
+						for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.busy_hunting = false;
+					}; async(hunt);
+				}
+			return true;
+		}
 	};
 
 	vector<thread> commands_executed;
@@ -339,6 +524,15 @@ namespace commands {
 			async(commands::sell, event);
 			break;
 		}
+		case command::fish: {
+			async(commands::fish, event);
+			break;
+		}
+		case command::repair: {
+			auto repair = async(commands::repair, event);
+			if (not repair.get()) event.reply("invalid ID");
+			break;
+		}
 		case command::leaderboard: {
 			async(commands::leaderboard, event);
 			break;
@@ -358,6 +552,10 @@ namespace commands {
 		}
 		case command::invite: {
 			async(commands::invite, event);
+			break;
+		}
+		case command::hunt: {
+			async(commands::hunt, event);
 			break;
 		}
 		default: break;

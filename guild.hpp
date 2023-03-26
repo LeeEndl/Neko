@@ -8,12 +8,12 @@ public:
 inline GuildData GetGuildData(dpp::snowflake guild_id)
 {
 	GuildData data;
-	if (not ifstream("database/guild/" + to_string(guild_id) + ".txt").is_open()) {
+	if (not ifstream("database/guilds/" + to_string(guild_id) + ".txt").is_open()) {
 		data.failed = true;
 		return data;
 	}
 	json j;
-	ifstream("database/guild/" + to_string(guild_id) + ".txt") >> j;
+	ifstream("database/guilds/" + to_string(guild_id) + ".txt") >> j;
 	data.joined = (not (j.find("joined") not_eq j.end()) ? static_cast<bool>(false) : j["joined"].get<bool>());
 	data.prefix = (not (j.find("prefix") not_eq j.end()) ? static_cast<string>("") : j["prefix"].get<string>());
 	return data;
@@ -24,7 +24,7 @@ inline void SaveGuildData(GuildData data, dpp::snowflake guild_id)
 	j.dump(1);
 	j["joined"] = data.joined;
 	j["prefix"] = data.prefix;
-	ofstream("database/guild/" + to_string(guild_id) + ".txt") << setw(2) << j;
+	ofstream("database/guilds/" + to_string(guild_id) + ".txt") << setw(2) << j;
 }
 inline void new_guild(dpp::snowflake guild_id)
 {

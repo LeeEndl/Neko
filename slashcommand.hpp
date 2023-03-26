@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 vector<thread> register_slashcommands;
 namespace slashcommand {
 	void update(commands::command sent, bool remove = false)
@@ -128,22 +128,34 @@ namespace slashcommand {
 			if (remove) bot.global_command_delete_sync(invite.id);
 			break;
 		}
+		case commands::command::hunt: {
+			dpp::slashcommand hunt = dpp::slashcommand()
+				.set_name("hunt")
+				.set_description("hunt down a animal")
+				.set_application_id(bot.me.id);
+			hunt = bot.global_command_create_sync(hunt);
+			if (remove) bot.global_command_delete_sync(hunt.id);
+			break;
+		}
 		default: break;
 		}
 	}
 	void update_all(bool remove = false) {
-		async(update, commands::command::daily, remove).wait();
-		async(update, commands::command::profile, remove).wait();
-		async(update, commands::command::shop, remove).wait();
-		async(update, commands::command::buy, remove).wait();
-		async(update, commands::command::sell, remove).wait();
-		async(update, commands::command::fish, remove).wait();
-		async(update, commands::command::repair, remove).wait();
-		async(update, commands::command::leaderboard, remove).wait();
-		async(update, commands::command::purge, remove).wait();
-		async(update, commands::command::membercount, remove).wait();
-		async(update, commands::command::avatar, remove).wait();
-		async(update, commands::command::invite, remove).wait();
+		int version = stoi(CURRENT_VERSION);
+		if (version < 1) async(update, commands::command::daily, remove).wait();
+		if (version < 2) async(update, commands::command::profile, remove).wait();
+		if (version < 3) async(update, commands::command::shop, remove).wait();
+		if (version < 4) async(update, commands::command::buy, remove).wait();
+		if (version < 5) async(update, commands::command::sell, remove).wait();
+		if (version < 6) async(update, commands::command::fish, remove).wait();
+		if (version < 7) async(update, commands::command::repair, remove).wait();
+		if (version < 8) async(update, commands::command::leaderboard, remove).wait();
+		if (version < 9) async(update, commands::command::purge, remove).wait();
+		if (version < 10) async(update, commands::command::membercount, remove).wait();
+		if (version < 11) async(update, commands::command::avatar, remove).wait();
+		if (version < 12) async(update, commands::command::invite, remove).wait();
+		if (version < 13) async(update, commands::command::hunt, remove).wait();
+		ofstream("SLASHCOMMAND_VERSION") << SLASHCOMMAND_VERSION;
 		print<string>({
 			bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ",
 			"updated ", to_string(stoi(SLASHCOMMAND_VERSION) - version), " slashcommand", stoi(SLASHCOMMAND_VERSION) - version <= 1 ? "" : "s"
@@ -220,7 +232,7 @@ namespace slashcommand {
 				.set_title(":shopping_cart: Shop")
 				.set_description(
 					"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Cost: 15 :dollar:\n\
-                     `[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
+                     `\n[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
 				)
 				.add_field(
 					"How to Buy?",
@@ -320,23 +332,19 @@ namespace slashcommand {
 			for (auto& find : members) if (find.first == event.command.member.user_id)
 				if (find.second.busy_fishing) {
 					event.reply(event.command.member.get_user()->username + ". Your still fishing!");
-					sleep_for(1s), event.delete_original_response();
+					sleep_for(2s), event.delete_original_response();
 					return false;
 				}
-				else if (data.last_fish + 10 > time(0)) {
-					{
-						for (auto& find : members) if (find.first == event.command.member.user_id) {
-							if (find.second.once_fishing) return false;
-							find.second.once_fishing = true;
-						}
-					}
-					tm* mt = dpp::utility::mtm(data.last_fish);
+				else if (find.second.last_fish + 10 > time(0)) {
+					if (find.second.once_fishing) return false;
+					find.second.once_fishing = true;
+					tm* mt = dpp::utility::mtm(find.second.last_fish);
 					time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
 					event.reply(event.command.member.get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**");
 					while (true) {
-						if (data.last_fish + 10 < time(0)) {
+						if (find.second.last_fish + 10 < time(0)) {
 							event.delete_original_response();
-							for (auto& find : members) if (find.first == event.command.member.user_id) find.second.once_fishing = false;
+							find.second.once_fishing = false;
 							goto escape;
 						}
 					}
@@ -349,36 +357,29 @@ namespace slashcommand {
 				else {
 					function<void()> fishing = [&]()
 					{
-						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = true;
-						UserData data = GetUserData(event.command.member.user_id);
 						for (auto& tool : data.tools) if (tool.type == 1)
 							if (tool.durability == 0)
 							{
 								dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your fishing rod broke! **/repair 1**");
 								event.reply(dpp::message(event.command.channel_id, embed));
 								for (auto& tool : data.tools) if (tool.type == 1) tool.type = -1;
+								SaveUserData(data, event.command.member.user_id);
+								return false;
 							}
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = true;
+						dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
+						dpp::message msg = dpp::message();
+						msg.channel_id = event.command.channel_id;
+						msg.add_embed(embed);
+						event.reply(msg);
+						async(Sleep, randomx::Int(6000, 11000));
+						for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
+						event.edit_response(msg);
+						data.fish += 1;
+						for (auto& tool : data.tools) if (tool.type == 1) tool.durability -= 1;
 						SaveUserData(data, event.command.member.user_id);
-						{
-							UserData data = GetUserData(event.command.member.user_id);
-							for (auto& tool : data.tools) if (tool.type == 1)
-								if (tool.durability not_eq 0)
-								{
-									dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
-									dpp::message msg = dpp::message();
-									msg.channel_id = event.command.channel_id;
-									msg.add_embed(embed);
-									event.reply(msg);
-									async(Sleep, randomx::Int(6000, 11000));
-									for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
-									event.edit_response(msg);
-									for (auto& tool : data.tools) if (tool.type == 1) tool.durability -= 1;
-									data.fish += 1;
-									data.last_fish = std::time(0);
-									SaveUserData(data, event.command.member.user_id);
-								}
-						}
-						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = false, find.second.busy_fishing = false;
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.last_fish = std::time(0);
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = false;
 					}; async(fishing);
 				}
 			return true;
@@ -427,14 +428,14 @@ namespace slashcommand {
 		{
 			string amount = std::get<std::string>(event.get_parameter("amount"));
 			if (has_char(amount)) return false;
-			if (stoi(amount) <= 1 or stoi(amount) >= 200) return false;
+			if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
 			else {
 				int deleted = 0;
 				auto msgs = bot.messages_get_sync(event.command.channel_id, 0, 0, 0, stoi(amount));
 				vector<dpp::snowflake> ids, oids;
 				if (msgs.size() <= 1) return false;
 				for (auto& msg : msgs) {
-					if (not msg.second.webhook_id.empty()) continue; // TODO mass delete webhook
+					if (msg.second.author.username.empty()) continue;
 					deleted++;
 					tm* creation_time = dpp::utility::mtm(msg.second.sent);
 					tm* now = dpp::utility::mtm(time(0));
@@ -510,6 +511,104 @@ namespace slashcommand {
 				"&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands");
 			return true;
 		}
+		static bool hunt(const dpp::slashcommand_t& event)
+		{
+			bool found = false;
+			UserData data = GetUserData(event.command.member.user_id);
+			for (auto& tool : data.tools) if (tool.type == 2) found = true;
+			for (auto& find : members) if (find.first == event.command.member.user_id)
+				if (find.second.busy_hunting) {
+					event.reply(event.command.member.get_user()->username + ". Your still hunting!");
+					sleep_for(2s), event.delete_original_response();
+					return false;
+				}
+				else if (find.second.last_hunt + 20 > time(0)) {
+					if (find.second.once_hunting) return false;
+					find.second.once_hunting = true;
+					tm* mt = dpp::utility::mtm(find.second.last_hunt);
+					time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 22, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+					event.reply(event.command.member.get_user()->username + ". You can hunt again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**");
+					while (true) {
+						if (find.second.last_hunt + 20 < time(0)) {
+							event.delete_original_response();
+							find.second.once_hunting = false;
+							goto escape;
+						}
+					}
+				escape: return false;
+				}
+				else if (not found) {
+					dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a weapon.");
+					event.reply(dpp::message(event.command.channel_id, embed));
+				}
+				else {
+					function<void()> hunt = [&]() {
+						for (auto& tool : data.tools) if (tool.type == 2)
+							if (tool.durability == 0)
+							{
+								dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your knife broke! **/repair 3**");
+								event.reply(dpp::message(event.command.channel_id, embed));
+								for (auto& tool : data.tools) if (tool.type == 2) tool.type = -2;
+								SaveUserData(data, event.command.member.user_id);
+								return false;
+							}
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_hunting = true;
+						map<int, string> animals{ {1, ":worm:"}, {2, ":lady_beetle:"}, {3, ":rat:"} };
+						string enemy = animals[randomx::Int(1, 3)];
+						for (auto& a : animal) if (a.first == enemy);
+						stats me{ 1, 0, 5 }; // TODO store in JSON
+						int eHP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), HP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), eleft = 0, left = 0;
+						dpp::embed embed = dpp::embed().set_title("a wild " + enemy + " appeared.\n")
+							.add_field(event.command.member.get_user()->username + " HP:", u8"`▰▰▰▰▰▰▰▰▰▰`", true)
+							.add_field(enemy + " HP:", u8"`▰▰▰▰▰▰▰▰▰▰`", true);
+						dpp::message msg = dpp::message();
+						msg.channel_id = event.command.channel_id;
+						msg.add_embed(embed);
+						event.reply(msg);
+						while (true) {
+							if (eHP < 1) goto end;
+							sleep_for(300ms);
+							for (auto& a : animal) if (a.first == enemy)
+								if (randomx::Int(1, 13) < a.second.Agility) {
+									if (a.second.Agility not_eq 0 or a.second.ATK not_eq 0) {
+										for (short i = 0; i < a.second.ATK; i++) {
+											if (randomx::Int(1, 20) > me.DEF) i++;
+											HP -= strlen(u8"▰");
+											for (dpp::embed& e : msg.embeds)
+												e.fields[0].value.replace(
+													e.fields[0].value.begin() + HP + strlen("`"),
+													e.fields[0].value.end() - strlen(u8"▰") * left - strlen("`"), u8"▱"
+												), left++;
+										}
+										event.edit_original_response(msg);
+									}
+								}
+							for (auto& a : animal) if (a.first == enemy)
+								if (randomx::Int(1, 13) < me.Agility) {
+									for (short i = 0; i < me.ATK; i++) {
+										if (randomx::Int(1, 20) > a.second.DEF) i++;
+										eHP -= strlen(u8"▰");
+										for (dpp::embed& e : msg.embeds)
+											e.fields[1].value.replace(
+												e.fields[1].value.begin() + eHP + strlen("`"),
+												e.fields[1].value.end() - strlen(u8"▰") * eleft - strlen("`"), u8"▱"
+											), eleft++;
+									}
+									event.edit_original_response(msg);
+								}
+						} end:
+						int dollar = randomx::Int(6, 20);
+						if (HP > 1) msg.content = "You killed it and got " + to_string(dollar) + " :dollar:";
+						event.edit_original_response(msg);
+						data.dollars += dollar;
+						for (auto& tool : data.tools) if (tool.type == 2) tool.durability -= 1;
+						SaveUserData(data, event.command.member.user_id);
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.last_hunt = std::time(0);
+						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_hunting = false;
+					}; async(hunt);
+				}
+			return true;
+		}
 	};
 	int find_command(string command)
 	{
@@ -526,6 +625,7 @@ namespace slashcommand {
 		else if (command == "membercount") return commands::command::membercount;
 		else if (command == "avatar") return commands::command::avatar;
 		else if (command == "invite") return commands::command::invite;
+		else if (command == "hunt") return commands::command::hunt;
 		else return -1;
 	}
 	vector<thread> slashcommands_executed;
@@ -561,7 +661,6 @@ namespace slashcommand {
 		}
 		case commands::command::repair: {
 			auto repair = async(slashcommands::repair, event);
-			repair.wait();
 			if (not repair.get()) event.reply("invalid ID");
 			break;
 		}
@@ -584,6 +683,10 @@ namespace slashcommand {
 		}
 		case commands::command::invite: {
 			async(slashcommands::invite, event);
+			break;
+		}
+		case commands::command::hunt: {
+			async(slashcommands::hunt, event);
 			break;
 		}
 		default: break;

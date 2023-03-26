@@ -173,6 +173,7 @@
     </ClInclude>
     <ClInclude Include="user.hpp" />
     <ClInclude Include="guild.hpp" />
+    <ClInclude Include="stats.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="dpp">

@@ -6,7 +6,7 @@ public:
 };
 class UserData {
 public:
-	time_t daily = std::time(0), last_on = 0, last_fish = std::time(0);
+	time_t daily = std::time(0), last_on = 0, last_fish = 0, last_hunt = 0;
 	uint64_t user_id = 0;
 	bool failed = false;
 	vector<tools> tools;
@@ -15,20 +15,20 @@ public:
 	uint64_t dollars = 0;
 
 	bool busy_fishing = false, once_fishing = false;
+	bool busy_hunting = false, once_hunting = false;
 }; map<dpp::snowflake, UserData> members;
 inline UserData GetUserData(dpp::snowflake user_id)
 {
 	UserData data;
-	if (not ifstream("database/user/" + to_string(user_id) + ".txt").is_open()) {
+	if (not ifstream("database/users/" + to_string(user_id) + ".txt").is_open()) {
 		data.failed = true;
 		return data;
 	}
 	json j;
-	ifstream("database/user/" + to_string(user_id) + ".txt") >> j;
+	ifstream("database/users/" + to_string(user_id) + ".txt") >> j;
 	data.daily = (not (j.find("daily") not_eq j.end()) ? static_cast<long long>(0) : j["daily"].get<long long>());
 	data.dollars = (not (j.find("dollars") not_eq j.end()) ? static_cast<uint64_t>(0) : j["dollars"].get<uint64_t>());
 	data.fish = (not (j.find("fish") not_eq j.end()) ? static_cast<int>(0) : j["fish"].get<int>());
-	data.last_fish = (not (j.find("last_fish") not_eq j.end()) ? static_cast<long long>(0) : j["last_fish"].get<long long>());
 	data.last_on = (not (j.find("last_on") not_eq j.end()) ? static_cast<long long>(0) : j["last_on"].get<long long>());
 	data.username = (not (j.find("username") not_eq j.end()) ? static_cast<string>("") : j["username"].get<string>());
 	data.user_id = (not (j.find("user_id") not_eq j.end()) ? static_cast<uint64_t>(0) : j["user_id"].get<uint64_t>());
@@ -64,7 +64,7 @@ inline void SaveUserData(UserData data, dpp::snowflake user)
 		array.emplace_back(j);
 	}
 	j["tools"] = array;
-	ofstream("database/user/" + to_string(user) + ".txt") << setw(2) << j;
+	ofstream("database/users/" + to_string(user) + ".txt") << setw(2) << j;
 }
 inline void new_user(dpp::snowflake user_id)
 {

@@ -1,5 +1,6 @@
 ﻿#include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
+#include "stats.hpp"
 #include "user.hpp"
 #include "guild.hpp"
 #include "commands.hpp"
@@ -7,6 +8,8 @@
 
 int main()
 {
+	if (not filesystem::exists("database") or not filesystem::exists("./database/guilds") or not filesystem::exists("./database/users")) filesystem::create_directory("database"), filesystem::create_directory("./database/guilds"), filesystem::create_directory("./database/users");
+	if (not filesystem::exists("maps")) filesystem::create_directory("maps");
 	if (not ifstream("token").is_open())
 		print<string>(
 			{
@@ -23,9 +26,10 @@ int main()
 			{
 				bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message
 			},
-			event.severity == dpp::ll_trace ? color::gray :
-			event.severity == dpp::ll_debug or event.severity == dpp::ll_info ? color::normal :
-			event.severity == dpp::ll_warning ? color::gray : event.severity >= dpp::ll_error ? color::red : color::normal
+			event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? color::gray :
+			event.severity == dpp::ll_info ? color::normal :
+			event.severity == dpp::ll_warning ? color::yellow :
+			event.severity >= dpp::ll_error ? color::red : color::normal
 		);
 		});
 	bot.on_ready([](const dpp::ready_t& event) {
@@ -37,7 +41,10 @@ int main()
 		};
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		ready_executed.emplace_back(thread::thread(status));
-		register_slashcommands.emplace_back(thread::thread(slashcommand::update_all, false));
+		if (not ifstream("SLASHCOMMAND_VERSION").is_open())
+			ofstream("SLASHCOMMAND_VERSION").write(CURRENT_VERSION.c_str(), streamsize(CURRENT_VERSION.size()));
+		else getline(ifstream("SLASHCOMMAND_VERSION"), CURRENT_VERSION);
+		if (stoi(CURRENT_VERSION) < stoi(SLASHCOMMAND_VERSION)) register_slashcommands.emplace_back(thread::thread(slashcommand::update_all, false));
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
 		guild_create_executed.emplace_back(thread::thread(await_on_guild_create, event));

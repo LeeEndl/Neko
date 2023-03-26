@@ -66,6 +66,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stats.hpp" />
     <ClInclude Include="commands.hpp" />
     <ClInclude Include="guild.hpp" />
     <ClInclude Include="include\dpp\appcommand.h" />
