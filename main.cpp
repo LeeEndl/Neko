@@ -39,8 +39,16 @@ int main()
 				if (guilds.size() not_eq last)
 					bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(), sleep_for(500ms);
 		};
+		function<void()> reset_ratelimit = [&]() {
+			while (true) {
+				sleep_for(500ms);
+				for (auto& find : members) if (find.second.ratelimit > 0) 
+					sleep_for(6s), find.second.ratelimit = 0, find.second.once_retelimit = false;
+			}
+		};
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		ready_executed.emplace_back(thread::thread(status));
+		ready_executed.emplace_back(thread::thread(reset_ratelimit));
 		if (not ifstream("SLASHCOMMAND_VERSION").is_open())
 			ofstream("SLASHCOMMAND_VERSION").write(CURRENT_VERSION.c_str(), streamsize(CURRENT_VERSION.size()));
 		else getline(ifstream("SLASHCOMMAND_VERSION"), CURRENT_VERSION);
@@ -54,10 +62,24 @@ int main()
 		});
 	bot.on_message_create([](const dpp::message_create_t& event) {
 		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
+		if (commands::find_command_with_prefix(event.msg.content, event.msg.guild_id) > commands::command::prefix or commands::find_command_with_prefix(event.msg.content, event.msg.guild_id) < stoi(SLASHCOMMAND_VERSION))
+			for (auto& find : members)
+				if (find.first == event.msg.member.user_id) if (find.second.ratelimit > 2) {
+					if (not find.second.once_retelimit) event.reply(":snail: slow down!"), find.second.once_retelimit = true;
+					return;
+				}
+				else find.second.ratelimit += 1;
 		commands::commands_executed.emplace_back(commands::await_on_message_create, event);
 		});
 	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
 		if (event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
+		if (slashcommand::find_command(event.command.get_command_name()) > commands::command::prefix or slashcommand::find_command(event.command.get_command_name()) < stoi(SLASHCOMMAND_VERSION))
+			for (auto& find : members)
+				if (find.first == event.command.member.user_id) if (find.second.ratelimit > 2) {
+					if (not find.second.once_retelimit) event.reply(":snail: slow down!"), find.second.once_retelimit = true;
+					return;
+				}
+				else find.second.ratelimit += 1;
 		slashcommand::slashcommands_executed.emplace_back(thread::thread(slashcommand::await_on_slashcommand, event));
 		});
 	bot.on_button_click([](const dpp::button_click_t& event) {
