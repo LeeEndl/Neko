@@ -14,6 +14,7 @@ public:
 	int fish = 0;
 	uint64_t dollars = 0;
 
+	int ratelimit = 0, once_retelimit = false;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
 }; map<dpp::snowflake, UserData> members;
