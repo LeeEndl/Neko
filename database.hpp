@@ -10,7 +10,6 @@ public:
 	uint64_t user_id = 0;
 	bool failed = false;
 	vector<tools> tools;
-	vector<stats> stats;
 	string username = "";
 	int fish = 0;
 	uint64_t dollars = 0;
@@ -88,11 +87,10 @@ inline void StructUserMap()
 {
 	string line;
 	ifstream r("maps/members.txt");
-	while (getline(r, line)) {
+	while (getline(r, line))
 		members.emplace(
 			static_cast<dpp::snowflake>(line),
 			GetUserData(stoull(line)));
-	}
 }
 
 class GuildData {
@@ -137,11 +135,10 @@ inline void StructGuildMap()
 {
 	string line;
 	ifstream r("maps/guilds.txt");
-	while (getline(r, line)) {
+	while (getline(r, line))
 		guilds.emplace(
 			static_cast<dpp::snowflake>(line),
 			GetGuildData(stoull(line)));
-	}
 }
 vector<thread> guild_create_executed;
 inline void await_on_guild_create(const dpp::guild_create_t& event) {

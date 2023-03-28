@@ -1,8 +1,7 @@
 ﻿#include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
 #include "stats.hpp"
-#include "user.hpp"
-#include "guild.hpp"
+#include "database.hpp"
 #include "commands.hpp"
 #include "slashcommand.hpp"
 
@@ -40,11 +39,11 @@ int main()
 					bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(), sleep_for(500ms);
 		};
 		function<void()> reset_ratelimit = [&]() {
-			while (true) {
-				sleep_for(500ms);
-				for (auto& find : members) if (find.second.ratelimit > 0) 
-					sleep_for(6s), find.second.ratelimit = 0, find.second.once_retelimit = false;
-			}
+			while (true)
+				for (auto& find : members)
+					if (find.second.ratelimit > 0)
+						sleep_for(6s), find.second.ratelimit = 0, find.second.once_retelimit = false;
+					else sleep_for(200ms);
 		};
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		ready_executed.emplace_back(thread::thread(status));

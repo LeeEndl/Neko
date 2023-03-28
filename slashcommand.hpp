@@ -330,11 +330,7 @@ namespace slashcommand {
 			UserData data = GetUserData(event.command.member.user_id);
 			for (auto& tool : data.tools) if (tool.type == 1) found = true;
 			for (auto& find : members) if (find.first == event.command.member.user_id)
-				if (find.second.busy_fishing) {
-					event.reply(event.command.member.get_user()->username + ". Your still fishing!");
-					sleep_for(2s), event.delete_original_response();
-					return false;
-				}
+				if (find.second.busy_fishing) return false;
 				else if (find.second.last_fish + 10 > time(0)) {
 					if (find.second.once_fishing) return false;
 					find.second.once_fishing = true;
@@ -380,6 +376,7 @@ namespace slashcommand {
 						SaveUserData(data, event.command.member.user_id);
 						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.last_fish = std::time(0);
 						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_fishing = false;
+						return true;
 					}; async(fishing);
 				}
 			return true;
@@ -517,11 +514,7 @@ namespace slashcommand {
 			UserData data = GetUserData(event.command.member.user_id);
 			for (auto& tool : data.tools) if (tool.type == 2) found = true;
 			for (auto& find : members) if (find.first == event.command.member.user_id)
-				if (find.second.busy_hunting) {
-					event.reply(event.command.member.get_user()->username + ". Your still hunting!");
-					sleep_for(2s), event.delete_original_response();
-					return false;
-				}
+				if (find.second.busy_hunting) return false;
 				else if (find.second.last_hunt + 20 > time(0)) {
 					if (find.second.once_hunting) return false;
 					find.second.once_hunting = true;
@@ -555,8 +548,7 @@ namespace slashcommand {
 						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_hunting = true;
 						map<int, string> animals{ {1, ":worm:"}, {2, ":lady_beetle:"}, {3, ":rat:"} };
 						string enemy = animals[randomx::Int(1, 3)];
-						for (auto& a : animal) if (a.first == enemy);
-						stats me{ 1, 0, 5 }; // TODO store in JSON
+						stats me{ 1, 1, 1 }; // TODO store in JSON, increase during level ups?!
 						int eHP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), HP = strlen(u8"▰▰▰▰▰▰▰▰▰▰"), eleft = 0, left = 0;
 						dpp::embed embed = dpp::embed().set_title("a wild " + enemy + " appeared.\n")
 							.add_field(event.command.member.get_user()->username + " HP:", u8"`▰▰▰▰▰▰▰▰▰▰`", true)
@@ -565,14 +557,15 @@ namespace slashcommand {
 						msg.channel_id = event.command.channel_id;
 						msg.add_embed(embed);
 						event.reply(msg);
-						while (true) {
-							if (eHP < 1) goto end;
-							sleep_for(300ms);
-							for (auto& a : animal) if (a.first == enemy)
-								if (randomx::Int(1, 13) < a.second.Agility) {
-									if (a.second.Agility not_eq 0 or a.second.ATK not_eq 0) {
+						for (auto& a : Stat) if (a.first == enemy)
+							while (true) {
+							end_turn:
+								if (eHP < 3) goto end;
+								sleep_for(300ms);
+								if (randomx::Int(1, 13) < a.second.SPD) {
+									if (a.second.SPD not_eq 0 or a.second.ATK not_eq 0) {
 										for (short i = 0; i < a.second.ATK; i++) {
-											if (randomx::Int(1, 20) > me.DEF) i++;
+											if (randomx::Int(1, 20) > me.DEF + Stat.at(":knife:").DEF) i++;
 											HP -= strlen(u8"▰");
 											for (dpp::embed& e : msg.embeds)
 												e.fields[0].value.replace(
@@ -583,9 +576,8 @@ namespace slashcommand {
 										event.edit_original_response(msg);
 									}
 								}
-							for (auto& a : animal) if (a.first == enemy)
-								if (randomx::Int(1, 13) < me.Agility) {
-									for (short i = 0; i < me.ATK; i++) {
+								if (randomx::Int(1, 13) < me.SPD + Stat.at(":knife:").SPD) {
+									for (short i = 0; i < me.ATK + Stat.at(":knife:").ATK; i++) {
 										if (randomx::Int(1, 20) > a.second.DEF) i++;
 										eHP -= strlen(u8"▰");
 										for (dpp::embed& e : msg.embeds)
@@ -596,7 +588,7 @@ namespace slashcommand {
 									}
 									event.edit_original_response(msg);
 								}
-						} end:
+							} end:
 						int dollar = randomx::Int(6, 20);
 						if (HP > 1) msg.content = "You killed it and got " + to_string(dollar) + " :dollar:";
 						event.edit_original_response(msg);
@@ -605,6 +597,7 @@ namespace slashcommand {
 						SaveUserData(data, event.command.member.user_id);
 						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.last_hunt = std::time(0);
 						for (auto& find : members) if (find.first == event.command.member.user_id) find.second.busy_hunting = false;
+						return true;
 					}; async(hunt);
 				}
 			return true;
