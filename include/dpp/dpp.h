@@ -68,7 +68,4 @@
 #include <dpp/discordevents.h>
 #include <dpp/timed_listener.h>
 #include <dpp/collector.h>
-using namespace std;
-using namespace this_thread;
-dpp::cluster bot("", static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content));
-vector<thread> ready_executed;
+#include <dpp/event_t.h>
