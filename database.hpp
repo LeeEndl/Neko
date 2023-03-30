@@ -2,7 +2,8 @@
 
 class tools {
 public:
-	int type = 0, durability = 0;
+	string name = "";
+	int durability = 0;
 };
 class UserData {
 public:
@@ -14,6 +15,7 @@ public:
 	int fish = 0;
 	uint64_t dollars = 0;
 
+	bool request_hp = false;
 	int ratelimit = 0, once_retelimit = false;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
@@ -36,12 +38,12 @@ inline UserData GetUserData(dpp::snowflake user_id)
 	json array = j["tools"].get<json>();
 	if (array.empty()) {
 		tools buf;
-		buf.type = 0, buf.durability = 0;
+		buf.name = "", buf.durability = 0;
 		data.tools.emplace_back(buf); // placeholder for null
 	}
 	tools buf;
 	for (int i_ = 0; i_ < array.size(); i_++)
-		buf.type = (not (array[i_].find("type") not_eq array[i_].end()) ? static_cast<int>(0) : array[i_]["type"].get<int>()),
+		buf.name = (not (array[i_].find("name") not_eq array[i_].end()) ? static_cast<string>("") : array[i_]["name"].get<string>()),
 		buf.durability = (not (array[i_].find("durability") not_eq array[i_].end()) ? static_cast<int>(0) : array[i_]["durability"].get<int>()),
 		data.tools.emplace_back(buf);
 	return data;
@@ -60,7 +62,7 @@ inline void SaveUserData(UserData data, dpp::snowflake user)
 	json array = json::array();
 	for (int i_ = 0; i_ < data.tools.size(); i_++) {
 		json j;
-		j["type"] = data.tools[i_].type;
+		j["name"] = data.tools[i_].name;
 		j["durability"] = data.tools[i_].durability;
 		array.emplace_back(j);
 	}
@@ -156,4 +158,13 @@ inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
 			ofstream("maps/guilds.txt") << line << endl;
 		}
 	}
+}
+
+template<class event_t> void ratelimit(event_t event) {
+	for (auto& find : members)
+		if (find.first == dpp::member(event).user_id) if (find.second.ratelimit > 3) {
+			if (not find.second.once_retelimit) event.reply(":snail: slow down!"), find.second.once_retelimit = true;
+			return;
+		}
+		else find.second.ratelimit += 1;
 }

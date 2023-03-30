@@ -51,7 +51,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4858;26800;26819</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4858;26800;26819;2039</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
@@ -107,9 +107,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="commands-alpha.hpp" />
     <ClInclude Include="database.hpp" />
+    <ClInclude Include="include\dpp\event_t.h" />
     <ClInclude Include="stats.hpp" />
-    <ClInclude Include="commands.hpp" />
     <ClInclude Include="include\dpp\appcommand.h" />
     <ClInclude Include="include\dpp\application.h" />
     <ClInclude Include="include\dpp\auditlog.h" />
@@ -165,7 +166,6 @@
     <ClInclude Include="include\dpp\voicestate.h" />
     <ClInclude Include="include\dpp\webhook.h" />
     <ClInclude Include="include\dpp\wsclient.h" />
-    <ClInclude Include="slashcommand.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

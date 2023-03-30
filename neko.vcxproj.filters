@@ -4,8 +4,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="commands.hpp" />
-    <ClInclude Include="slashcommand.hpp" />
     <ClInclude Include="include\dpp\appcommand.h">
       <Filter>dpp</Filter>
     </ClInclude>
@@ -173,6 +171,10 @@
     </ClInclude>
     <ClInclude Include="stats.hpp" />
     <ClInclude Include="database.hpp" />
+    <ClInclude Include="include\dpp\event_t.h">
+      <Filter>dpp</Filter>
+    </ClInclude>
+    <ClInclude Include="commands-alpha.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="dpp">
