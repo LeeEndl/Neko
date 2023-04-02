@@ -14,9 +14,6 @@ public:
 	string username = "";
 	int fish = 0;
 	uint64_t dollars = 0;
-
-	bool request_hp = false;
-	int ratelimit = 0, once_retelimit = false;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
 }; map<dpp::snowflake, UserData> members;
@@ -72,7 +69,6 @@ inline void SaveUserData(UserData data, dpp::snowflake user)
 inline void new_user(dpp::snowflake user_id)
 {
 	UserData data = GetUserData(user_id);
-	ofstream("maps/members.txt", ios::app) << user_id << endl;
 	data.username = bot.user_get_sync(user_id).username;
 	data.daily = 0;
 	data.dollars = 0;
@@ -84,15 +80,6 @@ inline void new_user(dpp::snowflake user_id)
 		UserData data = GetUserData(user_id);
 		members.emplace(bot.user_get_sync(user_id).id, data);
 	}
-}
-inline void StructUserMap()
-{
-	string line;
-	ifstream r("maps/members.txt");
-	while (getline(r, line))
-		members.emplace(
-			static_cast<dpp::snowflake>(line),
-			GetUserData(stoull(line)));
 }
 
 class GuildData {
@@ -124,7 +111,6 @@ inline void SaveGuildData(GuildData data, dpp::snowflake guild_id)
 inline void new_guild(dpp::snowflake guild_id)
 {
 	GuildData data = GetGuildData(guild_id);
-	ofstream("maps/guilds.txt", ios::app) << guild_id << endl;
 	data.joined = false;
 	data.prefix = "!";
 	data.failed = false;
@@ -133,15 +119,6 @@ inline void new_guild(dpp::snowflake guild_id)
 		guilds.emplace(guild_id, data);
 	}
 }
-inline void StructGuildMap()
-{
-	string line;
-	ifstream r("maps/guilds.txt");
-	while (getline(r, line))
-		guilds.emplace(
-			static_cast<dpp::snowflake>(line),
-			GetGuildData(stoull(line)));
-}
 vector<thread> guild_create_executed;
 inline void await_on_guild_create(const dpp::guild_create_t& event) {
 	GuildData data = GetGuildData(event.created->id);
@@ -149,22 +126,21 @@ inline void await_on_guild_create(const dpp::guild_create_t& event) {
 }
 vector<thread> guild_delete_executed;
 inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
-	ifstream r("maps/guilds.txt");
-	ofstream w("maps/guilds.txt");
-	string line;
-	guilds.erase(event.deleted->id);
-	while (getline(ifstream("maps/guilds.txt"), line)) {
-		if (line not_eq to_string(event.deleted->id)) {
-			ofstream("maps/guilds.txt") << line << endl;
-		}
+	for (const auto& i : filesystem::directory_iterator("database/guilds")) {
+		vector<string> index = dpp::index(i.path().filename().string(), '.');
+		guilds.erase(static_cast<dpp::snowflake>(stoull(index[0])));
+		string FileName = "database/guilds/" + i.path().filename().string();
+		remove(FileName.c_str());
 	}
 }
 
-template<class event_t> void ratelimit(event_t event) {
-	for (auto& find : members)
-		if (find.first == dpp::member(event).user_id) if (find.second.ratelimit > 3) {
-			if (not find.second.once_retelimit) event.reply(":snail: slow down!"), find.second.once_retelimit = true;
-			return;
-		}
-		else find.second.ratelimit += 1;
+inline void wrap_database() {
+	for (const auto& i : filesystem::directory_iterator("database/users")) {
+		vector<string> index = dpp::index(i.path().filename().string(), '.');
+		members.emplace(static_cast<dpp::snowflake>(stoull(index[0])), GetUserData(stoull(index[0])));
+	}
+	for (const auto& i : filesystem::directory_iterator("database/guilds")) {
+		vector<string> index = dpp::index(i.path().filename().string(), '.');
+		guilds.emplace(static_cast<dpp::snowflake>(stoull(index[0])), GetGuildData(stoull(index[0])));
+	}
 }

@@ -174,7 +174,7 @@
     <ClInclude Include="include\dpp\event_t.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="commands-alpha.hpp" />
+    <ClInclude Include="commands.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="dpp">

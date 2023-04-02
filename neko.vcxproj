@@ -107,7 +107,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="commands-alpha.hpp" />
+    <ClInclude Include="commands.hpp" />
     <ClInclude Include="database.hpp" />
     <ClInclude Include="include\dpp\event_t.h" />
     <ClInclude Include="stats.hpp" />
