@@ -63,7 +63,6 @@ template<typename event_t> bool daily_t(event_t event)
 			.set_title("Thanks for opening my gift! :tada:")
 			.set_description("- " + static_cast<string>(to_string(dollar)) + " :dollar:")));
 		SaveUserData(data, dpp::member(event).user_id);
-		for (auto& member : members) cout << member.second.dollars << endl;
 	}
 	else
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed()

@@ -124,7 +124,6 @@
     <ClInclude Include="include\dpp\collector.h" />
     <ClInclude Include="include\dpp\colors.h" />
     <ClInclude Include="include\dpp\commandhandler.h" />
-    <ClInclude Include="include\dpp\coro.h" />
     <ClInclude Include="include\dpp\discordclient.h" />
     <ClInclude Include="include\dpp\discordevents.h" />
     <ClInclude Include="include\dpp\discordvoiceclient.h" />

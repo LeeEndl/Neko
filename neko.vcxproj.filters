@@ -43,9 +43,6 @@
     <ClInclude Include="include\dpp\commandhandler.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\coro.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\discordclient.h">
       <Filter>dpp</Filter>
     </ClInclude>
