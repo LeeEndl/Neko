@@ -22,6 +22,7 @@
 #include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>
 #include <random>
+#include <thread>
 
 #ifndef MAX_CND_IMAGE_SIZE
 #define MAX_CDN_IMAGE_SIZE 4096
@@ -501,6 +502,16 @@ namespace dpp {
 		 */
 		void DPP_EXPORT set_thread_name(const std::string& name);
 	};
+	std::vector<std::string> index(std::string source, const char& find)
+	{
+		std::string This = "";
+		std::vector<std::string> i;
+		for (auto c : source)
+			if (c not_eq find) This += c;
+			else if (c == find and This not_eq "") i.push_back(This), This = "";
+		if (This not_eq "") i.push_back(This);
+		return i;
+	}
 };
 
 bool has_char(std::string str) {
@@ -510,15 +521,52 @@ bool has_char(std::string str) {
 			or c == 'z' or c == 'x' or c == 'c' or c == 'v' or c == 'b' or c == 'n' or c == 'm') return true;
 	return false;
 }
-const enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
-template <class T>
-inline void print(std::vector<T> msg, color c, bool Inline = false, bool stop = false) {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), c);
-	for (auto& _ : msg) std::cerr << _;
-	Inline ? std::cerr << std::flush : std::cerr << std::endl;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
-	if (stop) std::cin.get();
-}
+enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
+enum option { newline, Inline };
+class state {
+public:
+	option option = option::newline;
+	color color = color::normal;
+};
+template<typename ty> class print {
+public:
+	print(ty out, std::function<void(ty)> in = nullptr, state s = state()) {
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
+		std::clog << out, s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+		if (in not_eq nullptr) {
+			std::function<void(ty)> get_in = [&](ty it) {
+				std::cin >> input;
+			}; std::thread::thread(get_in, input).std::thread::join();
+			in(input);
+		}
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
+	}
+	print(std::map<ty, state> out, std::function<void(ty)> in = nullptr) {
+		for (auto& it : out) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), it.second.color), 
+			std::clog << it.first, it.second.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+		if (in not_eq nullptr) {
+			std::function<void(ty)> get_in = [&](ty it) {
+				std::cin >> input;
+			}; std::thread::thread(get_in, input).std::thread::join();
+			in(input);
+		}
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
+	}
+	print(std::vector<ty> out, std::function<void(ty)> in = nullptr, state s = state()) {
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
+		for (auto& it : out) std::clog << it;
+		s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+		if (in not_eq nullptr) {
+			std::function<void(ty)> get_in = [&](ty it) {
+				std::cin >> input;
+			}; std::thread::thread(get_in, input).std::thread::join();
+			in(input);
+		}
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
+	}
+	ty get_input() { return input; }
+private: ty input;
+};
 class randomx {
 public:
 	static int Int(int min, int max) { std::random_device picker; std::uniform_int_distribution<int> numbers(min, max); return numbers(picker); }
@@ -531,13 +579,3 @@ struct first {
 		return p(left.first, right.first);
 	}
 };
-std::vector<std::string> explode(std::string source, const char& find)
-{
-	std::string This = "";
-	std::vector<std::string> i;
-	for (auto c : source)
-		if (c not_eq find) This += c;
-		else if (c == find and This not_eq "") i.push_back(This), This = "";
-	if (This not_eq "") i.push_back(This);
-	return i;
-}
