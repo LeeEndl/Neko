@@ -64,24 +64,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>include/dpp/dpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>
-      </EntryPointSymbol>
-      <HeapReserveSize>
-      </HeapReserveSize>
-      <HeapCommitSize>
-      </HeapCommitSize>
-      <StackReserveSize>
-      </StackReserveSize>
-      <StackCommitSize>
-      </StackCommitSize>
       <Driver>NotSet</Driver>
       <SwapRunFromNET>false</SwapRunFromNET>
-      <DelayLoadDLLs>
-      </DelayLoadDLLs>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
       <NoEntryPoint>false</NoEntryPoint>
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <PerUserRedirection>false</PerUserRedirection>
