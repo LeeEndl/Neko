@@ -1,4 +1,4 @@
-﻿#include <dpp/nlohmann/json.hpp>
+#include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
 #include "stats.hpp"
 #include "database.hpp"
@@ -29,10 +29,7 @@ int main()
 			}
 		}; thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
-		if (not ifstream("SLASHCOMMAND_VERSION").is_open())
-			ofstream("SLASHCOMMAND_VERSION").write(CURRENT_VERSION.c_str(), streamsize(CURRENT_VERSION.size()));
-		else getline(ifstream("SLASHCOMMAND_VERSION"), CURRENT_VERSION);
-		if (stoi(CURRENT_VERSION) < stoi(SLASHCOMMAND_VERSION)) register_slashcommands.emplace_back(thread::thread(update_all, false));
+		thread::thread(load_slashcommands).detach();
 		});
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
 		guild_create_executed.emplace_back(thread::thread(await_on_guild_create, event));
