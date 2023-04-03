@@ -31,5 +31,3 @@
 #endif
 
 #define CUSTOM_VERSION
-std::string CURRENT_VERSION = "0";
-#define SLASHCOMMAND_VERSION "13"
