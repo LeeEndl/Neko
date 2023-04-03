@@ -503,164 +503,48 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 		SaveUserData(data, event.msg.member.user_id);
 	}
 }
-vector<thread> register_slashcommands;
-void update_slashcommands(command sent, bool remove = false)
+void load_slashcommands()
 {
-	switch (sent) {
-	case command::daily: {
-		dpp::slashcommand daily = dpp::slashcommand()
-			.set_name("daily")
-			.set_description("get a small gift from niko once a day")
+	class option {
+	public:
+		dpp::command_option_type v_type;
+		string name, description;
+		bool required = false;
+	};
+	class about {
+	public:
+		string name, description;
+		uint64_t permissions;
+		vector<option> options;
+	};
+	vector<about> commands = {
+		about{"daily", "get a small gift from " + bot.me.username + " once a day", dpp::permissions::p_send_messages},
+		about{"profile", "your profile", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "mention user", true}}},
+		about{"shop", "view the shop", dpp::permissions::p_send_messages},
+		about{"buy", "buy an item from shop", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna buy", true}}},
+		about{"sell", "sell an item", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna sell", true}}},
+		about{"fish", "go fishing", dpp::permissions::p_send_messages},
+		about{"repair", "the item you wanna repair", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}}},
+		about{"leaderboard", "see top players", dpp::permissions::p_send_messages}, about{"top", "see top players", dpp::permissions::p_send_messages},
+		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, vector<option>{option{dpp::command_option_type::co_string, "amount", "amount of messages to which be deleted", true}}},
+		about{"membercount", "view all members in server", dpp::permissions::p_send_messages},
+		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", true}}},
+		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
+		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages}
+	};
+	vector<dpp::slashcommand> slashcommand;
+	for (auto& command : commands) {
+		dpp::slashcommand cmd = dpp::slashcommand()
+			.set_name(command.name)
+			.set_description(command.description)
+			.set_default_permissions(command.permissions)
 			.set_application_id(bot.me.id);
-		daily = bot.global_command_create_sync(daily);
-		if (remove) bot.global_command_delete_sync(daily.id);
-		break;
+		if (not command.options.empty())
+			for (auto& option : command.options)
+				cmd.add_option(dpp::command_option(option.v_type, option.name, option.description, option.required));
+		slashcommand.emplace_back(cmd);
 	}
-	case command::profile: {
-		dpp::slashcommand profile = dpp::slashcommand()
-			.set_name("profile")
-			.set_description("your profile")
-			.add_option(dpp::command_option(dpp::co_string, "name", "mention user", true))
-			.set_application_id(bot.me.id);
-		profile = bot.global_command_create_sync(profile);
-		if (remove) bot.global_command_delete_sync(profile.id);
-		break;
-	}
-	case command::shop: {
-		dpp::slashcommand shop = dpp::slashcommand()
-			.set_name("shop")
-			.set_description("view the shop")
-			.set_application_id(bot.me.id);
-		shop = bot.global_command_create_sync(shop);
-		if (remove) bot.global_command_delete_sync(shop.id);
-		break;
-	}
-	case command::buy: {
-		dpp::slashcommand buy = dpp::slashcommand()
-			.set_name("buy")
-			.set_description("buy an item from shop")
-			.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
-			.add_option(dpp::command_option(dpp::co_string, "amount", "the amount of the item you wanna buy", true))
-			.set_application_id(bot.me.id);
-		buy = bot.global_command_create_sync(buy);
-		if (remove) bot.global_command_delete_sync(buy.id);
-		break;
-	}
-	case command::sell: {
-		dpp::slashcommand sell = dpp::slashcommand()
-			.set_name("sell")
-			.set_description("sell an item")
-			.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
-			.add_option(dpp::command_option(dpp::co_string, "amount", "the amount of the item you wanna sell", true))
-			.set_application_id(bot.me.id);
-		sell = bot.global_command_create_sync(sell);
-		if (remove) bot.global_command_delete_sync(sell.id);
-		break;
-	}
-	case command::fish: {
-		dpp::slashcommand fish = dpp::slashcommand()
-			.set_name("fish")
-			.set_description("go fishing")
-			.set_application_id(bot.me.id);
-		fish = bot.global_command_create_sync(fish);
-		if (remove) bot.global_command_delete_sync(fish.id);
-		break;
-	}
-	case command::repair: {
-		dpp::slashcommand repair = dpp::slashcommand()
-			.set_name("repair")
-			.set_description("the item you wanna repair/fix")
-			.add_option(dpp::command_option(dpp::co_string, "id", "the item id", true))
-			.set_application_id(bot.me.id);
-		repair = bot.global_command_create_sync(repair);
-		if (remove) bot.global_command_delete_sync(repair.id);
-		break;
-	}
-	case command::leaderboard: {
-		dpp::slashcommand leaderboard = dpp::slashcommand()
-			.set_name("leaderboard")
-			.set_description("see top players")
-			.set_application_id(bot.me.id);
-		leaderboard = bot.global_command_create_sync(leaderboard);
-		dpp::slashcommand top = dpp::slashcommand()
-			.set_name("top")
-			.set_description("see top players")
-			.set_application_id(bot.me.id);
-		top = bot.global_command_create_sync(top);
-
-		if (remove) bot.global_command_delete_sync(leaderboard.id);
-		if (remove) bot.global_command_delete_sync(top.id);
-		break;
-	}
-	case command::purge: {
-		dpp::slashcommand purge = dpp::slashcommand()
-			.set_name("purge")
-			.set_description("mass delete messages in a channel")
-			.add_option(dpp::command_option(dpp::co_string, "amount", "amount of messages to which be deleted", true))
-			.set_default_permissions(dpp::permissions::p_administrator)
-			.set_application_id(bot.me.id);
-		purge = bot.global_command_create_sync(purge);
-		if (remove) bot.global_command_delete_sync(purge.id);
-		break;
-	}
-	case command::membercount: {
-		dpp::slashcommand membercount = dpp::slashcommand()
-			.set_name("membercount")
-			.set_description("view all members in server")
-			.set_application_id(bot.me.id);
-		membercount = bot.global_command_create_sync(membercount);
-		if (remove) bot.global_command_delete_sync(membercount.id);
-		break;
-	}
-	case command::avatar: {
-		dpp::slashcommand avatar = dpp::slashcommand()
-			.set_name("avatar")
-			.set_description("view someone's avatar")
-			.add_option(dpp::command_option(dpp::co_string, "name", "person's avatar you wanna view, empty if yourself.", false))
-			.set_application_id(bot.me.id);
-		avatar = bot.global_command_create_sync(avatar);
-		if (remove) bot.global_command_delete_sync(avatar.id);
-		break;
-	}
-	case command::invite: {
-		dpp::slashcommand invite = dpp::slashcommand()
-			.set_name("invite")
-			.set_description("invite " + bot.me.username + " to your server")
-			.set_application_id(bot.me.id);
-		invite = bot.global_command_create_sync(invite);
-		if (remove) bot.global_command_delete_sync(invite.id);
-		break;
-	}
-	case command::hunt: {
-		dpp::slashcommand hunt = dpp::slashcommand()
-			.set_name("hunt")
-			.set_description("hunt down a animal")
-			.set_application_id(bot.me.id);
-		hunt = bot.global_command_create_sync(hunt);
-		if (remove) bot.global_command_delete_sync(hunt.id);
-		break;
-	}
-	default: break;
-	}
-}
-void update_all(bool remove = false) {
-	int version = stoi(CURRENT_VERSION);
-	if (version < 1) async(update_slashcommands, command::daily, remove).wait();
-	if (version < 2) async(update_slashcommands, command::profile, remove).wait();
-	if (version < 3) async(update_slashcommands, command::shop, remove).wait();
-	if (version < 4) async(update_slashcommands, command::buy, remove).wait();
-	if (version < 5) async(update_slashcommands, command::sell, remove).wait();
-	if (version < 6) async(update_slashcommands, command::fish, remove).wait();
-	if (version < 7) async(update_slashcommands, command::repair, remove).wait();
-	if (version < 8) async(update_slashcommands, command::leaderboard, remove).wait();
-	if (version < 9) async(update_slashcommands, command::purge, remove).wait();
-	if (version < 10) async(update_slashcommands, command::membercount, remove).wait();
-	if (version < 11) async(update_slashcommands, command::avatar, remove).wait();
-	if (version < 12) async(update_slashcommands, command::invite, remove).wait();
-	if (version < 13) async(update_slashcommands, command::hunt, remove).wait();
-	ofstream("SLASHCOMMAND_VERSION") << SLASHCOMMAND_VERSION;
-	print<string>({
-		bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ",
-		"updated ", to_string(stoi(SLASHCOMMAND_VERSION) - version), " slashcommand", stoi(SLASHCOMMAND_VERSION) - version <= 1 ? "" : "s"
-		}, nullptr, state{ newline, color::white });
+	sleep_for(10s);
+	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
+	if (results.size() == 14) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }
