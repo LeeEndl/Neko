@@ -438,22 +438,23 @@ template<typename event_t> bool hunt_t(event_t event)
 	return true;
 }
 template<typename event_t> bool nick_t(event_t event) {
+	string name = "", nickname = "";
 	try {
-		string name = "", nickname = "";
 		is_same_v<decltype(event), const dpp::slashcommand_t&> ?
 			name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname") :
 			name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
 		if (nickname.size() < 1 or nickname.size() > 32) {
-			event.reply("Nickname must contain 1-32 characters");
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("Nickname must contain 1-32 characters")).set_flags(dpp::message_flags::m_ephemeral));
 			return false;
 		}
 		if (has_char(username(name))) return false;
 		dpp::guild_member gm = bot.guild_get_member_sync(dpp::guild_id(event), stoull(username(name)));
 		gm.nickname = nickname;
-		bot.guild_edit_member_sync(gm);
+		bot.guild_edit_member_sync(gm);                                                                            /* can't assume it was mentioned */
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success).set_description("> <@" + username(name) + "> name changed to **" + nickname + "**")));
 	}
 	catch (dpp::exception e) {
-		if (not e.msg.empty()) event.reply("can't modify this member's nickname.");
+		if (not e.msg.empty()) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("> Can't modify <@" + username(name) + ">'s nickname").set_footer(dpp::embed_footer().set_text(e.msg))));
 	}
 	return true;
 }
