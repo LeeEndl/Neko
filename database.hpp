@@ -2,21 +2,28 @@
 
 class tools {
 public:
-	string name = "";
-	int durability = 0;
+	string name = ""; // -> name is basically the emoji name. which make total sense, before I made it a ID which was annoying
+	int durability = 0; // -> takes away 1 for each use of the weapon
 };
 class UserData {
 public:
-	time_t daily = std::time(0), last_on = 0, last_fish = 0, last_hunt = 0;
-	uint64_t user_id = 0;
-	bool failed = false;
-	vector<tools> tools;
-	string username = "";
-	int fish = 0;
-	uint64_t dollars = 0;
+	time_t daily = std::time(0), last_on = 0, last_fish = 0, last_hunt = 0; // -> cooldown related stuff, it will always be a certain time
+	uint64_t user_id = 0; string username = ""; // -> gathered info from D++, I use this for identifying the "event" that is entering a lambda
+	bool failed = false; // -> only useful for checking if a user never had pre-existing data, soon it'll be used to recover invalid data
+	vector<tools> tools; // -> explained above, but if you got memory of a snail it's basically a array of tools with there own properties
+	int fish = 0; // -> the amount of fish, soon it'll be an array with other fish or maybe all items
+	uint64_t dollars = 0; // -> currency, plays one role and that's buying items, soon trading and other features will be added
+
+	/* prevent reply spamming also keeps everyting organized in channel */
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
-}; map<dpp::snowflake, UserData> members;
+}; map<dpp::snowflake, UserData> members; // -> stored into a map for changing values in class.
+class GuildData {
+public:
+	bool failed = false; // -> only useful for checking if a user never had pre-existing data, soon it'll be used to recover invalid data. YES I COPIED AND PASTED!
+	bool joined = false; // -> I actually don't know why this is here.... maybe my brain forgot ifstream::is_open() exists. am I keeping it? YES! (LOL)
+	string prefix = ""; // -> prefix. self explained. the special char in front that activates a command. like 'sudo' or '/'
+}; map<dpp::snowflake, GuildData> guilds; // -> stored into a map for changing values in class. YES I COPIED AND PASTED! twice T_T
 inline UserData GetUserData(dpp::snowflake user_id)
 {
 	UserData data;
@@ -81,12 +88,6 @@ inline void new_user(dpp::snowflake user_id)
 		members.emplace(bot.user_get_sync(user_id).id, data);
 	}
 }
-
-class GuildData {
-public:
-	bool failed = false, joined = false;
-	string prefix = "";
-}; map<dpp::snowflake, GuildData> guilds;
 inline GuildData GetGuildData(dpp::snowflake guild_id)
 {
 	GuildData data;
