@@ -1,6 +1,4 @@
 ﻿#pragma once
-enum command { prefix, daily, profile, shop, buy, sell, fish, repair, leaderboard, purge, membercount, avatar, invite, hunt };
-vector<thread> button_clicked_executed;
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
 	vector<string> index = dpp::index(event.custom_id, '_');
@@ -34,18 +32,13 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 bool prefix_t(const dpp::message_create_t& event)
 {
 	vector<string> index = dpp::index(event.msg.content, ' ');
-	dpp::user* user = dpp::find_user(event.msg.member.user_id);
-	dpp::guild* guild = dpp::find_guild(event.msg.guild_id);
-	if (guild->base_permissions(user) & dpp::p_administrator) {
-		GuildData g_data = GetGuildData(event.msg.guild_id);
-		if (index[1].size() > 1 or index[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
-		else {
-			g_data.prefix = index[1];
-			SaveGuildData(g_data, event.msg.guild_id);
-			event.reply("Prefix is now set to: **" + g_data.prefix + "**");
-		}
+	GuildData g_data = GetGuildData(event.msg.guild_id);
+	if (index[1].size() > 1 or index[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
+	else {
+		g_data.prefix = index[1];
+		SaveGuildData(g_data, event.msg.guild_id);
+		event.reply("Prefix is now set to: **" + g_data.prefix + "**");
 	}
-	else event.reply("Sorry, but only administrator can change guild prefix!");
 	return true;
 }
 template<typename event_t> bool daily_t(event_t event)
@@ -75,17 +68,14 @@ template<typename event_t> bool profile_t(event_t event)
 	string name = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 	else name = dpp::index(event, "1");
-	name.erase(remove(name.begin(), name.end(), '<'), name.end()), name.erase(remove(name.begin(), name.end(), '>'), name.end());
-	name.erase(remove(name.begin(), name.end(), '!'), name.end());
-	name.erase(remove(name.begin(), name.end(), '@'), name.end());
-	if (has_char(name)) return false;
-	UserData data = GetUserData(stoull(name));
-	if (data.failed) new_user(stoull(name));
+	if (has_char(username(name))) return false;
+	UserData data = GetUserData(stoull(username(name)));
+	if (data.failed) new_user(stoull(username(name)));
 	string sort = "";
 	for (auto& tool : data.tools) if (not tool.name.empty()) sort += (tool.name.find("B:") or tool.durability < 1 ? "Broken " + tool.name : "Durability: " + to_string(tool.durability) + " " + tool.name);
 	dpp::embed embed = dpp::embed()
 		.set_color(dpp::colors::PS).set_title(":mag_right: Profile Viewer")
-		.set_description(("**<@" + name + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
+		.set_description(("**<@" + username(name) + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
 		.add_field(
 			"Tools: ",
 			sort.empty() ? "None" : sort
@@ -280,12 +270,11 @@ template<typename event_t> bool purge_t(event_t event)
 					continue;
 				}
 			}
-			else
-				if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
-					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
-					oids.emplace_back(msg.second.id);
-					continue;
-				}
+			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
+				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
+				oids.emplace_back(msg.second.id);
+				continue;
+			}
 			ids.emplace_back(msg.second.id);
 		}
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("Deleted `" + to_string(deleted) + "` Message(s)")));
@@ -320,12 +309,8 @@ template<typename event_t> bool avatar_t(event_t event)
 		string name = "";
 		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 		else name = dpp::index(event, "1");
-		name.erase(remove(name.begin(), name.end(), '<'), name.end());
-		name.erase(remove(name.begin(), name.end(), '>'), name.end());
-		name.erase(remove(name.begin(), name.end(), '!'), name.end());
-		name.erase(remove(name.begin(), name.end(), '@'), name.end());
-		if (has_char(name)) return false;
-		url = bot.user_get_sync(stoull(name)).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(name);
+		if (has_char(username(name))) return false;
+		url = bot.user_get_sync(stoull(username(name))).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(username(name));
 	}
 	dpp::embed embed = dpp::embed()
 		.set_color(dpp::colors::PS)
@@ -452,7 +437,26 @@ template<typename event_t> bool hunt_t(event_t event)
 		}
 	return true;
 }
-vector<thread> slashcommands_executed;
+template<typename event_t> bool nick_t(event_t event) {
+	try {
+		string name = "", nickname = "";
+		is_same_v<decltype(event), const dpp::slashcommand_t&> ?
+			name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname") :
+			name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
+		if (nickname.size() < 1 or nickname.size() > 32) {
+			event.reply("Nickname must contain 1-32 characters");
+			return false;
+		}
+		if (has_char(username(name))) return false;
+		dpp::guild_member gm = bot.guild_get_member_sync(dpp::guild_id(event), stoull(username(name)));
+		gm.nickname = nickname;
+		bot.guild_edit_member_sync(gm);
+	}
+	catch (dpp::exception e) {
+		if (not e.msg.empty()) event.reply("can't modify this member's nickname.");
+	}
+	return true;
+}
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
 	if (data.failed) async(new_user, event.command.member.user_id).wait();
@@ -470,6 +474,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "avatar") async(avatar_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
+	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
@@ -482,7 +487,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	UserData data = GetUserData(event.msg.member.user_id);
 	if (data.failed) async(new_user, event.msg.member.user_id).wait();
 	GuildData g_data = GetGuildData(event.msg.guild_id);
-	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1) async(prefix_t, event);
+	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
 	else if (event.msg.content.find(g_data.prefix + "daily") not_eq -1) async(daily_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "profile ") not_eq -1) async(profile_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "shop") not_eq -1) async(shop_t<const dpp::message_create_t&>, event);
@@ -491,12 +496,19 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "fish") not_eq -1) async(fish_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "repair ") not_eq -1) async(repair_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) async(leaderboard_t<const dpp::message_create_t&>, event);
-	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1) async(purge_t<const dpp::message_create_t&>, event);
+	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(purge_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "avatar") not_eq -1) async(avatar_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "hunt") not_eq -1) async(hunt_t<const dpp::message_create_t&>, event);
-	else return;
+	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event);
+	else {
+		if ((dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) == 0 and event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
+			event.reply("Sorry, only members that can manage nicknames can preform this command.");
+		else if ((dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) == 0 and event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1)
+			event.reply("Sorry, only administrators can preform this command.");
+		else return;
+	}
 	{
 		UserData data = GetUserData(event.msg.member.user_id);
 		data.last_on = std::time(0);
@@ -528,9 +540,10 @@ void load_slashcommands()
 		about{"leaderboard", "see top players", dpp::permissions::p_send_messages}, about{"top", "see top players", dpp::permissions::p_send_messages},
 		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, vector<option>{option{dpp::command_option_type::co_string, "amount", "amount of messages to which be deleted", true}}},
 		about{"membercount", "view all members in server", dpp::permissions::p_send_messages},
-		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", true}}},
+		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", false}}},
 		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
-		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages}
+		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages},
+		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
@@ -546,5 +559,5 @@ void load_slashcommands()
 	}
 	sleep_for(10s);
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
-	if (results.size() == 14) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
+	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }

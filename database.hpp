@@ -119,12 +119,10 @@ inline void new_guild(dpp::snowflake guild_id)
 		guilds.emplace(guild_id, data);
 	}
 }
-vector<thread> guild_create_executed;
 inline void await_on_guild_create(const dpp::guild_create_t& event) {
 	GuildData data = GetGuildData(event.created->id);
 	if (static_cast<bool>(data.failed)) new_guild(event.created->id);
 }
-vector<thread> guild_delete_executed;
 inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
 	for (const auto& i : filesystem::directory_iterator("database/guilds")) {
 		vector<string> index = dpp::index(i.path().filename().string(), '.');
