@@ -521,6 +521,13 @@ bool has_char(std::string str) {
 			or c == 'z' or c == 'x' or c == 'c' or c == 'v' or c == 'b' or c == 'n' or c == 'm') return true;
 	return false;
 }
+std::string username(std::string str) {
+	str.erase(remove(str.begin(), str.end(), '<'), str.end());
+	str.erase(remove(str.begin(), str.end(), '>'), str.end());
+	str.erase(remove(str.begin(), str.end(), '!'), str.end());
+	str.erase(remove(str.begin(), str.end(), '@'), str.end());
+	return str;
+}
 enum color { null, d_blue, d_green, d_cyan, d_red, d_purple, d_yellow, normal, gray, blue, green, cyan, red, purple, yellow, white };
 enum option { newline, Inline };
 class state {
