@@ -30,13 +30,9 @@ namespace dpp {
 	 */
 	class exception : public std::exception
 	{
-	protected:
-		/**
-		 * @brief Exception message
-		 */
-		std::string msg;
-
 	public:
+		/** @brief send exception message as a string, what() would be called as a const char*  */
+		std::string msg;
 
 		using std::exception::exception;
 
