@@ -534,12 +534,14 @@ class state {
 public:
 	option option = option::newline;
 	color color = color::normal;
+	bool freeze = false;
 };
 template<typename ty> class print {
 public:
 	print(ty out, std::function<void(ty)> in = nullptr, state s = state()) {
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
 		std::clog << out, s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+		if (s.freeze) while (true); // -> stop here
 		if (in not_eq nullptr) {
 			std::function<void(ty)> get_in = [&](ty it) {
 				std::cin >> input;
@@ -549,7 +551,7 @@ public:
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 	}
 	print(std::map<ty, state> out, std::function<void(ty)> in = nullptr) {
-		for (auto& it : out) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), it.second.color), 
+		for (auto& it : out) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), it.second.color),
 			std::clog << it.first, it.second.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
 		if (in not_eq nullptr) {
 			std::function<void(ty)> get_in = [&](ty it) {
@@ -563,6 +565,7 @@ public:
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
 		for (auto& it : out) std::clog << it;
 		s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+		if (s.freeze) while (true); // -> stop here
 		if (in not_eq nullptr) {
 			std::function<void(ty)> get_in = [&](ty it) {
 				std::cin >> input;
