@@ -10,15 +10,17 @@
 #include "database.hpp" // -> self explained, database related stuff is here. hm. like JSON and file streaming
 #include "commands.hpp" // -> also self explained, commands are here.. OH?! you expected me to say more? well.. NOPE!
 
-void main() // -> who said I was returning a value.
-{
+#pragma warning(disable: 4326) // -> I'm gonna put this here and no one's gonna talk about it, okay?!
+void main() { // -> who said I was returning a value.
+#pragma warning(default: 4326) // -> It's like it was never here...
+
 	/* just some folder recovery. */
-	if (not filesystem::exists("database") or not filesystem::exists("./database/guilds") or not filesystem::exists("./database/users")) 
+	if (not filesystem::exists("database") or not filesystem::exists("./database/guilds") or not filesystem::exists("./database/users"))
 		filesystem::create_directory("database"), filesystem::create_directory("./database/guilds"), filesystem::create_directory("./database/users");
 
 	/* secure way to store your token, it's also a file so you may freely edit */
 	if (not ifstream("token").is_open())
-		print<string>("Empty Token.", nullptr, state{ newline, color::red, false }),                                           /* ahm- I present a single line ofstream! */
+		print<string>("Empty Token.", nullptr, state{ newline, color::red, false }),                                    /* ahm- I present a single line ofstream! */
 		print<string>("token: ", [](string it) { bot.token = it; }, state{ Inline, color::white, false }), ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
 	getline(ifstream("token"), bot.token);
 
@@ -59,13 +61,13 @@ void main() // -> who said I was returning a value.
 
 	/* when a standard message passes through, blocking webhooks or other bot's messages */
 	bot.on_message_create([](const dpp::message_create_t& event) {
-		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
+		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return; // -> ignore bots
 		thread::thread(await_on_message_create, event).detach();
 		});
 
 	/* same above but for application commands, we ignore webhooks cause they can't use application commands so ya. */
 	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-		if (event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
+		if (event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return; // -> ignore bots
 		thread::thread(await_on_slashcommand, event).detach();
 		});
 
