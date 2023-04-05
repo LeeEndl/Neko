@@ -1,41 +1,38 @@
 ﻿#pragma once
+
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
 	vector<string> index = dpp::index(event.custom_id, '_');
-	if (event.custom_id.find("repair_1") not_eq -1 and index[2] == to_string(event.command.member.user_id)) {
-		if (data.dollars > 12) {
-			data.dollars -= 12;
+	/* alright, here's a quick recap, so basically "1" "3", ect are ID(s) which they use to be, now it's the emoji as the id */
+	if (event.custom_id.find("repair_1") not_eq -1 and index[2] == to_string(event.command.member.user_id)/*make sure it's the requester who's pressing the button*/) {
+		if (data.dollars > 12) { // -> check if they got 12 or more dollars
+			data.dollars -= 12; // -> if so then take the 12 dollars, we don't want nagative values.
+			/* if they got a broken tool, then repair it else just reset to 15 durability */
 			for (auto& tool : data.tools) if (tool.name == "B:fishing_pole_and_fish:") tool.name = ":fishing_pole_and_fish:", tool.durability = 15;
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Repair Complete!");
-			event.reply(dpp::message(event.command.channel_id, embed));
+			event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::success).set_description("Repair Complete!")));
 			SaveUserData(data, event.command.member.user_id);
 		}
-		else {
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You don't have enough to repair it!");
-			event.reply(dpp::message(event.command.channel_id, embed));
-		}
+		else event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::failed).set_description("You don't have enough to repair it!")));
 	}
 	if (event.custom_id.find("repair_3") not_eq -1 and index[2] == to_string(event.command.member.user_id)) {
-		if (data.dollars > 66) {
-			data.dollars -= 66;
+		if (data.dollars > 66) { // -> check if they got 66 or more dollars
+			data.dollars -= 66; // -> if so then take the 66 dollars, we don't want nagative values.
+			/* if they got a broken tool, then repair it else just reset to 15 durability */
 			for (auto& tool : data.tools) if (tool.name == "B:knife:") tool.name = ":knife:", tool.durability = 15;
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Repair Complete!");
-			event.reply(dpp::message(event.command.channel_id, embed));
+			event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::success).set_description("Repair Complete!")));
 			SaveUserData(data, event.command.member.user_id);
 		}
-		else {
-			dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("You don't have enough to repair it!");
-			event.reply(dpp::message(event.command.channel_id, embed));
-		}
+		else event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::failed).set_description("You don't have enough to repair it!")));
 	}
 }
 bool prefix_t(const dpp::message_create_t& event)
 {
 	vector<string> index = dpp::index(event.msg.content, ' ');
 	GuildData g_data = GetGuildData(event.msg.guild_id);
+	/* if the prefix size is null. Alternativly; dpp::empty_index() */
 	if (index[1].size() > 1 or index[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
 	else {
-		g_data.prefix = index[1];
+		g_data.prefix = index[1]; // -> set the prefix as the first space inside the prefix command
 		SaveGuildData(g_data, event.msg.guild_id);
 		event.reply("Prefix is now set to: **" + g_data.prefix + "**");
 	}
@@ -44,17 +41,16 @@ bool prefix_t(const dpp::message_create_t& event)
 template<typename event_t> bool daily_t(event_t event)
 {
 	UserData data = GetUserData(dpp::member(event).user_id);
-	tm* now = dpp::utility::mtm(time(0));
-	tm* claimed = dpp::utility::mtm(data.daily);
+	tm* claimed = dpp::utility::mtm(data.daily); // -> make daily a tm* for later manipulation
+	/* manipulate daily's container (claimed) to set for tomorrow */
 	time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
-	if (ct < time(0)) {
-		uint64_t dollar = randomx::Int(30, 92);
-		data.daily = time(0);
-		data.dollars += dollar;
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed()
-			.set_color(dpp::colors::PS)
+	if (ct < time(0)) { // -> if ct (described above) is 1 day or older then proceed, else tell them how long they got to wait below
+		uint64_t dollar = randomx::Int(30, 92); // -> random uint64_t from 30-92 (using <random> so srand() isn't nessesary)
+		data.daily = time(0); // -> reset the cycle by setting the date to today.
+		data.dollars += dollar; // -> give them the dollars
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
 			.set_title("Thanks for opening my gift! :tada:")
-			.set_description("- " + static_cast<string>(to_string(dollar)) + " :dollar:")));
+			.set_description("- " + to_string(dollar) + " :dollar:")));
 		SaveUserData(data, dpp::member(event).user_id);
 	}
 	else
@@ -68,39 +64,34 @@ template<typename event_t> bool profile_t(event_t event)
 	string name = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 	else name = dpp::index(event, "1");
-	if (has_char(username(name))) return false;
+	if (has_char(username(name))) return false; // -> make sure it was a mention or an array of numbers
 	UserData data = GetUserData(stoull(username(name)));
-	if (data.failed) new_user(stoull(username(name)));
+	if (data.failed) new_user(stoull(username(name))); // -> make some filler information if they never used the bot before
 	string sort = "";
+	/* check what tools they got, also if there broken or not */
 	for (auto& tool : data.tools) if (not tool.name.empty()) sort += (tool.name.find("B:") or tool.durability < 1 ? "Broken " + tool.name : "Durability: " + to_string(tool.durability) + " " + tool.name);
-	dpp::embed embed = dpp::embed()
-		.set_color(dpp::colors::PS).set_title(":mag_right: Profile Viewer")
+	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
+		.set_title(":mag_right: Profile Viewer")
 		.set_description(("**<@" + username(name) + ">** ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
 		.add_field(
 			"Tools: ",
-			sort.empty() ? "None" : sort
-		)
+			sort.empty() ? "None" : sort)
 		.add_field(
 			"Inventory: ",
 			to_string(data.dollars) + " :dollar: \n" +
-			(data.fish > 0 ? to_string(data.fish) + " :fish: \n" : "")
-		);
-	event.reply(dpp::message(dpp::channel_id(event), embed));
+			(data.fish > 0 ? to_string(data.fish) + " :fish: \n" : ""))));
 	return true;
 }
 template<typename event_t> bool shop_t(event_t event)
 {
-	dpp::embed embed = dpp::embed()
-		.set_color(dpp::colors::PS)
+	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
 		.set_title(":shopping_cart: Shop")
 		.set_description(
 			"`[ID: 1]` **:fishing_pole_and_fish: Wooden Fishing Rod**:\n  - Durability: 15/15\n  - Cost: 15 :dollar:\n\n\
-             `[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:"
-		)
+             `[ID: 3]` **:knife: Knife**:\n  - Durability: 15/15\n  - Cost: 80 :dollar:")
 		.add_field(
 			"How to Buy?",
-			"type !buy {ID} {Amount}");
-	event.reply(dpp::message(dpp::channel_id(event), embed));
+			"type !buy {ID} {Amount}")));
 	return true;
 }
 template<typename event_t> bool buy_t(event_t event)
@@ -111,31 +102,31 @@ template<typename event_t> bool buy_t(event_t event)
 	if (id == "1" or id == "fishing_pole" or id == "fishing_pole_and_fish") {
 		bool found = false;
 		UserData data = GetUserData(dpp::member(event).user_id);
-		for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;
-		int forecast = 15 * stoull(amount);
+		for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true; // -> self explained by the var name, it's checking if you got the tool alr
+		int forecast = 15 * stoull(amount); // -> forsee if you can afford the amount
 		if (data.dollars < forecast) event.reply("You can't afford it.");
-		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");
+		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!"); // -> this part was talked about above
 		else {
-			data.dollars = data.dollars -= forecast;
-			tools buf;
-			buf.name = ":fishing_pole_and_fish:", buf.durability = 15;
-			data.tools.emplace_back(buf);
+			data.dollars = data.dollars -= forecast; // -> take away the forsawed amount of dollars
+			tools buf; // -> create a temp tool and store it inside the user's tools
+			buf.name = ":fishing_pole_and_fish:", buf.durability = 15; // -> set the name to the emoji
+			data.tools.emplace_back(buf); // -> emplace back it, the 'buf' will be deleted on it's own, I swear if I see a mem function I'll throw you out the window
 			SaveUserData(data, dpp::member(event).user_id);
-			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("You've Purchased a :fishing_pole_and_fish:")));
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success).set_description("You've Purchased a :fishing_pole_and_fish:")));
 		}
 	}
 	else if (id == "3" or id == "knife") {
 		bool found = false;
 		UserData data = GetUserData(dpp::member(event).user_id);
-		for (auto& tool : data.tools) if (tool.name == ":knife:") found = true;
-		int forecast = 80 * stoull(amount);
+		for (auto& tool : data.tools) if (tool.name == ":knife:") found = true; // -> self explained by the var name, it's checking if you got the tool alr
+		int forecast = 80 * stoull(amount); // -> forsee if you can afford the amount
 		if (data.dollars < forecast) event.reply("You can't afford it.");
-		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");
+		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!"); // -> this part was talked about above
 		else {
-			data.dollars = data.dollars -= forecast;
-			tools buf;
-			buf.name = ":knife:", buf.durability = 15;
-			data.tools.emplace_back(buf);
+			data.dollars = data.dollars -= forecast; // -> take away the forsawed amount of dollars
+			tools buf; // -> create a temp tool and store it inside the user's tools
+			buf.name = ":knife:", buf.durability = 15; // -> set the name to the emoji
+			data.tools.emplace_back(buf); // -> emplace back it, the 'buf' will be deleted on it's own, I swear if I see a mem function I'll throw you out the window
 			SaveUserData(data, dpp::member(event).user_id);
 			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("You've Purchased a :knife:")));
 		}
@@ -152,36 +143,38 @@ template<typename event_t> bool sell_t(event_t event)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("You can't sell your fishing rod!")));
 	else if (id == "fish") {
 		UserData data = GetUserData(dpp::member(event).user_id);
-		data.dollars += 2 * stoull(amount);
-		data.fish = data.fish - stoi(amount);
+		data.dollars += 2 * stoull(amount); // -> *deep exhale* ok so basically this gives you dollars for each fish, 2 is the amount for 1 fish.
+		data.fish = data.fish - stoi(amount); // -> takes away the fish you wanted to sell. sell 5 fish -> take 5 fish -> give 10 dollars.
 		SaveUserData(data, dpp::member(event).user_id);
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:")));
 	}
 	else event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("Invalid ID")));
 	return true;
 }
+/* realizing commentary shouldn't be free.... */
 template<typename event_t> bool fish_t(event_t event)
 {
 	bool found = false;
 	UserData data = GetUserData(dpp::member(event).user_id);
-	for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;
-	for (auto& find : members) if (find.first == dpp::member(event).user_id)
-		if (find.second.busy_fishing) return false;
-		else if (find.second.last_fish + 10 > time(0)) {
-			if (find.second.once_fishing) return false;
+	for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true; // -> explained a dozen times, checks if you already got tool
+	for (auto& find : members) if (find.first == dpp::member(event).user_id) // -> we use map data to modify there state on fishing, feteched during startup
+		if (find.second.busy_fishing) return false; // -> this is here to prevent spamming, but soon ratelimit will be added
+		else if (find.second.last_fish + 10 > time(0)) { // -> okok so adding 10 to a time_t is basically adding 10 seconds (we ignore ms)
+			if (find.second.once_fishing) return false; // -> another anti spammeroni
 			find.second.once_fishing = true;
-			tm* mt = dpp::utility::mtm(find.second.last_fish);
-			time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+			tm* mt = dpp::utility::mtm(find.second.last_fish); // -> more time manipulation, explained at daily_t, just read that
+			time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon); // -> OK! so this is 12 cause of delays on deletion
 			dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), dpp::member(event).get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**"));
 			while (true) {
-				if (find.second.last_fish + 10 < time(0)) {
+				if (find.second.last_fish + 10 < time(0)) { // -> if it reached the 10 second marker, this will be looped on a seperate thread so no worries
 					dpp::message_delete(event, msg.id, dpp::channel_id(event));
 					find.second.once_fishing = false;
-					goto escape;
+					goto escape; // -> leave and get caught up with return value
 				}
 			}
-		escape: return false;
+		escape: return false; // -> return false cause it was a failed attempted to succeed in command, if we don't return then it'll act on (sure that might sound cool but idk LOL)
 		}
+	/* OMG you probably thought I forgot about found lol */
 		else if (not found) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a fishing rod.")));
 		else {
 			function<void()> fishing = [&]() {
@@ -202,7 +195,7 @@ template<typename event_t> bool fish_t(event_t event)
 				data.fish += 1;
 				for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") tool.durability -= 1;
 				SaveUserData(data, dpp::member(event).user_id);
-				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_fish = std::time(0);
+				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_fish = time(0);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = false;
 				return true;
 			}; async(fishing);
@@ -321,9 +314,8 @@ template<typename event_t> bool avatar_t(event_t event)
 }
 template<typename event_t> bool invite_t(event_t event)
 {
-	event.reply("https://discord.com/api/oauth2/authorize?client_id=" +
-		to_string(bot.me.id) +
-		"&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands");
+	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_author("Click me!", "https://discord.com/api/oauth2/authorize?client_id=" +
+		to_string(bot.me.id) + "&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands", "")));
 	return true;
 }
 template<typename event_t> bool hunt_t(event_t event)
@@ -430,7 +422,7 @@ template<typename event_t> bool hunt_t(event_t event)
 				data.dollars += dollar;
 				for (auto& tool : data.tools) if (tool.name == ":knife:") tool.durability -= 1;
 				SaveUserData(data, dpp::member(event).user_id);
-				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_hunt = std::time(0);
+				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_hunt = time(0);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_hunting = false;
 				return true;
 			}; async(hunt).wait();
@@ -443,18 +435,21 @@ template<typename event_t> bool nick_t(event_t event) {
 		is_same_v<decltype(event), const dpp::slashcommand_t&> ?
 			name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname") :
 			name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
-		if (nickname.size() < 1 or nickname.size() > 32) {
-			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("Nickname must contain 1-32 characters")).set_flags(dpp::message_flags::m_ephemeral));
+		if (nickname.size() < 1 or nickname.size() > 32) { // -> discord API policy, keep it here and don't modify; https://github.com/discord/discord-api-docs/blob/main/docs/resources/User.md#usernames-and-nicknames
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("> Nickname must contain 1-32 characters")
+				.set_footer(dpp::embed_footer().set_text("length: " + to_string(nickname.size())))).set_flags(dpp::message_flags::m_ephemeral));
 			return false;
 		}
 		if (has_char(username(name))) return false;
 		dpp::guild_member gm = bot.guild_get_member_sync(dpp::guild_id(event), stoull(username(name)));
 		gm.nickname = nickname;
-		bot.guild_edit_member_sync(gm);                                                                            /* can't assume it was mentioned */
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success).set_description("> <@" + username(name) + "> name changed to **" + nickname + "**")));
+		bot.guild_edit_member_sync(gm);
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success)
+			.set_description("> <@" + username(name) /* can't assume it's a mention */ + "> name changed to **" + nickname + "**")));
 	}
 	catch (dpp::exception e) {
-		if (not e.msg.empty()) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("> Can't modify <@" + username(name) + ">'s nickname").set_footer(dpp::embed_footer().set_text(e.msg))));
+		if (not e.msg.empty()) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+			.set_description("> Can't modify <@" + username(name) + ">'s nickname").set_footer(dpp::embed_footer().set_text(e.msg))));
 	}
 	return true;
 }
@@ -477,9 +472,9 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
 	else return;
-	{
+	{ // -> scope and call GetUserData() again cause we don't wanna overwrite anything, good time to store XP/level system here.
 		UserData data = GetUserData(event.command.member.user_id);
-		data.last_on = std::time(0);
+		data.last_on = time(0);
 		SaveUserData(data, event.command.member.user_id);
 	}
 }
@@ -504,15 +499,17 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "hunt") not_eq -1) async(hunt_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event);
 	else {
-		if ((dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) == 0 and event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
-			event.reply("Sorry, only members that can manage nicknames can preform this command.");
-		else if ((dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) == 0 and event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1)
-			event.reply("Sorry, only administrators can preform this command.");
-		else return;
+		if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+				.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+		else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1)
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+				.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+		return;
 	}
-	{
+	{ // -> scope and call GetUserData() again cause we don't wanna overwrite anything, good time to store XP/level system here.
 		UserData data = GetUserData(event.msg.member.user_id);
-		data.last_on = std::time(0);
+		data.last_on = time(0);
 		SaveUserData(data, event.msg.member.user_id);
 	}
 }
@@ -558,7 +555,7 @@ void load_slashcommands()
 				cmd.add_option(dpp::command_option(option.v_type, option.name, option.description, option.required));
 		slashcommand.emplace_back(cmd);
 	}
-	sleep_for(10s);
+	sleep_for(10s); // -> avoid ratelimit, sense it's bulked the ratelimit is quite longer
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
-	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
+	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands"); // -> just saying all the commands had no problem being added
 }
