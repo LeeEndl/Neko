@@ -7,7 +7,7 @@ public:
 };
 class UserData {
 public:
-	time_t daily = std::time(0), last_on = 0, last_fish = 0, last_hunt = 0; // -> cooldown related stuff, it will always be a certain time
+	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0; // -> cooldown related stuff, it will always be a certain time
 	uint64_t user_id = 0; string username = ""; // -> gathered info from D++, I use this for identifying the "event" that is entering a lambda
 	bool failed = false; // -> only useful for checking if a user never had pre-existing data, soon it'll be used to recover invalid data
 	vector<tools> tools; // -> explained above, but if you got memory of a snail it's basically a array of tools with there own properties
@@ -15,6 +15,7 @@ public:
 	uint64_t dollars = 0; // -> currency, plays one role and that's buying items, soon trading and other features will be added
 
 	/* prevent reply spamming also keeps everyting organized in channel */
+	short ratelimit = 0, queue = 0;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
 }; map<dpp::snowflake, UserData> members; // -> stored into a map for changing values in class.

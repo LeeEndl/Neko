@@ -453,7 +453,21 @@ template<typename event_t> bool nick_t(event_t event) {
 	}
 	return true;
 }
+template<typename event_t> thread queue_ratelimit(event_t event) {
+	cout << "queue ratelimit" << endl;
+	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
+	cout << "queue ended" << endl;
+	return thread(); // -> were done here
+}
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
+	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return; // -> we don't want extra detached threads
+	while (true) { // -> looping is underrated here but it's my code, my rules.
+		for (auto& find : members) if (find.first == event.command.member.user_id)
+			if (find.second.ratelimit < 4) goto proceed;
+			else thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
+		if (bot.rest_ping < 0.6) goto proceed; // -> higher rest ping the more overworked the bot is (overwork as in HTTPS requesting)
+	} proceed:
+	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.command.member.user_id);
 	if (data.failed) async(new_user, event.command.member.user_id).wait();
 	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event);
@@ -480,6 +494,14 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 }
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
+	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;  // -> we don't want extra detached threads
+	while (true) { // -> looping is underrated here but it's my code, my rules.
+		for (auto& find : members) if (find.first == event.msg.member.user_id)
+			if (find.second.ratelimit < 3) goto proceed;
+			else thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
+		if (bot.rest_ping < 0.6) goto proceed; // -> higher rest ping the more overworked the bot is (overwork as in HTTPS requesting)
+	} proceed:
+	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.msg.member.user_id);
 	if (data.failed) async(new_user, event.msg.member.user_id).wait();
 	GuildData g_data = GetGuildData(event.msg.guild_id);
