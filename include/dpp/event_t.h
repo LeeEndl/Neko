@@ -1,8 +1,8 @@
 ﻿#pragma once
 using namespace std;
 using namespace this_thread;
-dpp::cluster bot("", static_cast<uint32_t>(dpp::i_default_intents | dpp::i_message_content));
-vector<thread> ready_executed;
+dpp::cluster bot("", static_cast<uint32_t>(dpp::i_all_intents));
+vector<thread> event_threads;
 
 namespace dpp {
 	dpp::guild_member member(const dpp::message_create_t& event) { return event.msg.member; }
