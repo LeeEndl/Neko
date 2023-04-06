@@ -177,7 +177,7 @@ template<typename event_t> bool fish_t(event_t event)
 	/* OMG you probably thought I forgot about found lol */
 		else if (not found) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a fishing rod.")));
 		else {
-			function<void()> fishing = [&]() {
+			function<void()> fishing = [&]() { // -> this was useful but idk if anymore sense it's all threaded
 				for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:")
 					if (tool.durability == 0) {
 						dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your fishing rod broke! **/repair 1**");
@@ -189,52 +189,50 @@ template<typename event_t> bool fish_t(event_t event)
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = true;
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
 				dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), embed));
-				async(Sleep, randomx::Int(6000, 11000));
-				for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
-				dpp::message_edit(event, msg);
+				sleep_for(chrono::seconds(randomx::Int(4, 9)) // -> sleeps for a random amount of time, this adds realizsm to fishing
+				for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!"; // -> gets the embed from previous sent msg and changes description
+				dpp::message_edit(event, msg); // -> edits the message from changed embed description
 				data.fish += 1;
 				for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") tool.durability -= 1;
 				SaveUserData(data, dpp::member(event).user_id);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_fish = time(0);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = false;
-				return true;
+				return true; // -> returns here cause why not.
 			}; async(fishing);
 		}
 	return true;
 }
 template<typename event_t> bool repair_t(event_t event)
 {
-	string id = "";
+	string id = "", value = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) id = dpp::index(event, "id");
 	else id = dpp::index(event, "1");
-	string value = "";
-	switch (stoi(id)) {
+	switch (stoi(id)) { // -> gets values according to the id, this might be changed in the future
 	case 1: value = to_string(12);
 	case 3: value = to_string(66);
 	}
 	if (value.empty()) return false;
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_title(":hammer_pick: Repair").add_field(
 		"Repairing this will cost :dollar: " + value,
-		"Are You Sure?")).add_component(
-			dpp::component().add_component(dpp::component()
-				.set_label("Repair")
-				.set_type(dpp::cot_button)
-				.set_style(dpp::cos_success)
-				.set_id("repair_" + id + "_" + to_string(dpp::member(event).user_id))
-			)
+		"Are You Sure?")).add_component( // -> this is kinda like a array of components
+			dpp::component().add_component(dpp::component() // -> THE component
+				.set_label("Repair") // -> the text displayed on the button
+				.set_type(dpp::cot_button) // -> given: component is a button
+				.set_style(dpp::cos_success) // -> button coloring/design
+				.set_id("repair_" + id + "_" + to_string(dpp::member(event).user_id))) // -> ID for clicking on it
 		));
 	return true;
 }
 template<typename event_t> bool leaderboard_t(event_t event)
 {
-	if (members.empty()) return false;
-	string oriented = "";
-	vector<pair<uint64_t, uint64_t>> buffer;
-	for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id);
-	sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
-	for (auto& i : buffer) {
-		if (i.second == 0) continue;
-		oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";
+	if (members.empty()) return false; // -> we don't wanna make the embed empty
+	string oriented = ""; // -> self explained by the name
+	vector<pair<uint64_t, uint64_t>> buffer; // -> temp place to store, I think this was useless before I removed "sort" in creating the map
+	for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id); // -> put all the members inside the buffer
+	sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>()); // -> sort the buffer -I mean the members
+	for (auto& i : buffer) { // -> now store the results of sorted members to display in order by higher to lower
+		if (i.second == 0) continue; // -> this was a old bug, but for stability it's kept here
+		oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n"; // -> put inside the string
 	}
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_title("Leaderboard: ").set_description(oriented)));
 	return true;
@@ -244,80 +242,87 @@ template<typename event_t> bool purge_t(event_t event)
 	string amount = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::index(event, "amount");
 	else amount = dpp::index(event, "1");
-	if (has_char(amount)) return false;
-	if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
+	if (has_char(amount)) return false; // -> we are seeking a number
+	if (stoi(amount) <= 1 or stoi(amount) > 100) return false; // -> allow only 1-100 messages to be deleted per session
 	else {
-		int deleted = 0;
-		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoi(amount));
-		vector<dpp::snowflake> ids, oids;
-		if (msgs.size() <= 1) return false;
-		for (auto& msg : msgs) {
-			if (msg.second.author.username.empty()) continue;
+		int deleted = 0; // -> ignore the extra amount requested. lets say you wanna purge 50 messages but channel only contains 10, it'll result as 10 not 50
+		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoi(amount)); // -> get the messages in the channel it was requested
+		vector<dpp::snowflake> ids, oids; // -> ids is before 14 days, oids is older then 14 days
+		if (msgs.size() <= 1) return false; // -> don't proceed if no messages are there (there as in the channel)
+		for (auto& msg : msgs) { // -> loop the messages and put it in the vector (ids or oids)
+			if (msg.second.author.username.empty()) continue; // -> ignore webhooks
 			deleted++;
-			tm* creation_time = dpp::utility::mtm(msg.second.sent);
-			tm* now = dpp::utility::mtm(time(0));
-			if (now->tm_mday < creation_time->tm_mday) {
-				if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
-					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
+			tm* creation_time = dpp::utility::mtm(msg.second.sent); // -> the message age
+			tm* now = dpp::utility::mtm(time(0)); // -> the current time in tm* form
+			if (now->tm_mday < creation_time->tm_mday) { // -> if the message is in this month
+				if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or // -> take away each other dates and seeing if greater then 14
+					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) { // -> tbh I don't know what I was thinking here, something todo with yearly
 					oids.emplace_back(msg.second.id);
 					continue;
 				}
-			}
-			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
-				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
+			} // -> why add a else? cause we wanna check it during a differant month (message age). above checked the current month
+			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or // -> take away each other dates and seeing if greater then 14
+				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) { // -> tbh I don't know what I was thinking here, something todo with yearly
 				oids.emplace_back(msg.second.id);
 				continue;
 			}
-			ids.emplace_back(msg.second.id);
+			ids.emplace_back(msg.second.id); // -> ok so this message is obviously before 14 days
 		}
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("Deleted `" + to_string(deleted) + "` Message(s)")));
 		function<void()> mass_delete = [&]() {
-			for (auto& msg : oids) bot.message_delete(msg, dpp::channel_id(event)), sleep_for(500ms);
+			for (auto& msg : oids) bot.message_delete(msg, dpp::channel_id(event)), sleep_for(500ms); // -> delete them by the bot not bulked
 		};
-		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
-		if (not oids.empty()) async(mass_delete);
+		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event)); // -> bulk delete the messages before 14 days of age
+		if (not oids.empty()) async(mass_delete); // -> delete them by the bot not bulked (API policy, don't modify)
 	}
 	return true;
 }
 template<typename event_t> bool membercount_t(event_t event)
 {
 	uint64_t membercount = 0, after = 0;
-	while (true) {
-		for (auto& members : bot.guild_get_members_sync(dpp::guild_id(event), 1000, after)) {
-			membercount++;
-			if (membercount >= 1000) after = members.second.user_id; else after = 0;
+	while (true) { // -> loop if after isn't null
+		for (auto& members : bot.guild_get_members_sync(dpp::guild_id(event), 1000, after)) { // -> loop captured members within guild, not 1000 sense were while looping it
+			membercount++; // -> ok we got a member so add 1
+			if (membercount >= 1000) after = members.second.user_id; else after = 0; // if the 1000 marker succeeds then continue another 1000
+			// -> why? cause it's stored in a map with 1000 being a limit for stored values
 		}
-		if (after == 0) goto leave;
-	} leave:
+		if (after == 0) goto leave; // -> cool so it's less then 1000 so lets just move on instead of looping forever
+	} leave: // -> escape point
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
-		.set_description(bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + to_string(membercount) + "**)")
-		.set_timestamp(time(0))));
+		.set_description("> " + bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + to_string(membercount) + "**)")
+		.set_timestamp(time(0)))); // -> get the time for capturing milestones, even though the message has a displayed date... 
 	return true;
 }
 template<typename event_t> bool avatar_t(event_t event)
 {
 	string url = ""; dpp::snowflake mention = 0;
-	if (is_same_v<decltype(event), const dpp::slashcommand_t&> ? dpp::empty_index(event, "name") : dpp::empty_index(event, "1")) url = dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png);
+
+	if (is_same_v<decltype(event), const dpp::slashcommand_t&> ? dpp::empty_index(event, "name") : dpp::empty_index(event, "1")) 
+		url = dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png); // -> we want the requesters avatar if empty
 	else {
 		string name = "";
 		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 		else name = dpp::index(event, "1");
-		if (has_char(username(name))) return false;
+		if (has_char(username(name))) return false; // -> checks if it's a valid ID (only numbers)
 		url = bot.user_get_sync(stoull(username(name))).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(username(name));
 	}
-	dpp::embed embed = dpp::embed()
+	event.reply(dpp::message(dpp::guild_id(event), dpp::embed()
 		.set_color(dpp::colors::PS)
 		.set_description(("<@") + (url == dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(dpp::member(event).user_id) : to_string(mention)) + (">'s Avatar"))
-		.set_image(url);
-	event.reply(dpp::message(dpp::guild_id(event), embed));
+		.set_image(url)));
 	return true;
 }
 template<typename event_t> bool invite_t(event_t event)
 {
+	/* sense this is a open source we wanna make a invite not send mine. so we wanna make sure it's YOUR bot token, no modifications are needed */
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_author("Click me!", "https://discord.com/api/oauth2/authorize?client_id=" +
 		to_string(bot.me.id) + "&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands", "")));
 	return true;
 }
+/* ok so this one will take years to add comments, so I'll simplify it */
+/* if your curious why it's so long and complex is because were working with a 3 byte size string instead of 1 */
+/* the ▰ symbol is considered 3 in size. so we must do extra stuff to make sure it knows how to replace values in "replace()" function */
+/* NOTE: sense it's a u8 string and longer then 1 byte we can't replace each char instead we must replace the whole string. updated comments will be added later */
 template<typename event_t> bool hunt_t(event_t event)
 {
 	bool found = false;
@@ -372,8 +377,7 @@ template<typename event_t> bool hunt_t(event_t event)
 							for (dpp::embed& e : msg.embeds)
 								e.fields[0].value.replace(
 									e.fields[0].value.begin() + HP + strlen("`"),
-									e.fields[0].value.end() - strlen(u8"▰") * left - strlen(ignore.c_str()), u8"▱"
-								), left++;
+									e.fields[0].value.end() - strlen(u8"▰") * left - strlen(ignore.c_str()), u8"▱"), left++;
 							dpp::message_edit(event, msg);
 							p.second.turns--;
 						}
@@ -383,9 +387,7 @@ template<typename event_t> bool hunt_t(event_t event)
 									if (randomx::Int(1, 20) > me.DEF + Stat.at(":knife:").DEF) i++;
 									if (a.first == ":bee:" and randomx::Int(1, 5) <= 2 and me.passive.find(passive::poison) == me.passive.end()) {
 										passives p;
-										p.emoji = "<:poisoned:1090095037196550197>",
-											p.passive = passive::poison,
-											p.turns = 2;
+										p.emoji = "<:poisoned:1090095037196550197>", p.passive = passive::poison, p.turns = 2;
 										me.passive.emplace(passive::poison, p);
 									}
 									HP -= strlen(u8"▰"); string passives = "";
@@ -394,8 +396,7 @@ template<typename event_t> bool hunt_t(event_t event)
 										e.fields[2].name = u8"᲼᲼ ᲼᲼", e.fields[2].name = passives.empty() ? u8"᲼᲼ ᲼᲼" : passives,
 										e.fields[0].value.replace(
 											e.fields[0].value.begin() + HP + strlen("`"),
-											e.fields[0].value.end() - strlen(u8"▰") * left - strlen(ignore.c_str()), u8"▱"
-										), left++;
+											e.fields[0].value.end() - strlen(u8"▰") * left - strlen(ignore.c_str()), u8"▱"), left++;
 								}
 								dpp::message_edit(event, msg);
 							}
@@ -408,8 +409,7 @@ template<typename event_t> bool hunt_t(event_t event)
 								for (dpp::embed& e : msg.embeds)
 									e.fields[1].value.replace(
 										e.fields[1].value.begin() + eHP + strlen("`"),
-										e.fields[1].value.end() - strlen(u8"▰") * eleft - strlen(ignore.c_str()), u8"▱"
-									), eleft++;
+										e.fields[1].value.end() - strlen(u8"▰") * eleft - strlen(ignore.c_str()), u8"▱"), eleft++;
 							}
 							dpp::message_edit(event, msg);
 							goto end_turn;
@@ -461,7 +461,7 @@ template<typename event_t> thread queue_ratelimit(event_t event) {
 }
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return; // -> we don't want extra detached threads
-	while (true) { // -> looping is overrated here but it's my code, my rules.
+	while (true) { // -> looping is underrated here but it's my code, my rules.
 		for (auto& find : members) if (find.first == event.command.member.user_id)
 			if (find.second.ratelimit < 4) goto proceed;
 			else thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
@@ -495,7 +495,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
 	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;  // -> we don't want extra detached threads
-	while (true) { // -> looping is overrated here but it's my code, my rules.
+	while (true) { // -> looping is underrated here but it's my code, my rules.
 		for (auto& find : members) if (find.first == event.msg.member.user_id)
 			if (find.second.ratelimit < 3) goto proceed;
 			else thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
