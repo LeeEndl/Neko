@@ -213,12 +213,14 @@ namespace dpp {
 	/**
 	 * @brief An activity is a representation of what a user is doing. It might be a game, or a website, or a movie. Whatever.
 	 */
-	class DPP_EXPORT activity {
+	class activity {
 	public:
 		/** Name of activity
 		 * e.g. "Fortnite"
 		 */
 		std::string name;
+		activity& set_name(std::string str) { name = str; return *this; }
+
 		/** State of activity or the custom user status.
 		 * e.g. "Waiting in lobby"
 		 */
@@ -234,6 +236,7 @@ namespace dpp {
 		 * Alias: details
 		 */
 		std::string url;
+		activity& set_url(std::string str) { url = str; return *this; }
 		/** The custom buttons shown in the Rich Presence (max 2)
 		 */
 		std::vector<activity_button> buttons;
@@ -249,6 +252,7 @@ namespace dpp {
 		/** Activity type
 		 */
 		activity_type type;
+		activity& set_type (activity_type act_type) { type = act_type; return *this; }
 		/** Time activity was created
 		 */
 		time_t created_at;
