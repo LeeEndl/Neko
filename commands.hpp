@@ -461,7 +461,7 @@ template<typename event_t> thread queue_ratelimit(event_t event) {
 }
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return; // -> we don't want extra detached threads
-	while (true) { // -> looping is underrated here but it's my code, my rules.
+	while (true) { // -> looping is overrated here but it's my code, my rules.
 		for (auto& find : members) if (find.first == event.command.member.user_id)
 			if (find.second.ratelimit < 4) goto proceed;
 			else thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
@@ -495,7 +495,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
 	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;  // -> we don't want extra detached threads
-	while (true) { // -> looping is underrated here but it's my code, my rules.
+	while (true) { // -> looping is overrated here but it's my code, my rules.
 		for (auto& find : members) if (find.first == event.msg.member.user_id)
 			if (find.second.ratelimit < 3) goto proceed;
 			else thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
