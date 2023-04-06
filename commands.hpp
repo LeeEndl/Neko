@@ -189,7 +189,7 @@ template<typename event_t> bool fish_t(event_t event)
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = true;
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
 				dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), embed));
-				sleep_for(chrono::seconds(randomx::Int(4, 9)); // -> sleeps for a random amount of time, this adds realizsm to fishing
+				sleep_for(chrono::seconds(randomx::Int(4, 9))); // -> sleeps for a random amount of time, this adds realizsm to fishing
 				for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!"; // -> gets the embed from previous sent msg and changes description
 				dpp::message_edit(event, msg); // -> edits the message from changed embed description
 				data.fish += 1;
