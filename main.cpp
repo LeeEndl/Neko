@@ -44,7 +44,10 @@ void main() { // -> who said I was returning a value.
 			while (true) { // -> we loop to keep up-to-date with the guild.size() changes
 				/* we don't sleep here cause it's a statement that never goes through unless changed value of guilds.size() */
 				if (guilds.size() not_eq last)
-					bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_watching, to_string(guilds.size()) + " servers")), last = guilds.size(), sleep_for(500ms);
+					bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
+						.set_name(to_string(guilds.size()) + " servers")
+						.set_type(dpp::activity_type::at_streaming)
+						.set_url("https://www.twitch.tv/test"))), last = guilds.size(), sleep_for(500ms);
 			}
 		}; thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str())); // -> display the cluster's name, it's here to remove annoying path name also find process easier in taskbar
