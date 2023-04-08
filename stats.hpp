@@ -1,5 +1,5 @@
 #pragma once
-using namespace std; // -> having the honor of being the highest folder so you get: using namespace std!
+using namespace std; // -> having the honor of being the highest file so you get: using namespace std!
 
 /* getting to the point with these comments, pardon me sounding like a robot or RAZOR */ // -> it's a genshin impact thing.
 /* passive. self explained. */
