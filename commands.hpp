@@ -3,9 +3,9 @@
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
 	vector<string> index = dpp::index(event.custom_id, '_');
-	if (event.custom_id.find("repair_1") not_eq -1 and index[2] == to_string(event.command.member.user_id)        ) {
-		if (data.dollars > 12) {          
-			data.dollars -= 12;              
+	if (event.custom_id.find("repair_1") not_eq -1 and index[2] == to_string(event.command.member.user_id)) {
+		if (data.dollars > 12) {
+			data.dollars -= 12;
 			for (auto& tool : data.tools) if (tool.name == "B:fishing_pole_and_fish:") tool.name = ":fishing_pole_and_fish:", tool.durability = 15;
 			event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::success).set_description("Repair Complete!")));
 			SaveUserData(data, event.command.member.user_id);
@@ -13,8 +13,8 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 		else event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::failed).set_description("You don't have enough to repair it!")));
 	}
 	if (event.custom_id.find("repair_3") not_eq -1 and index[2] == to_string(event.command.member.user_id)) {
-		if (data.dollars > 66) {          
-			data.dollars -= 66;              
+		if (data.dollars > 66) {
+			data.dollars -= 66;
 			for (auto& tool : data.tools) if (tool.name == "B:knife:") tool.name = ":knife:", tool.durability = 15;
 			event.reply(dpp::message(event.command.channel_id, dpp::embed().set_color(dpp::colors::success).set_description("Repair Complete!")));
 			SaveUserData(data, event.command.member.user_id);
@@ -28,7 +28,7 @@ bool prefix_t(const dpp::message_create_t& event)
 	GuildData g_data = GetGuildData(event.msg.guild_id);
 	if (index[1].size() > 1 or index[1].size() < 1) event.reply("Invalid Format. Try: **" + g_data.prefix + "prefix {prefix}**\n**NOTE**: A prefix must only contain 1 char");
 	else {
-		g_data.prefix = index[1];             
+		g_data.prefix = index[1];
 		SaveGuildData(g_data, event.msg.guild_id);
 		event.reply("Prefix is now set to: **" + g_data.prefix + "**");
 	}
@@ -37,12 +37,12 @@ bool prefix_t(const dpp::message_create_t& event)
 template<typename event_t> bool daily_t(event_t event)
 {
 	UserData data = GetUserData(dpp::member(event).user_id);
-	tm* claimed = dpp::utility::mtm(data.daily);         
+	tm* claimed = dpp::utility::mtm(data.daily);
 	time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour, claimed->tm_wday += 1, claimed->tm_mday += 1, claimed->tm_mon);
-	if (ct < time(0)) {                       
-		uint64_t dollar = randomx::Int(30, 92);            
-		data.daily = time(0);           
-		data.dollars += dollar;      
+	if (ct < time(0)) {
+		uint64_t dollar = randomx::Int(30, 92);
+		data.daily = time(0);
+		data.dollars += dollar;
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
 			.set_title("Thanks for opening my gift! :tada:")
 			.set_description("- " + to_string(dollar) + " :dollar:")));
@@ -59,9 +59,9 @@ template<typename event_t> bool profile_t(event_t event)
 	string name = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 	else name = dpp::index(event, "1");
-	if (has_char(username(name))) return false;             
+	if (has_char(username(name))) return false;
 	UserData data = GetUserData(stoull(username(name)));
-	if (data.failed) new_user(stoull(username(name)));             
+	if (data.failed) new_user(stoull(username(name)));
 	string sort = "";
 	for (auto& tool : data.tools) if (not tool.name.empty()) sort += (tool.name.find("B:") or tool.durability < 1 ? "Broken " + tool.name : "Durability: " + to_string(tool.durability) + " " + tool.name);
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
@@ -96,15 +96,15 @@ template<typename event_t> bool buy_t(event_t event)
 	if (id == "1" or id == "fishing_pole" or id == "fishing_pole_and_fish") {
 		bool found = false;
 		UserData data = GetUserData(dpp::member(event).user_id);
-		for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;                
-		int forecast = 15 * stoull(amount);         
+		for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;
+		int forecast = 15 * stoull(amount);
 		if (data.dollars < forecast) event.reply("You can't afford it.");
-		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");        
+		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");
 		else {
-			data.dollars = data.dollars -= forecast;         
-			tools buf;             
-			buf.name = ":fishing_pole_and_fish:", buf.durability = 15;        
-			data.tools.emplace_back(buf);                           
+			data.dollars = data.dollars -= forecast;
+			tools buf;
+			buf.name = ":fishing_pole_and_fish:", buf.durability = 15;
+			data.tools.emplace_back(buf);
 			SaveUserData(data, dpp::member(event).user_id);
 			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success).set_description("You've Purchased a :fishing_pole_and_fish:")));
 		}
@@ -112,15 +112,15 @@ template<typename event_t> bool buy_t(event_t event)
 	else if (id == "3" or id == "knife") {
 		bool found = false;
 		UserData data = GetUserData(dpp::member(event).user_id);
-		for (auto& tool : data.tools) if (tool.name == ":knife:") found = true;                
-		int forecast = 80 * stoull(amount);         
+		for (auto& tool : data.tools) if (tool.name == ":knife:") found = true;
+		int forecast = 80 * stoull(amount);
 		if (data.dollars < forecast) event.reply("You can't afford it.");
-		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");        
+		else if (found or stoi(amount) > 1) event.reply("You can only purchase one!");
 		else {
-			data.dollars = data.dollars -= forecast;         
-			tools buf;             
-			buf.name = ":knife:", buf.durability = 15;        
-			data.tools.emplace_back(buf);                           
+			data.dollars = data.dollars -= forecast;
+			tools buf;
+			buf.name = ":knife:", buf.durability = 15;
+			data.tools.emplace_back(buf);
 			SaveUserData(data, dpp::member(event).user_id);
 			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("You've Purchased a :knife:")));
 		}
@@ -137,8 +137,8 @@ template<typename event_t> bool sell_t(event_t event)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("You can't sell your fishing rod!")));
 	else if (id == "fish") {
 		UserData data = GetUserData(dpp::member(event).user_id);
-		data.dollars += 2 * stoull(amount);                     
-		data.fish = data.fish - stoi(amount);                     
+		data.dollars += 2 * stoull(amount);
+		data.fish = data.fish - stoi(amount);
 		SaveUserData(data, dpp::member(event).user_id);
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("You sold " + amount + " :fish:, and got " + to_string(2 * stoull(amount)) + " :dollar:")));
 	}
@@ -149,27 +149,27 @@ template<typename event_t> bool fish_t(event_t event)
 {
 	bool found = false;
 	UserData data = GetUserData(dpp::member(event).user_id);
-	for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;            
-	for (auto& find : members) if (find.first == dpp::member(event).user_id)               
-		if (find.second.busy_fishing) return false;              
-		else if (find.second.last_fish + 10 > time(0)) {                 
-			if (find.second.once_fishing) return false;     
+	for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") found = true;
+	for (auto& find : members) if (find.first == dpp::member(event).user_id)
+		if (find.second.busy_fishing) return false;
+		else if (find.second.last_fish + 10 > time(0)) {
+			if (find.second.once_fishing) return false;
 			find.second.once_fishing = true;
-			tm* mt = dpp::utility::mtm(find.second.last_fish);           
-			time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);            
+			tm* mt = dpp::utility::mtm(find.second.last_fish);
+			time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 12, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
 			dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), dpp::member(event).get_user()->username + ". You can fish again **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**"));
 			while (true) {
-				if (find.second.last_fish + 10 < time(0)) {                    
+				if (find.second.last_fish + 10 < time(0)) {
 					dpp::message_delete(event, msg.id, dpp::channel_id(event));
 					find.second.once_fishing = false;
-					goto escape;          
+					goto escape;
 				}
 			}
-		escape: return false;                              
+		escape: return false;
 		}
 		else if (not found) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("You don't have a fishing rod.")));
 		else {
-			function<void()> fishing = [&]() {             
+			function<void()> fishing = [&]() {
 				for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:")
 					if (tool.durability == 0) {
 						dpp::embed embed = dpp::embed().set_color(dpp::colors::failed).set_description("Your fishing rod broke! **/repair 1**");
@@ -181,15 +181,15 @@ template<typename event_t> bool fish_t(event_t event)
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = true;
 				dpp::embed embed = dpp::embed().set_color(dpp::colors::PS).set_description("Waiting for the fish to bite...");
 				dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), embed));
-				sleep_for(chrono::seconds(randomx::Int(4, 9)));              
-				for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";            
-				dpp::message_edit(event, msg);         
+				sleep_for(chrono::seconds(randomx::Int(4, 9)));
+				for (dpp::embed& e : msg.embeds) e.description = "You caught 1 :fish:!";
+				dpp::message_edit(event, msg);
 				data.fish += 1;
 				for (auto& tool : data.tools) if (tool.name == ":fishing_pole_and_fish:") tool.durability -= 1;
 				SaveUserData(data, dpp::member(event).user_id);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.last_fish = time(0);
 				for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.busy_fishing = false;
-				return true;       
+				return true;
 			}; async(fishing);
 		}
 	return true;
@@ -199,32 +199,32 @@ template<typename event_t> bool repair_t(event_t event)
 	string id = "", value = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) id = dpp::index(event, "id");
 	else id = dpp::index(event, "1");
-	switch (stoi(id)) {               
+	switch (stoi(id)) {
 	case 1: value = to_string(12);
 	case 3: value = to_string(66);
 	}
 	if (value.empty()) return false;
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_title(":hammer_pick: Repair").add_field(
 		"Repairing this will cost :dollar: " + value,
-		"Are You Sure?")).add_component(          
-			dpp::component().add_component(dpp::component()    
-				.set_label("Repair")        
-				.set_type(dpp::cot_button)       
-				.set_style(dpp::cos_success)    
-				.set_id("repair_" + id + "_" + to_string(dpp::member(event).user_id)))       
+		"Are You Sure?")).add_component(
+			dpp::component().add_component(dpp::component()
+				.set_label("Repair")
+				.set_type(dpp::cot_button)
+				.set_style(dpp::cos_success)
+				.set_id("repair_" + id + "_" + to_string(dpp::member(event).user_id)))
 		));
 	return true;
 }
 template<typename event_t> bool leaderboard_t(event_t event)
 {
-	if (members.empty()) return false;         
-	string oriented = "";       
-	vector<pair<uint64_t, uint64_t>> buffer;                   
-	for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id);         
-	sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());         
-	for (auto& i : buffer) {                 
-		if (i.second == 0) continue;             
-		oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";      
+	if (members.empty()) return false;
+	string oriented = "";
+	vector<pair<uint64_t, uint64_t>> buffer;
+	for (auto& member : members) buffer.emplace_back(member.second.dollars, member.second.user_id);
+	sort(buffer.begin(), buffer.end(), first<uint64_t, uint64_t>());
+	for (auto& i : buffer) {
+		if (i.second == 0) continue;
+		oriented += "**" + bot.user_get_sync(i.second).username + "**: " + to_string(i.first) + " :dollar: \n";
 	}
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_title("Leaderboard: ").set_description(oriented)));
 	return true;
@@ -234,52 +234,52 @@ template<typename event_t> bool purge_t(event_t event)
 	string amount = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::index(event, "amount");
 	else amount = dpp::index(event, "1");
-	if (has_char(amount)) return false;       
-	if (stoi(amount) <= 1 or stoi(amount) > 100) return false;           
+	if (has_char(amount)) return false;
+	if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
 	else {
-		int deleted = 0;                         
-		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoi(amount));           
-		vector<dpp::snowflake> ids, oids;             
-		if (msgs.size() <= 1) return false;              
-		for (auto& msg : msgs) {              
-			if (msg.second.author.username.empty()) continue;    
+		int deleted = 0;
+		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoi(amount));
+		vector<dpp::snowflake> ids, oids;
+		if (msgs.size() <= 1) return false;
+		for (auto& msg : msgs) {
+			if (msg.second.author.username.empty()) continue;
 			deleted++;
-			tm* creation_time = dpp::utility::mtm(msg.second.sent);     
-			tm* now = dpp::utility::mtm(time(0));        
-			if (now->tm_mday < creation_time->tm_mday) {         
-				if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or             
-					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {               
+			tm* creation_time = dpp::utility::mtm(msg.second.sent);
+			tm* now = dpp::utility::mtm(time(0));
+			if (now->tm_mday < creation_time->tm_mday) {
+				if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
+					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
 					oids.emplace_back(msg.second.id);
 					continue;
 				}
-			}                      
-			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or             
-				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {               
+			}
+			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
+				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
 				oids.emplace_back(msg.second.id);
 				continue;
 			}
-			ids.emplace_back(msg.second.id);           
+			ids.emplace_back(msg.second.id);
 		}
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("Deleted `" + to_string(deleted) + "` Message(s)")));
 		function<void()> mass_delete = [&]() {
-			for (auto& msg : oids) bot.message_delete(msg, dpp::channel_id(event)), sleep_for(500ms);         
+			for (auto& msg : oids) bot.message_delete(msg, dpp::channel_id(event)), sleep_for(500ms);
 		};
-		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));           
-		if (not oids.empty()) async(mass_delete);             
+		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
+		if (not oids.empty()) async(mass_delete);
 	}
 	return true;
 }
 template<typename event_t> bool membercount_t(event_t event)
 {
 	double membercount = 0, bots = 0, after = 0;
-	while (true) {       
-		for (auto& members : bot.guild_get_members_sync(dpp::guild_id(event), 1000, after)) {              
-			if (members.second.get_user()->is_bot()) bots++;           
-			membercount++;          
-			if (membercount + bots >= 1000) after = members.second.user_id; else after = 0;          
+	while (true) {
+		for (auto& members : bot.guild_get_members_sync(dpp::guild_id(event), 1000, after)) {
+			if (members.second.get_user()->is_bot()) bots++;
+			membercount++;
+			if (membercount + bots >= 1000) after = members.second.user_id; else after = 0;
 		}
-		if (after == 0) goto leave;                 
-	} leave:    
+		if (after == 0) goto leave;
+	} leave:
 	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
 		.set_description("> " + bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + dpp::remove_tail(membercount) + "**)")
 		.set_footer(dpp::embed_footer().set_text("did you know? " + dpp::remove_tail(stod(dpp::comma(static_cast<double>(bots / membercount * 100)))) + "% of members are bots."))));
@@ -289,13 +289,13 @@ template<typename event_t> bool avatar_t(event_t event)
 {
 	string url = ""; dpp::snowflake mention = 0;
 
-	if (is_same_v<decltype(event), const dpp::slashcommand_t&> ? dpp::empty_index(event, "name") : dpp::empty_index(event, "1")) 
-		url = dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png);         
+	if (is_same_v<decltype(event), const dpp::slashcommand_t&> ? dpp::empty_index(event, "name") : dpp::empty_index(event, "1"))
+		url = dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png);
 	else {
 		string name = "";
 		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name");
 		else name = dpp::index(event, "1");
-		if (has_char(username(name))) return false;          
+		if (has_char(username(name))) return false;
 		url = bot.user_get_sync(stoull(username(name))).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(username(name));
 	}
 	event.reply(dpp::message(dpp::guild_id(event), dpp::embed()
@@ -422,7 +422,7 @@ template<typename event_t> bool nick_t(event_t event) {
 		is_same_v<decltype(event), const dpp::slashcommand_t&> ?
 			name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname") :
 			name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
-		if (nickname.size() < 1 or nickname.size() > 32) {            
+		if (nickname.size() < 1 or nickname.size() > 32) {
 			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("> Nickname must contain 1-32 characters")
 				.set_footer(dpp::embed_footer().set_text("length: " + to_string(nickname.size())))).set_flags(dpp::message_flags::m_ephemeral));
 			return false;
@@ -432,7 +432,7 @@ template<typename event_t> bool nick_t(event_t event) {
 		gm.nickname = nickname;
 		bot.guild_edit_member_sync(gm);
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success)
-			.set_description("> <@" + username(name)        + "> name changed to **" + nickname + "**")));
+			.set_description("> <@" + username(name) + "> name changed to **" + nickname + "**")));
 	}
 	catch (dpp::exception e) {
 		if (not e.msg.empty()) event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
@@ -442,15 +442,15 @@ template<typename event_t> bool nick_t(event_t event) {
 }
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
-	return thread();     
+	return thread();
 }
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
-	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return;        
-	while (true) {            
+	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return;
+	while (true) {
 		for (auto& find : members) if (find.first == event.command.member.user_id)
 			if (find.second.ratelimit < 4) goto proceed;
 			else thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
-		if (bot.rest_ping < 0.6) goto proceed;                
+		if (bot.rest_ping < 0.6) goto proceed;
 	} proceed:
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.command.member.user_id);
@@ -471,7 +471,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
 	else return;
-	{                    
+	{
 		UserData data = GetUserData(event.command.member.user_id);
 		data.last_on = time(0);
 		SaveUserData(data, event.command.member.user_id);
@@ -479,12 +479,12 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 }
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
-	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;         
-	while (true) {            
+	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;
+	while (true) {
 		for (auto& find : members) if (find.first == event.msg.member.user_id)
 			if (find.second.ratelimit < 3) goto proceed;
 			else thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
-		if (bot.rest_ping < 0.6) goto proceed;                
+		if (bot.rest_ping < 0.6) goto proceed;
 	} proceed:
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.msg.member.user_id);
@@ -514,7 +514,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 				.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
 		return;
 	}
-	{                    
+	{
 		UserData data = GetUserData(event.msg.member.user_id);
 		data.last_on = time(0);
 		SaveUserData(data, event.msg.member.user_id);
@@ -562,7 +562,7 @@ void load_slashcommands()
 				cmd.add_option(dpp::command_option(option.v_type, option.name, option.description, option.required));
 		slashcommand.emplace_back(cmd);
 	}
-	sleep_for(10s);            
+	sleep_for(10s);
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
-	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");            
+	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }

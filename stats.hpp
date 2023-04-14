@@ -1,19 +1,19 @@
 #pragma once
-using namespace std;                
+using namespace std;
 
 enum passive { none, poison };
 class passives {
 public:
-	string emoji = "";          
-	passive passive = passive::none;      
-	int turns = 0;         
+	string emoji = "";
+	passive passive = passive::none;
+	int turns = 0;
 };
 class stats {
 public:
-	int ATK = 0;             
-	int DEF = 0;                   
-	int SPD = 0;                 
-	map<passive, passives> passive;               
+	int ATK = 0;
+	int DEF = 0;
+	int SPD = 0;
+	map<passive, passives> passive;
 };
 map<string, stats> Stat = {
 	{":worm:", stats{0, 9, 0}},

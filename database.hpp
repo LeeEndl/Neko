@@ -2,28 +2,28 @@
 
 class tools {
 public:
-	string name = "";                     
-	int durability = 0;           
+	string name = "";
+	int durability = 0;
 };
 class UserData {
 public:
-	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0;            
-	uint64_t user_id = 0; string username = "";                  
-	bool failed = false;                     
-	vector<tools> tools;                      
-	int fish = 0;                  
-	uint64_t dollars = 0;                  
+	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0;
+	uint64_t user_id = 0; string username = "";
+	bool failed = false;
+	vector<tools> tools;
+	int fish = 0;
+	uint64_t dollars = 0;
 
 	short ratelimit = 0, queue = 0;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
-}; map<dpp::snowflake, UserData> members;           
+}; map<dpp::snowflake, UserData> members;
 class GuildData {
 public:
-	bool failed = false;                          
-	bool joined = false;                      
-	string prefix = "";                  
-}; map<dpp::snowflake, GuildData> guilds;                  
+	bool failed = false;
+	bool joined = false;
+	string prefix = "";
+}; map<dpp::snowflake, GuildData> guilds;
 inline UserData GetUserData(dpp::snowflake user_id)
 {
 	UserData data;
@@ -43,7 +43,7 @@ inline UserData GetUserData(dpp::snowflake user_id)
 	if (array.empty()) {
 		tools buf;
 		buf.name = "", buf.durability = 0;
-		data.tools.emplace_back(buf);    
+		data.tools.emplace_back(buf);
 	}
 	tools buf;
 	for (int i_ = 0; i_ < array.size(); i_++)
