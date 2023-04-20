@@ -1,15 +1,12 @@
 ﻿/* Copyright(c) LeeEndl; License Apache License 2.0 */
+
 #include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
-
 #include "stats.hpp"
 #include "database.hpp"
 #include "commands.hpp"
 
-#pragma warning(disable: 4326)
 void main() {
-#pragma warning(default: 4326)
-
 	if (not filesystem::exists("database") or not filesystem::exists("./database/guilds") or not filesystem::exists("./database/users"))
 		filesystem::create_directory("database"), filesystem::create_directory("./database/guilds"), filesystem::create_directory("./database/users");
 
