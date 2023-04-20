@@ -24,3 +24,5 @@ map<string, stats> Stat = {
 
 	{":knife:", stats{1, 0, 5}},
 };
+
+auto Beg = chrono::high_resolution_clock::now(), End = chrono::high_resolution_clock::now();
