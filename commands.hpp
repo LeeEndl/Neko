@@ -440,11 +440,21 @@ template<typename event_t> bool nick_t(event_t event) {
 	}
 	return true;
 }
+template<typename event_t> bool ping_t(event_t event) {
+	End = chrono::high_resolution_clock::now();
+	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success)
+		.set_title(":ping_pong: Pong!")
+		.set_description("> Response time: " + to_string(chrono::duration_cast<chrono::milliseconds>(End - Beg).count()) + "." + to_string(chrono::duration_cast<chrono::microseconds>(End - Beg).count()) + "ms\n\
+                          > API Ping: " + to_string(bot.rest_ping))));
+	return true;
+}
+
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
 	return thread();
 }
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
+	Beg = chrono::high_resolution_clock::now();
 	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return;
 	while (true) {
 		for (auto& find : members) if (find.first == event.command.member.user_id)
@@ -470,6 +480,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
+	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event);
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
@@ -479,6 +490,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 }
 vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
+	Beg = chrono::high_resolution_clock::now();
 	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;
 	while (true) {
 		for (auto& find : members) if (find.first == event.msg.member.user_id)
@@ -505,6 +517,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "hunt") not_eq -1) async(hunt_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event);
+	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event);
 	else {
 		if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
@@ -549,6 +562,7 @@ void load_slashcommands()
 		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
 		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages},
 		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
+		about{"ping", "pong!", dpp::permissions::p_send_messages}
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
@@ -564,5 +578,5 @@ void load_slashcommands()
 	}
 	sleep_for(10s);
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
-	if (results.size() == 15) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
+	if (results.size() == 16) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }
