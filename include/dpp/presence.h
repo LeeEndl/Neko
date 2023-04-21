@@ -282,7 +282,7 @@ namespace dpp {
 		 * @param format The format to use for the avatar. It can be one of `i_webp`, `i_jpg` or `i_png`.
 		 * @return std::string image url or an empty string, if required attributes are missing or an invalid format was passed
 		 */
-		std::string get_large_asset_url(uint16_t size = 0, const image_type format = i_png) const;
+		DPP_EXPORT std::string get_large_asset_url(uint16_t size = 0, const image_type format = i_png) const;
 
 		/**
 		 * @brief Get the assets small image url if they have one, otherwise returns an empty string. In case of prefixed image IDs (mp:{image_id}) it returns an empty string.
@@ -294,7 +294,7 @@ namespace dpp {
 		 * @param format The format to use for the avatar. It can be one of `i_webp`, `i_jpg` or `i_png`.
 		 * @return std::string image url or an empty string, if required attributes are missing or an invalid format was passed
 		 */
-		std::string get_small_asset_url(uint16_t size = 0, const image_type format = i_png) const;
+		DPP_EXPORT std::string get_small_asset_url(uint16_t size = 0, const image_type format = i_png) const;
 
 		activity();
 

@@ -22,11 +22,7 @@
 #define DPP_EXPORT __declspec(dllimport)
 #include <WinSock2.h>
 #include <dpp/version.h>
-#include <map>
-#include <vector>
 #include <fstream>
-#include <iostream>
-#include <functional>
 #include <dpp/exception.h>
 #include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>

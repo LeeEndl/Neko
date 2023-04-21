@@ -208,4 +208,15 @@ namespace dpp {
 		stream << std::setfill('0') << std::setw(width) << std::dec << i;
 		return stream.str();
 	}
+	template<typename T> std::string remove_tail(T Ty) {
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(2) << Ty;
+		std::string str = ss.str();
+		if (str.find('.') != std::string::npos)
+		{
+			str = str.substr(0, str.find_last_not_of('0') + 1);
+			if (str.find('.') == str.size() - 1) str = str.substr(0, str.size() - 1);
+		}
+		return str;
+	}
 };
