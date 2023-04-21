@@ -42,9 +42,7 @@
 #include <algorithm>
 #include <iostream>
 #include <shared_mutex>
-#include <cstring>
 #include <dpp/restresults.h>
-#include <dpp/coro.h>
 #include <dpp/event_router.h>
 
 namespace dpp {
