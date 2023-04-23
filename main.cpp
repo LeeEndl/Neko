@@ -7,16 +7,12 @@
 #include "commands.hpp"
 
 void main() {
-	if (not filesystem::exists("database") or not filesystem::exists("./database/guilds") or not filesystem::exists("./database/users"))
-		filesystem::create_directory("database"), filesystem::create_directory("./database/guilds"), filesystem::create_directory("./database/users");
-
 	if (not ifstream("token").is_open())
 		print<string>("Empty Token.", nullptr, state{ newline, color::red, false }),
 		print<string>("token: ", [](string it) { bot.token = it; }, state{ Inline, color::white, false }), ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
 	getline(ifstream("token"), bot.token);
 
 	async(wrap_database).wait();
-
 	bot.on_log([](const dpp::log_t& event) {
 		print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
 		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? color::gray :

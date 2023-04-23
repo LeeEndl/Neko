@@ -134,6 +134,10 @@ inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
 }
 
 inline void wrap_database() {
+	if (not filesystem::exists("database")) filesystem::create_directory("database");
+	if (not filesystem::exists("./database/guilds")) filesystem::create_directory("./database/guilds");
+	if (not filesystem::exists("./database/users")) filesystem::create_directory("./database/users");
+
 	for (const auto& i : filesystem::directory_iterator("database/users")) {
 		vector<string> index = dpp::index(i.path().filename().string(), '.');
 		members.emplace(static_cast<dpp::snowflake>(stoull(index[0])), GetUserData(stoull(index[0])));
