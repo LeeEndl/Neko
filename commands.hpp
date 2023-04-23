@@ -473,8 +473,8 @@ template<typename event_t> bool serverinfo_t(event_t event) {
 
 	event.reply(msg);
 	return true;
-#undef g(p1)
 }
+#undef g
 
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
