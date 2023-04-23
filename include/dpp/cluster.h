@@ -3278,8 +3278,5 @@ namespace dpp {
 		void automod_rule_delete(snowflake guild_id, snowflake rule_id, command_completion_event_t callback = utility::log_error());
 
 #include <dpp/cluster_sync_calls.h>
-#ifdef DPP_CORO
-#include <dpp/cluster_coro_calls.h>
-#endif
 	};
 };
