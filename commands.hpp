@@ -269,7 +269,7 @@ template<typename event_t> bool purge_t(event_t event)
 	}
 	return true;
 }
-template<typename event_t> bool membercount_t(event_t event)
+template<typename event_t> string membercount_t(event_t event, bool send_embed = true)
 {
 	double membercount = 0, bots = 0, after = 0;
 	while (true) {
@@ -280,10 +280,11 @@ template<typename event_t> bool membercount_t(event_t event)
 		}
 		if (after == 0) goto leave;
 	} leave:
-	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
-		.set_description("> " + bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + dpp::remove_tail(membercount) + "**)")
-		.set_footer(dpp::embed_footer().set_text("did you know? " + dpp::remove_tail(stod(dpp::comma(static_cast<double>(bots / membercount * 100)))) + "% of members are bots."))));
-	return true;
+	if (send_embed)
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS)
+			.set_description("> " + bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + dpp::remove_tail(membercount) + "**)")
+			.set_footer(dpp::embed_footer().set_text("did you know? " + dpp::remove_tail(stod(dpp::comma(static_cast<double>(bots / membercount * 100)))) + "% of members are bots."))));
+	return dpp::remove_tail(membercount);
 }
 template<typename event_t> bool avatar_t(event_t event)
 {
@@ -449,6 +450,32 @@ template<typename event_t> bool ping_t(event_t event) {
 	return true;
 }
 
+template<typename event_t> bool serverinfo_t(event_t event) {
+#define g(p1) bot.guild_get_sync(p1) /* code got a bit long without this. */
+	dpp::message msg = dpp::message();
+	msg.channel_id = dpp::channel_id(event);
+	if (g(dpp::guild_id(event)).has_banner())
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::success)
+			.set_title(g(dpp::guild_id(event)).name + ":")
+			.set_description("> **Banner**: ")
+			.set_image(g(dpp::guild_id(event)).get_banner_url(128, dpp::i_png, g(dpp::guild_id(event)).has_animated_icon() ? true : false)));
+	msg.add_embed(dpp::embed()
+		.set_color(dpp::colors::success)
+		.set_title(g(dpp::guild_id(event)).name + ":")
+		.set_description("> **Icon**: ")
+		.set_image(g(dpp::guild_id(event)).get_icon_url(128, dpp::i_png, g(dpp::guild_id(event)).has_animated_icon() ? true : false)));
+	msg.add_embed(dpp::embed()
+		.set_color(dpp::colors::success)
+		.set_description("> **Ownership**: <@" + to_string(g(dpp::guild_id(event)).owner_id) + "> \n\
+                          > **Members**: " + membercount_t(event, false) + " \n\
+                          > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + ""));
+
+	event.reply(msg);
+	return true;
+#undef g(p1)
+}
+
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
 	return thread();
@@ -475,12 +502,13 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "repair") async(repair_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "leaderboard" or event.command.get_command_name() == "top") async(leaderboard_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "purge") async(purge_t<const dpp::slashcommand_t&>, event);
-	else if (event.command.get_command_name() == "membercount") async(membercount_t<const dpp::slashcommand_t&>, event);
+	else if (event.command.get_command_name() == "membercount") async(membercount_t<const dpp::slashcommand_t&>, event, true);
 	else if (event.command.get_command_name() == "avatar") async(avatar_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event);
+	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event);
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
@@ -512,12 +540,13 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "repair ") not_eq -1) async(repair_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) async(leaderboard_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(purge_t<const dpp::message_create_t&>, event);
-	else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event);
+	else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event, true);
 	else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "avatar") not_eq -1) async(avatar_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "hunt") not_eq -1) async(hunt_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event);
+	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event);
 
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
@@ -558,7 +587,8 @@ void load_slashcommands()
 		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
 		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages},
 		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
-		about{"ping", "pong!", dpp::permissions::p_send_messages}
+		about{"ping", "pong!", dpp::permissions::p_send_messages},
+		about{"serverinfo", "view information about this server", dpp::permissions::p_send_messages}
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
@@ -574,5 +604,5 @@ void load_slashcommands()
 	}
 	sleep_for(10s);
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
-	if (results.size() == 16) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
+	if (results.size() == 17) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }
