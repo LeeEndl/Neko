@@ -252,7 +252,7 @@ namespace dpp {
 		/** Activity type
 		 */
 		activity_type type;
-		activity& set_type (activity_type act_type) { type = act_type; return *this; }
+		activity& set_type(activity_type act_type) { type = act_type; return *this; }
 		/** Time activity was created
 		 */
 		time_t created_at;
