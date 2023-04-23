@@ -452,8 +452,7 @@ template<typename event_t> bool ping_t(event_t event) {
 
 template<typename event_t> bool serverinfo_t(event_t event) {
 #define g(p1) bot.guild_get_sync(p1) /* code got a bit long without this. */
-	dpp::message msg = dpp::message();
-	msg.channel_id = dpp::channel_id(event);
+	dpp::message msg = dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request..."));
 	if (g(dpp::guild_id(event)).has_banner())
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
@@ -471,8 +470,7 @@ template<typename event_t> bool serverinfo_t(event_t event) {
                           > **Members**: " + membercount_t(event, false) + " \n\
                           > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
                           > **Creation Time**: " + dpp::utility::timestamp(g(dpp::guild_id(event)).get_creation_time(), dpp::utility::tf_relative_time) + ""));
-
-	event.reply(msg);
+	dpp::message_edit(event, msg);
 	return true;
 #undef g
 }
