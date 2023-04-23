@@ -469,12 +469,13 @@ template<typename event_t> bool serverinfo_t(event_t event) {
 		.set_color(dpp::colors::success)
 		.set_description("> **Ownership**: <@" + to_string(g(dpp::guild_id(event)).owner_id) + "> \n\
                           > **Members**: " + membercount_t(event, false) + " \n\
-                          > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + ""));
+                          > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
+                          > **Creation Time**: " + dpp::utility::timestamp(g(dpp::guild_id(event)).get_creation_time(), dpp::utility::tf_relative_time) + ""));
 
 	event.reply(msg);
 	return true;
-}
 #undef g
+}
 
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
