@@ -15,6 +15,7 @@ public:
 	uint64_t dollars = 0;
 
 	short ratelimit = 0, queue = 0;
+	bool once_ratelimit = 0;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
 }; map<dpp::snowflake, UserData> members;
