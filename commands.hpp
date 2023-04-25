@@ -474,7 +474,7 @@ template<typename event_t> bool serverinfo_t(event_t event) {
 	return true;
 #undef g
 }
-
+vector<dpp::snowflake> queued_delete;
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
 	return thread();
@@ -482,13 +482,24 @@ template<typename event_t> thread queue_ratelimit(event_t event) {
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
 	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return;
-	while (true) {
-		for (auto& find : members) if (find.first == event.command.member.user_id)
-			if (find.second.ratelimit < 4) goto proceed;
-			else thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
-		if (bot.rest_ping < 0.6) goto proceed;
-	} proceed:
-	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
+	for (auto& find : members) if (find.first == event.command.member.user_id)
+		if (find.second.ratelimit > 3) {
+			if (not find.second.once_ratelimit) {
+				find.second.once_ratelimit = true;
+				tm* mt = dpp::utility::mtm(time(0));
+				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 4, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+				dpp::message msg = dpp::sync<dpp::message>(&bot, &dpp::cluster::message_create, dpp::message(event.command.channel_id, "> **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "** you can use another command"));
+				thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
+				while (true) {
+					sleep_for(3s);
+					bot.message_delete_sync(msg.id, event.command.channel_id);
+					find.second.once_ratelimit = false;
+					return;
+				}
+			}
+			return;
+		}
+	for (auto& find : members) if (find.first == event.command.member.user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.command.member.user_id);
 	if (data.failed) async(new_user, event.command.member.user_id).wait();
 	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event);
@@ -519,14 +530,26 @@ vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
 	GuildData g_data = GetGuildData(event.msg.guild_id);
 	if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
-	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1) return;
-	while (true) {
-		for (auto& find : members) if (find.first == event.msg.member.user_id)
-			if (find.second.ratelimit < 3) goto proceed;
-			else thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
-		if (bot.rest_ping < 0.6) goto proceed;
-	} proceed:
-	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.ratelimit++;
+	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1 and event.msg.content.find(g_data.prefix) not_eq -1) return;
+	for (auto& find : members) if (find.first == event.msg.member.user_id)
+		if (find.second.ratelimit > 3 and event.msg.content.find(g_data.prefix) not_eq -1) {
+			if (find.second.once_ratelimit) bot.message_delete_sync(event.msg.id, event.msg.channel_id);
+			else {
+				find.second.once_ratelimit = true;
+				tm* mt = dpp::utility::mtm(time(0));
+				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 4, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
+				dpp::message msg = dpp::sync<dpp::message>(&bot, &dpp::cluster::message_create, dpp::message(event.msg.channel_id, "> **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "** you can use another command"));
+				thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
+				while (true) {
+					sleep_for(3s);
+					bot.message_delete_sync(msg.id, event.msg.channel_id);
+					find.second.once_ratelimit = false;
+					return;
+				}
+			}
+			return;
+		}
+	for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.msg.member.user_id);
 	if (data.failed) async(new_user, event.msg.member.user_id).wait();
 	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
