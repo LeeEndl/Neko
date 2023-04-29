@@ -232,41 +232,27 @@ template<typename event_t> bool leaderboard_t(event_t event)
 template<typename event_t> bool purge_t(event_t event)
 {
 	string amount = "";
-	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::index(event, "amount");
-	else amount = dpp::index(event, "1");
-	if (has_char(amount)) return false;
-	if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
-	else {
-		int deleted = 0;
-		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoi(amount));
-		vector<dpp::snowflake> ids, oids;
-		if (msgs.size() <= 1) return false;
-		for (auto& msg : msgs) {
-			if (msg.second.author.username.empty()) continue;
-			deleted++;
-			tm* creation_time = dpp::utility::mtm(msg.second.sent);
-			tm* now = dpp::utility::mtm(time(0));
-			if (now->tm_mday < creation_time->tm_mday) {
-				if (creation_time->tm_mday - now->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
-					creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
-					oids.emplace_back(msg.second.id);
-					continue;
-				}
+	try {
+		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::index(event, "amount");
+		else amount = dpp::index(event, "1");
+		if (has_char(amount)) return false;
+		if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
+		else {
+			vector<dpp::snowflake> ids;
+			auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoull(amount));
+			if (msgs.size() <= 1) return false;
+			for (auto& msg : msgs) {
+				if (msg.second.author.username.empty()) continue;
+				ids.emplace_back(msg.second.id);
 			}
-			else if (now->tm_mday - creation_time->tm_mday > 14 and creation_time->tm_mon not_eq now->tm_mon or
-				creation_time->tm_mday - now->tm_mday < 14 and creation_time->tm_mon not_eq now->tm_mon) {
-				oids.emplace_back(msg.second.id);
-				continue;
-			}
-			ids.emplace_back(msg.second.id);
+			if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
 		}
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::PS).set_description("Deleted `" + to_string(deleted) + "` Message(s)")));
-		function<void()> mass_delete = [&]() {
-			for (auto& msg : oids) bot.message_delete(msg, dpp::channel_id(event)), sleep_for(500ms);
-		};
-		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
-		if (not oids.empty()) async(mass_delete);
 	}
+	catch (dpp::exception dpp_e) {
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed).set_description("> you cannot delete messages older then ``14 days``")));
+		return false;
+	}
+	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success).set_description("> Deleted `" + amount + "` Message(s)")));
 	return true;
 }
 template<typename event_t> string membercount_t(event_t event, bool send_embed = true)
@@ -474,7 +460,7 @@ template<typename event_t> bool serverinfo_t(event_t event) {
 	return true;
 #undef g
 }
-vector<dpp::snowflake> queued_delete;
+
 template<typename event_t> thread queue_ratelimit(event_t event) {
 	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
 	return thread();
