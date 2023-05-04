@@ -67,7 +67,7 @@ template<typename event_t> bool profile_t(event_t event, dpp::message msg)
 	if (data.failed) new_user(stoull(username(name)));
 	string sort = "";
 	for (auto& tool : data.tools) if (not tool.name.empty())
-		sort += (tool.name.find("B:") or tool.durability < 1 ? "Broken " + tool.name : "Durability: " + to_string(tool.durability) + " " + tool.name);
+		sort += (tool.name.find("B:") not_eq -1 or tool.durability < 1 ? "> " + tool.name + " Broken" : "> " + tool.name + " Durability: " + to_string(tool.durability)) + '\n';
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::PS)
 		.set_title(":mag_right: Profile Viewer")
@@ -77,9 +77,9 @@ template<typename event_t> bool profile_t(event_t event, dpp::message msg)
 			sort.empty() ? "None" : sort)
 		.add_field(
 			"Inventory: ",
-			"> " + to_string(data.dollars) + " :dollar: \n" +
+			"> :dollar: " + to_string(data.dollars) + "\n" +
 			(data.fish > 0 ?
-				"> " + to_string(data.fish) + " :fish: \n" : "")));
+				"> :fish: " + to_string(data.fish) + "\n" : "")));
 	dpp::message_edit(event, msg);
 	return true;
 }
