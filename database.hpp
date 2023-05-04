@@ -1,28 +1,23 @@
 #pragma once
 
-class tools {
-public:
-	string name = "";
-	int durability = 0;
-};
-class UserData {
-public:
-	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0;
+struct tools { string name = ""; int durability = 0; };
+struct UserData {
 	uint64_t user_id = 0; string username = "";
 	bool failed = false;
+
+	uint64_t dollars = 0;
 	vector<tools> tools;
 	int fish = 0;
-	uint64_t dollars = 0;
 
-	short ratelimit = 0, queue = 0;
 	bool once_ratelimit = 0;
+	short ratelimit = 0, queue = 0;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
+	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0;
 }; map<dpp::snowflake, UserData> members;
-class GuildData {
-public:
-	bool failed = false;
-	bool joined = false;
+struct GuildData {
+	bool failed = false, joined = false;
+
 	string prefix = "";
 }; map<dpp::snowflake, GuildData> guilds;
 inline UserData GetUserData(dpp::snowflake user_id)
