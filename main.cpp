@@ -6,10 +6,10 @@
 #include "database.hpp"
 #include "commands.hpp"
 
-void main() {
+int main() {
 	if (not ifstream("token").is_open())
 		print<string>("Empty Token.", nullptr, state{ newline, color::red, false }),
-		print<string>("token: ", [](string it) { bot.token = it; }, state{ Inline, color::white, false }), ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
+		print<string>("token: ", [](string in) { bot.token = in; }, state{ Inline, color::white, false }), ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
 	getline(ifstream("token"), bot.token);
 
 	async(wrap_database).wait();
