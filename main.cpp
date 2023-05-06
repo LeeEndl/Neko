@@ -24,11 +24,11 @@ int main() {
 		function<void()> status = [&]() {
 			int64_t last = 0;
 			while (true) {
-				if (guilds.size() not_eq last)
+				if (bot.current_user_get_guilds_sync().size() not_eq last)
 					bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
-						.set_name(to_string(guilds.size()) + " servers")
+						.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
 						.set_type(dpp::activity_type::at_streaming)
-						.set_url("https://www.twitch.tv/test"))), last = guilds.size(), sleep_for(500ms);
+						.set_url("https://www.twitch.tv/test"))), last = bot.current_user_get_guilds_sync().size(), sleep_for(900ms);
 			}
 		}; thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
