@@ -7,17 +7,16 @@
 
 int main() {
 	if (not ifstream("token").is_open())
-		print<string>("Empty Token.", nullptr, state{ newline, color::red, false }),
-		print<string>("token: ", [](string in) { bot.token = in; }, state{ Inline, color::white, false }), ofstream("token").write(bot.token.c_str(), streamsize(bot.token.size()));
-	getline(ifstream("token"), bot.token);
-
+		print<string>("Couldn't find Token.", nullptr, state{ newline, color::red }),
+		print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), streamsize(in.size())); }, state{ Inline, color::white });
 	async(wrap_database).wait();
+
 	bot.on_log([](const dpp::log_t& event) {
 		print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
 		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? color::gray :
 		event.severity == dpp::ll_info ? color::normal :
 		event.severity == dpp::ll_warning ? color::yellow :
-		event.severity >= dpp::ll_error ? color::red : color::normal, false
+		event.severity >= dpp::ll_error ? color::red : color::normal
 			});
 		});
 
@@ -38,10 +37,6 @@ int main() {
 
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
 		thread::thread(await_on_guild_create, event).detach();
-		});
-
-	bot.on_guild_delete([](const dpp::guild_delete_t& event) {
-		thread::thread(await_on_guild_delete, event).detach();
 		});
 
 	bot.on_message_create([](const dpp::message_create_t& event) {
