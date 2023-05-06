@@ -445,12 +445,14 @@ template<typename event_t> bool nick_t(event_t event) {
 	}
 	return true;
 }
-template<typename event_t> bool ping_t(event_t event) {
+template<typename event_t> bool ping_t(event_t event, dpp::message msg) {
+	msg.set_content("");
 	End = chrono::high_resolution_clock::now();
-	event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::success)
+	msg.add_embed(dpp::embed().set_color(dpp::colors::success)
 		.set_title(":ping_pong: Pong!")
 		.set_description("> Response time: " + to_string(chrono::duration_cast<chrono::milliseconds>(End - Beg).count()) + "." + to_string(chrono::duration_cast<chrono::microseconds>(End - Beg).count()) + "ms\n\
-                          > API Ping: " + to_string(bot.rest_ping))));
+                          > API Ping: " + to_string(bot.rest_ping)));
+	dpp::message_edit(event, msg);
 	return true;
 }
 template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
@@ -478,31 +480,8 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 #undef g
 }
 
-template<typename event_t> thread queue_ratelimit(event_t event) {
-	for (auto& find : members) if (find.first == dpp::member(event).user_id) find.second.queue = 1, sleep_for(3s), find.second.ratelimit = 0, find.second.queue = 0;
-	return thread();
-}
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
-	for (auto& find : members) if (find.first == event.command.member.user_id) if (find.second.queue == 1) return;
-	for (auto& find : members) if (find.first == event.command.member.user_id)
-		if (find.second.ratelimit > 3) {
-			if (not find.second.once_ratelimit) {
-				find.second.once_ratelimit = true;
-				tm* mt = dpp::utility::mtm(time(0));
-				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 4, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
-				dpp::message msg = dpp::sync<dpp::message>(&bot, &dpp::cluster::message_create, dpp::message(event.command.channel_id, "> **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "** you can use another command"));
-				thread(queue_ratelimit<const dpp::slashcommand_t&>, event).detach();
-				while (true) {
-					sleep_for(3s);
-					bot.message_delete_sync(msg.id, event.command.channel_id);
-					find.second.once_ratelimit = false;
-					return;
-				}
-			}
-			return;
-		}
-	for (auto& find : members) if (find.first == event.command.member.user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.command.member.user_id);
 	if (data.failed) async(new_user, event.command.member.user_id).wait();
 	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
@@ -519,7 +498,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "hunt") async(hunt_t<const dpp::slashcommand_t&>, event);
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event);
-	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event);
+	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else return;
 	{
@@ -532,26 +511,6 @@ vector<thread> commands_executed;
 inline void await_on_message_create(const dpp::message_create_t& event) {
 	GuildData g_data = GetGuildData(event.msg.guild_id);
 	if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
-	for (auto& find : members) if (find.first == event.msg.member.user_id) if (find.second.queue == 1 and event.msg.content.find(g_data.prefix) not_eq -1) return;
-	for (auto& find : members) if (find.first == event.msg.member.user_id)
-		if (find.second.ratelimit > 3 and event.msg.content.find(g_data.prefix) not_eq -1) {
-			if (find.second.once_ratelimit) bot.message_delete_sync(event.msg.id, event.msg.channel_id);
-			else {
-				find.second.once_ratelimit = true;
-				tm* mt = dpp::utility::mtm(time(0));
-				time_t ct = dpp::utility::mt_t(mt, mt->tm_sec += 4, mt->tm_min, mt->tm_hour, mt->tm_wday, mt->tm_mday, mt->tm_mon);
-				dpp::message msg = dpp::sync<dpp::message>(&bot, &dpp::cluster::message_create, dpp::message(event.msg.channel_id, "> **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "** you can use another command"));
-				thread(queue_ratelimit<const dpp::message_create_t&>, event).detach();
-				while (true) {
-					sleep_for(3s);
-					bot.message_delete_sync(msg.id, event.msg.channel_id);
-					find.second.once_ratelimit = false;
-					return;
-				}
-			}
-			return;
-		}
-	for (auto& find : members) if (find.first == event.msg.member.user_id) find.second.ratelimit++;
 	UserData data = GetUserData(event.msg.member.user_id);
 	if (data.failed) async(new_user, event.msg.member.user_id).wait();
 	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
@@ -569,15 +528,15 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "hunt") not_eq -1) async(hunt_t<const dpp::message_create_t&>, event);
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event);
-	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event);
+	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
 	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+	else return;
 	{
 		UserData data = GetUserData(event.msg.member.user_id);
 		data.last_on = time(0);
