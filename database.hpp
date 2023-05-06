@@ -114,20 +114,14 @@ inline void new_guild(dpp::snowflake guild_id)
 		guilds.emplace(guild_id, data);
 	}
 }
+
 inline void await_on_guild_create(const dpp::guild_create_t& event) {
 	GuildData data = GetGuildData(event.created->id);
 	if (static_cast<bool>(data.failed)) new_guild(event.created->id);
 }
-inline void await_on_guild_delete(const dpp::guild_delete_t& event) {
-	for (const auto& i : filesystem::directory_iterator("database/guilds")) {
-		vector<string> index = dpp::index(i.path().filename().string(), '.');
-		guilds.erase(static_cast<dpp::snowflake>(stoull(index[0])));
-		string FileName = "database/guilds/" + i.path().filename().string();
-		remove(FileName.c_str());
-	}
-}
 
 inline void wrap_database() {
+	getline(ifstream("token"), bot.token);
 	if (not filesystem::exists("database")) filesystem::create_directory("database");
 	if (not filesystem::exists("./database/guilds")) filesystem::create_directory("./database/guilds");
 	if (not filesystem::exists("./database/users")) filesystem::create_directory("./database/users");
