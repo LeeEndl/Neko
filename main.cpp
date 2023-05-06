@@ -2,7 +2,6 @@
 
 #include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
-#include "stats.hpp"
 #include "database.hpp"
 #include "commands.hpp"
 
@@ -40,6 +39,7 @@ int main() {
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
 		thread::thread(await_on_guild_create, event).detach();
 		});
+
 	bot.on_guild_delete([](const dpp::guild_delete_t& event) {
 		thread::thread(await_on_guild_delete, event).detach();
 		});
@@ -57,6 +57,7 @@ int main() {
 	bot.on_button_click([](const dpp::button_click_t& event) {
 		event_threads.emplace_back(thread::thread(await_on_button_click, event));
 		});
+
 	bot.start(dpp::start_type::st_wait);
 }
 
