@@ -2,14 +2,33 @@
 
 #include <dpp/nlohmann/json.hpp>
 #include <dpp/dpp.h>
+#include <opencv2/opencv.hpp>
 #include "database.hpp"
 #include "commands.hpp"
 
+using namespace cv;
+
 int main() {
+
+	// Load an image
+	Mat image = imread("example.png", IMREAD_COLOR);
+
+	// Check if the image was loaded successfully
+	if (image.empty())
+	{
+		std::cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	// Write the image to a file
+	imwrite("output.png", image);
+
 	if (not ifstream("token").is_open())
 		print<string>("Couldn't find Token.", nullptr, state{ newline, color::red }),
 		print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), streamsize(in.size())); }, state{ Inline, color::white });
 	async(wrap_database).wait();
+
+
 
 	bot.on_log([](const dpp::log_t& event) {
 		print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
@@ -22,13 +41,12 @@ int main() {
 
 	bot.on_ready([](const dpp::ready_t& event) {
 		function<void()> status = [&]() {
-			int64_t last = 0;
+			size_t last = 0;
 			while (true) {
-				if (bot.current_user_get_guilds_sync().size() not_eq last)
-					bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
-						.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
-						.set_type(dpp::activity_type::at_streaming)
-						.set_url("https://www.twitch.tv/test"))), last = bot.current_user_get_guilds_sync().size(), sleep_for(900ms);
+				bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
+					.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
+					.set_type(dpp::activity_type::at_streaming)
+					.set_url("https://www.twitch.tv/test"))), sleep_for(6s);
 			}
 		}; thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
