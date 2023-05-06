@@ -9,8 +9,6 @@ struct UserData {
 	vector<tools> tools;
 	int fish = 0;
 
-	bool once_ratelimit = 0;
-	short ratelimit = 0, queue = 0;
 	bool busy_fishing = false, once_fishing = false;
 	bool busy_hunting = false, once_hunting = false;
 	time_t daily = time(0), last_on = 0, last_fish = 0, last_hunt = 0;
@@ -143,3 +141,29 @@ inline void wrap_database() {
 		guilds.emplace(static_cast<dpp::snowflake>(stoull(index[0])), GetGuildData(stoull(index[0])));
 	}
 }
+
+enum passive { none, poison };
+class passives {
+public:
+	string emoji = "";
+	passive passive = passive::none;
+	int turns = 0;
+};
+class stats {
+public:
+	int ATK = 0;
+	int DEF = 0;
+	int SPD = 0;
+	map<passive, passives> passive;
+};
+map<string, stats> Stat = {
+	{":worm:", stats{0, 9, 0}},
+	{":lady_beetle:", stats{1, 3, 1}},
+	{":rat:", stats{1, 2, 3}},
+	{":butterfly:", stats{1, 0, 4}},
+	{":bee:", stats{1, 3, 4}},
+
+	{":knife:", stats{1, 0, 5}},
+};
+
+auto Beg = chrono::high_resolution_clock::now(), End = chrono::high_resolution_clock::now();
