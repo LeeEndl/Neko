@@ -28,9 +28,6 @@
     <ClInclude Include="include\dpp\cluster.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\cluster_coro_calls.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\cluster_sync_calls.h">
       <Filter>dpp</Filter>
     </ClInclude>
@@ -166,7 +163,6 @@
     <ClInclude Include="include\dpp\wsclient.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="stats.hpp" />
     <ClInclude Include="database.hpp" />
     <ClInclude Include="include\dpp\event_t.h">
       <Filter>dpp</Filter>
