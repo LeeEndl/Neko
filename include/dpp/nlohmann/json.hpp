@@ -1939,71 +1939,10 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     JSON_HEDLEY_MCST_LCC_VERSION_CHECK(1,25,10)
 #define JSON_HEDLEY_IS_CONSTANT(expr) __builtin_constant_p(expr)
 #endif
-#if !defined(__cplusplus)
-#  if \
-       JSON_HEDLEY_HAS_BUILTIN(__builtin_types_compatible_p) || \
-       JSON_HEDLEY_GCC_VERSION_CHECK(3,4,0) || \
-       JSON_HEDLEY_INTEL_VERSION_CHECK(13,0,0) || \
-       JSON_HEDLEY_IBM_VERSION_CHECK(13,1,0) || \
-       JSON_HEDLEY_CRAY_VERSION_CHECK(8,1,0) || \
-       JSON_HEDLEY_ARM_VERSION_CHECK(5,4,0) || \
-       JSON_HEDLEY_TINYC_VERSION_CHECK(0,9,24)
-#if defined(__INTPTR_TYPE__)
-#define JSON_HEDLEY_IS_CONSTEXPR_(expr) __builtin_types_compatible_p(__typeof__((1 ? (void*) ((__INTPTR_TYPE__) ((expr) * 0)) : (int*) 0)), int*)
-#else
-#include <stdint.h>
-#define JSON_HEDLEY_IS_CONSTEXPR_(expr) __builtin_types_compatible_p(__typeof__((1 ? (void*) ((intptr_t) ((expr) * 0)) : (int*) 0)), int*)
-#endif
-#  elif \
-       ( \
-          defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && \
-          !defined(JSON_HEDLEY_SUNPRO_VERSION) && \
-          !defined(JSON_HEDLEY_PGI_VERSION) && \
-          !defined(JSON_HEDLEY_IAR_VERSION)) || \
-       (JSON_HEDLEY_HAS_EXTENSION(c_generic_selections) && !defined(JSON_HEDLEY_IAR_VERSION)) || \
-       JSON_HEDLEY_GCC_VERSION_CHECK(4,9,0) || \
-       JSON_HEDLEY_INTEL_VERSION_CHECK(17,0,0) || \
-       JSON_HEDLEY_IBM_VERSION_CHECK(12,1,0) || \
-       JSON_HEDLEY_ARM_VERSION_CHECK(5,3,0)
-#if defined(__INTPTR_TYPE__)
-#define JSON_HEDLEY_IS_CONSTEXPR_(expr) _Generic((1 ? (void*) ((__INTPTR_TYPE__) ((expr) * 0)) : (int*) 0), int*: 1, void*: 0)
-#else
-#include <stdint.h>
-#define JSON_HEDLEY_IS_CONSTEXPR_(expr) _Generic((1 ? (void*) ((intptr_t) * 0) : (int*) 0), int*: 1, void*: 0)
-#endif
-#  elif \
-       defined(JSON_HEDLEY_GCC_VERSION) || \
-       defined(JSON_HEDLEY_INTEL_VERSION) || \
-       defined(JSON_HEDLEY_TINYC_VERSION) || \
-       defined(JSON_HEDLEY_TI_ARMCL_VERSION) || \
-       JSON_HEDLEY_TI_CL430_VERSION_CHECK(18,12,0) || \
-       defined(JSON_HEDLEY_TI_CL2000_VERSION) || \
-       defined(JSON_HEDLEY_TI_CL6X_VERSION) || \
-       defined(JSON_HEDLEY_TI_CL7X_VERSION) || \
-       defined(JSON_HEDLEY_TI_CLPRU_VERSION) || \
-       defined(__clang__)
-#    define JSON_HEDLEY_IS_CONSTEXPR_(expr) ( \
-        sizeof(void) != \
-        sizeof(*( \
-                  1 ? \
-                  ((void*) ((expr) * 0L) ) : \
-((struct { char v[sizeof(void) * 2]; } *) 1) \
-                ) \
-              ) \
-                                            )
-#  endif
-#endif
-#if defined(JSON_HEDLEY_IS_CONSTEXPR_)
-#if !defined(JSON_HEDLEY_IS_CONSTANT)
-#define JSON_HEDLEY_IS_CONSTANT(expr) JSON_HEDLEY_IS_CONSTEXPR_(expr)
-#endif
-#define JSON_HEDLEY_REQUIRE_CONSTEXPR(expr) (JSON_HEDLEY_IS_CONSTEXPR_(expr) ? (expr) : (-1))
-#else
 #if !defined(JSON_HEDLEY_IS_CONSTANT)
 #define JSON_HEDLEY_IS_CONSTANT(expr) (0)
 #endif
 #define JSON_HEDLEY_REQUIRE_CONSTEXPR(expr) (expr)
-#endif
 
 #if defined(JSON_HEDLEY_BEGIN_C_DECLS)
 #undef JSON_HEDLEY_BEGIN_C_DECLS
@@ -2727,10 +2666,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-
-
-
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -2828,9 +2763,6 @@ NLOHMANN_JSON_NAMESPACE_END
 
 #include <limits>
 
-
-
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -2887,9 +2819,6 @@ NLOHMANN_JSON_NAMESPACE_END
 
 #ifndef INCLUDE_NLOHMANN_JSON_FWD_HPP_
 #define INCLUDE_NLOHMANN_JSON_FWD_HPP_
-
-
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -4337,13 +4266,6 @@ namespace
 
 NLOHMANN_JSON_NAMESPACE_END
 
-
-
-
-
-
-
-
 #if JSON_HAS_RANGES
 #include <ranges>
 #endif
@@ -4964,9 +4886,6 @@ struct adl_serializer
 
 NLOHMANN_JSON_NAMESPACE_END
 
-
-
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
 template<typename BinaryType>
@@ -5039,8 +4958,6 @@ private:
 };
 
 NLOHMANN_JSON_NAMESPACE_END
-
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -5141,21 +5058,7 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-
 #include <cmath>
-
-
-#include <cstdio>
-#include <cstring>
-
-#include <limits>
-
-
-
-#include <cstring>
-
-
-
 #ifndef JSON_NO_IO
 #include <cstdio>
 #include <istream>
@@ -6122,10 +6025,7 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-
 #include <clocale>
-
-#include <cstdio>
 #include <cstdlib>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
@@ -7471,8 +7371,6 @@ namespace detail
 	};
 }
 NLOHMANN_JSON_NAMESPACE_END
-
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -10222,9 +10120,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <cmath>
-
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -10628,8 +10523,6 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-#include <limits>
-
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
 {
@@ -10743,8 +10636,6 @@ namespace detail
 	};
 }
 NLOHMANN_JSON_NAMESPACE_END
-
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -11387,11 +11278,9 @@ NLOHMANN_JSON_NAMESPACE_END
 
 #include <cctype>
 #include <cerrno>
-#include <cstdlib>
 #ifndef JSON_NO_IO
 
 #endif
-#include <limits>
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -12190,13 +12079,6 @@ namespace detail
 	};
 }
 NLOHMANN_JSON_NAMESPACE_END
-
-
-
-#include <cmath>
-
-#include <cstring>
-#include <limits>
 
 #ifndef JSON_NO_IO
 #include <ios>
@@ -13907,23 +13789,7 @@ namespace detail
 }
 NLOHMANN_JSON_NAMESPACE_END
 
-
-#include <clocale>
-#include <cmath>
-
-
-#include <cstdio>
-#include <limits>
-
 #include <iomanip>
-
-
-
-#include <cmath>
-
-#include <cstring>
-#include <limits>
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 namespace detail
@@ -15265,9 +15131,6 @@ namespace detail
 	};
 }
 NLOHMANN_JSON_NAMESPACE_END
-
-
-
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 
@@ -19621,4 +19484,16 @@ using nlohmann::literals::json_literals::operator "" _json_pointer;
 #undef JSON_HEDLEY_WARN_UNUSED_RESULT_MSG
 #undef JSON_HEDLEY_FALL_THROUGH
 
-#endif   
+#endif
+
+//
+/* ------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------- */
+//
+
+using JINT = uint64_t;
+using JSTRING = std::string;
+nlohmann::json J = nlohmann::json();
+
+#define ELEMENT_JS(what) not (J.find(what) not_eq J.end()) ? "" : J[what].get<JSTRING>();
+#define ELEMENT_JI(what) not (J.find(what) not_eq J.end()) ? 0 : J[what].get<JINT>();
