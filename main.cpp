@@ -22,13 +22,11 @@ int main() {
 
 	bot.on_ready([](const dpp::ready_t& event) {
 		function<void()> status = [&]() {
-			size_t last = 0;
-			while (true) {
+			while (true)
 				bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
 					.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
 					.set_type(dpp::activity_type::at_streaming)
 					.set_url("https://www.twitch.tv/test"))), sleep_for(6s);
-			}
 		}; thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
 		thread::thread(load_slashcommands).detach();
