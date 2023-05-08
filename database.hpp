@@ -87,7 +87,7 @@ inline GuildData GetGuildData(dpp::snowflake guild_id)
 		return data;
 	}
 	ifstream("database/guilds/" + to_string(guild_id) + ".txt") >> J;
-	data.joined = ELEMENT_JI("joined");
+	data.joined = ELEMENT_JB("joined");
 	data.prefix = ELEMENT_JS("prefix");
 	J = json();
 	return data;
