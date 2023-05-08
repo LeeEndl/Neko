@@ -86,19 +86,19 @@ inline GuildData GetGuildData(dpp::snowflake guild_id)
 		data.failed = true;
 		return data;
 	}
-	json j;
-	ifstream("database/guilds/" + to_string(guild_id) + ".txt") >> j;
+	ifstream("database/guilds/" + to_string(guild_id) + ".txt") >> J;
 	data.joined = ELEMENT_JI("joined");
 	data.prefix = ELEMENT_JS("prefix");
+	J = json();
 	return data;
 }
 inline void SaveGuildData(GuildData data, dpp::snowflake guild_id)
 {
-	json j;
-	j.dump(1);
-	j["joined"] = data.joined;
-	j["prefix"] = data.prefix;
-	ofstream("database/guilds/" + to_string(guild_id) + ".txt") << setw(2) << j;
+	J.dump(1);
+	J["joined"] = data.joined;
+	J["prefix"] = data.prefix;
+	ofstream("database/guilds/" + to_string(guild_id) + ".txt") << setw(2) << J;
+	J = json();
 }
 inline void new_guild(dpp::snowflake guild_id)
 {
