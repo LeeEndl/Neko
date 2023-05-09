@@ -488,28 +488,27 @@ template<typename event_t> bool ping_t(event_t event, dpp::message msg) {
 	return true;
 }
 template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
-#define g(p1) bot.guild_get_sync(p1) /* code got a bit long without this. */
 	msg.set_content("");
-	if (g(dpp::guild_id(event)).has_banner())
+	dpp::guild g = bot.guild_get_sync(dpp::guild_id(event));
+	if (g.has_banner())
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
-			.set_title(g(dpp::guild_id(event)).name + ":")
+			.set_title(g.name + ":")
 			.set_description("> **Banner**: ")
-			.set_image(g(dpp::guild_id(event)).get_banner_url(128, dpp::i_png, g(dpp::guild_id(event)).has_animated_icon() ? true : false)));
+			.set_image(g.get_banner_url(128, dpp::i_png, g.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::success)
-		.set_title(g(dpp::guild_id(event)).name + ":")
+		.set_title(g.name + ":")
 		.set_description("> **Icon**: ")
-		.set_image(g(dpp::guild_id(event)).get_icon_url(128, dpp::i_png, g(dpp::guild_id(event)).has_animated_icon() ? true : false)));
+		.set_image(g.get_icon_url(128, dpp::i_png, g.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::success)
-		.set_description("> **Ownership**: <@" + to_string(g(dpp::guild_id(event)).owner_id) + "> \n\
+		.set_description("> **Ownership**: <@" + to_string(g.owner_id) + "> \n\
                           > **Members**: " + membercount_t(event, false) + " \n\
                           > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
-                          > **Created**: " + dpp::utility::timestamp(g(dpp::guild_id(event)).get_creation_time(), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(g(dpp::guild_id(event)).get_creation_time(), dpp::utility::tf_short_time) + ""));
+                          > **Created**: " + dpp::utility::timestamp(g.get_creation_time(), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(g.get_creation_time(), dpp::utility::tf_short_time) + ""));
 	dpp::message_edit(event, msg);
 	return true;
-#undef g
 }
 
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
