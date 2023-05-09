@@ -510,6 +510,19 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 	dpp::message_edit(event, msg);
 	return true;
 }
+template<typename event_t> bool help_t(event_t event, dpp::message msg) {
+		msg.set_content("");
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::success)
+			.set_title(bot.me.username + " Commands")
+			.set_description("**__Economy__**:\n\
+                          > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\
+			              > </shop:" + to_string(command::name_to_id["shop"]) + ">: view the shop.\n\
+			              > </buy:" + to_string(command::name_to_id["buy"]) + ">: buy from the shop. `{ID} {Amount}`\n\
+                          > </sell:" + to_string(command::name_to_id["sell"]) + ">: sell from your inventory. `{ID} {Amount}`"));
+		dpp::message_edit(event, msg);
+		return true;
+}
 
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
@@ -531,6 +544,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
+	else if (event.command.get_command_name() == "help") async(help_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
@@ -561,6 +575,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
+	else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) async(help_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
@@ -602,7 +617,8 @@ void load_slashcommands()
 		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages},
 		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
 		about{"ping", "pong!", dpp::permissions::p_send_messages},
-		about{"serverinfo", "view information about this server", dpp::permissions::p_send_messages}
+		about{"serverinfo", "view information about this server", dpp::permissions::p_send_messages},
+		about{"help", "list of all commands", dpp::permissions::p_send_messages}
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
@@ -616,7 +632,8 @@ void load_slashcommands()
 				cmd.add_option(dpp::command_option(option.v_type, option.name, option.description, option.required));
 		slashcommand.emplace_back(cmd);
 	}
-	sleep_for(10s);
+	sleep_for(8s);
 	dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
+	for (auto& command : results) command::name_to_id.emplace(command.second.name, command.second.id);
 	if (results.size() == commands.size()) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
 }

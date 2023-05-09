@@ -1,5 +1,9 @@
 #pragma once
 
+namespace command {
+	map<string, dpp::snowflake> name_to_id;
+}
+
 struct tools { string name = ""; int durability = 0; };
 struct UserData {
 	JINT daily = time(0), last_on = 0, fish = 0, user_id = 0, dollars = 0;
@@ -12,7 +16,8 @@ struct UserData {
 	bool failed = false;
 }; map<dpp::snowflake, UserData> members;
 struct GuildData {
-	bool failed = false, joined = false;
+	JBOOLEAN joined = false;
+	bool failed = false;
 
 	string prefix = "";
 };
