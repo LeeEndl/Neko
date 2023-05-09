@@ -511,17 +511,27 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 	return true;
 }
 template<typename event_t> bool help_t(event_t event, dpp::message msg) {
-		msg.set_content("");
-		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
-			.set_title(bot.me.username + " Commands")
-			.set_description("**__Economy__**:\n\
+	msg.set_content("");
+	msg.add_embed(dpp::embed()
+		.set_color(dpp::colors::success)
+		.set_title(bot.me.username + " Commands")
+		.set_description("**__Economy__**:\n\
                           > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\
 			              > </shop:" + to_string(command::name_to_id["shop"]) + ">: view the shop.\n\
 			              > </buy:" + to_string(command::name_to_id["buy"]) + ">: buy from the shop. `{ID} {Amount}`\n\
-                          > </sell:" + to_string(command::name_to_id["sell"]) + ">: sell from your inventory. `{ID} {Amount}`"));
-		dpp::message_edit(event, msg);
-		return true;
+                          > </sell:" + to_string(command::name_to_id["sell"]) + ">: sell from your inventory. `{ID} {Amount}`\n\
+                          > </repair:" + to_string(command::name_to_id["repair"]) + ">: repair a tool. `{ID}`\n\n\
+                             **__Social__**:\n\
+                          > </profile:" + to_string(command::name_to_id["profile"]) + ">: check out someone's profile. `{Mention}`\n\
+                          > </leaderboard:" + to_string(command::name_to_id["leaderboard"]) + ">: show richest players. *--* Alias: </top:" + to_string(command::name_to_id["top"]) + "> \n\
+                          > </avatar:" + to_string(command::name_to_id["avatar"]) + ">: check out someone's avatar. `{Mention}`\n\n\
+                           **__Miscellaneous__**:\n\
+                          > </fish:" + to_string(command::name_to_id["fish"]) + ">: go fishing.\n\
+                          > </membercount:" + to_string(command::name_to_id["membercount"]) + ">: number of members in server.\n\
+                          > </invite:" + to_string(command::name_to_id["invite"]) + ">: invite " + bot.me.username + " to your server.\n\
+                          > </ping:" + to_string(command::name_to_id["ping"]) + ">: check the bot's ping time & (API) REST time\n"));
+	dpp::message_edit(event, msg);
+	return true;
 }
 
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
