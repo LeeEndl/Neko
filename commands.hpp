@@ -489,24 +489,24 @@ template<typename event_t> bool ping_t(event_t event, dpp::message msg) {
 }
 template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 	msg.set_content("");
-	dpp::guild g = bot.guild_get_sync(dpp::guild_id(event));
-	if (g.has_banner())
+	dpp::guild guild = bot.guild_get_sync(dpp::guild_id(event));
+	if (guild.has_banner())
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
-			.set_title(g.name + ":")
+			.set_title(guild.name + ":")
 			.set_description("> **Banner**: ")
-			.set_image(g.get_banner_url(128, dpp::i_png, g.has_animated_icon() ? true : false)));
+			.set_image(guild.get_banner_url(128, dpp::i_png, guild.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::success)
-		.set_title(g.name + ":")
+		.set_title(guild.name + ":")
 		.set_description("> **Icon**: ")
-		.set_image(g.get_icon_url(128, dpp::i_png, g.has_animated_icon() ? true : false)));
+		.set_image(guild.get_icon_url(128, dpp::i_png, guild.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::success)
-		.set_description("> **Ownership**: <@" + to_string(g.owner_id) + "> \n\
+		.set_description("> **Ownership**: <@" + to_string(guild.owner_id) + "> \n\
                           > **Members**: " + membercount_t(event, false) + " \n\
                           > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
-                          > **Created**: " + dpp::utility::timestamp(g.get_creation_time(), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(g.get_creation_time(), dpp::utility::tf_short_time) + ""));
+                          > **Created**: " + dpp::utility::timestamp(guild.get_creation_time(), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(guild.get_creation_time(), dpp::utility::tf_short_time) + ""));
 	dpp::message_edit(event, msg);
 	return true;
 }
