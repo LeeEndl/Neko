@@ -515,19 +515,24 @@ template<typename event_t> bool help_t(event_t event, dpp::message msg) {
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::success)
 		.set_title(bot.me.username + " Commands")
-		.set_description("**__Economy__**:\n\
+		.set_description(":moneybag: **__Economy__**:\n\
                           > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\
 			              > </shop:" + to_string(command::name_to_id["shop"]) + ">: view the shop.\n\
 			              > </buy:" + to_string(command::name_to_id["buy"]) + ">: buy from the shop. `{ID} {Amount}`\n\
                           > </sell:" + to_string(command::name_to_id["sell"]) + ">: sell from your inventory. `{ID} {Amount}`\n\
                           > </repair:" + to_string(command::name_to_id["repair"]) + ">: repair a tool. `{ID}`\n\n\
-                             **__Social__**:\n\
+                             :busts_in_silhouette: **__Social__**:\n\
                           > </profile:" + to_string(command::name_to_id["profile"]) + ">: check out someone's profile. `{Mention}`\n\
                           > </leaderboard:" + to_string(command::name_to_id["leaderboard"]) + ">: show richest players. *--* Alias: </top:" + to_string(command::name_to_id["top"]) + "> \n\
                           > </avatar:" + to_string(command::name_to_id["avatar"]) + ">: check out someone's avatar. `{Mention}`\n\n\
-                           **__Miscellaneous__**:\n\
+                             <:mod:1105640054136774667> **__Moderation__**:\n\
+                          > </purge:" + to_string(command::name_to_id["purge"]) + ">: mass delete messages in a channel. `{Amount}`\n\
+                          > </nick:" + to_string(command::name_to_id["nick"]) + ">: change a member's nickname. `{Mention} {Nickname}`\n\n\
+                             :grey_question: **__Miscellaneous__**:\n\
                           > </fish:" + to_string(command::name_to_id["fish"]) + ">: go fishing.\n\
+                          > </hunt:" + to_string(command::name_to_id["hunt"]) + ">: go hunting.\n\
                           > </membercount:" + to_string(command::name_to_id["membercount"]) + ">: number of members in server.\n\
+                          > </serverinfo:" + to_string(command::name_to_id["serverinfo"]) + ">: server information.\n\
                           > </invite:" + to_string(command::name_to_id["invite"]) + ">: invite " + bot.me.username + " to your server.\n\
                           > </ping:" + to_string(command::name_to_id["ping"]) + ">: check the bot's ping time & (API) REST time\n"));
 	dpp::message_edit(event, msg);
