@@ -448,9 +448,8 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 	msg.set_content("");
 	string name = "", nickname = "";
 	try {
-		is_same_v<decltype(event), const dpp::slashcommand_t&> ?
-			name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname") :
-			name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
+		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name"), nickname = dpp::index(event, "nickname");
+		else name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
 		if (nickname.size() < 1 or nickname.size() > 32) {
 			msg.add_embed(dpp::embed()
 				.set_color(dpp::colors::failed)
@@ -469,10 +468,11 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 			.set_description("> <@" + username(name) + "> name changed to **" + nickname + "**"));
 	}
 	catch (dpp::exception e) {
-		if (not e.msg.empty()) msg.add_embed(dpp::embed()
+		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::failed)
-			.set_description("> Can't modify <@" + username(name) + ">'s nickname")
-			.set_footer(dpp::embed_footer().set_text(e.msg)));
+			.set_description("> Cannot modify <@" + username(name) + ">'s nickname")
+			.set_footer(dpp::embed_footer()
+				.set_text(e.msg)));
 	}
 	dpp::message_edit(event, msg);
 	return true;
@@ -538,6 +538,43 @@ template<typename event_t> bool help_t(event_t event, dpp::message msg) {
 	dpp::message_edit(event, msg);
 	return true;
 }
+template<typename event_t> bool timeout_t(event_t event, dpp::message msg) {
+	msg.set_content("");
+	string name = "", length = "";
+	try {
+		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name"), length = dpp::index(event, "length");
+		else name = dpp::index(event, "1"), length = dpp::index(event, "2");
+		if (has_char(username(name))) return false;
+		time_t ct = time(0);
+		string duration_type = "";
+		tm* timeout = dpp::utility::mtm(ct);
+		if (length.find("s") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec + stoi(length), timeout->tm_min, timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
+			length.erase(remove(length.begin(), length.end(), 's'), length.end()), duration_type = " seconds**";
+
+		else if (length.find("m") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min + stoi(length), timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
+			length.erase(remove(length.begin(), length.end(), 'm'), length.end()), duration_type = " minutes**";
+
+		else if (length.find("h") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour + stoi(length), timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
+			length.erase(remove(length.begin(), length.end(), 'h'), length.end()), duration_type = " hours**";
+
+		else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour, timeout->tm_wday + stoi(length), timeout->tm_mday + stoi(length), timeout->tm_mon),
+			length.erase(remove(length.begin(), length.end(), 'd'), length.end()), duration_type = " days**";
+
+		bot.guild_member_timeout_sync(dpp::guild_id(event), stoull(username(name)), ct);
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::success)
+			.set_description("> <@" + username(name) + "> has been timed out for **" + length + duration_type));
+	}
+	catch (dpp::exception e) {
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::failed)
+			.set_description("> Cannot timeout <@" + username(name) + ">")
+			.set_footer(dpp::embed_footer()
+				.set_text(e.msg)));
+	}
+	dpp::message_edit(event, msg);
+	return true;
+}
 
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
@@ -560,6 +597,7 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.command.get_command_name() == "help") async(help_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
+	else if (event.command.get_command_name() == "timeout") async(timeout_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
@@ -591,12 +629,16 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) async(help_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
+	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_moderate_members) async(timeout_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
 	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1)
+		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+			.set_description("> Sorry, you need **timeout members** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
 	else return;
 	{
 		UserData data = GetUserData(event.msg.member.user_id);
@@ -633,7 +675,8 @@ void load_slashcommands()
 		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
 		about{"ping", "pong!", dpp::permissions::p_send_messages},
 		about{"serverinfo", "view information about this server", dpp::permissions::p_send_messages},
-		about{"help", "list of all commands", dpp::permissions::p_send_messages}
+		about{"help", "list of all commands", dpp::permissions::p_send_messages},
+		about{"timeout", "timeout a member", dpp::permissions::p_moderate_members, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna timeout", true}, option{dpp::command_option_type::co_string, "length", "the duration the timeout will last for. example: 12h", true}}}
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
