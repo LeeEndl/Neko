@@ -527,7 +527,8 @@ template<typename event_t> bool help_t(event_t event, dpp::message msg) {
                           > </avatar:" + to_string(command::name_to_id["avatar"]) + ">: check out someone's avatar. `{Mention}`\n\n\
                              <:mod:1105640054136774667> **__Moderation__**:\n\
                           > </purge:" + to_string(command::name_to_id["purge"]) + ">: mass delete messages in a channel. `{Amount}`\n\
-                          > </nick:" + to_string(command::name_to_id["nick"]) + ">: change a member's nickname. `{Mention} {Nickname}`\n\n\
+                          > </nick:" + to_string(command::name_to_id["nick"]) + ">: change a member's nickname. `{Mention} {Nickname}`\n\
+                          > </timeout:" + to_string(command::name_to_id["timeout"]) + ">: timeout someone. `{Mention} {Legnth}`\n\n\
                              :grey_question: **__Miscellaneous__**:\n\
                           > </fish:" + to_string(command::name_to_id["fish"]) + ">: go fishing.\n\
                           > </hunt:" + to_string(command::name_to_id["hunt"]) + ">: go hunting.\n\
