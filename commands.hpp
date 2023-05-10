@@ -652,31 +652,31 @@ void load_slashcommands()
 		dpp::command_option_type v_type;
 		string name, description;
 		bool required = false;
-	};
+	}; using options = vector<option>;
 	struct about {
 		string name, description;
 		uint64_t permissions;
-		vector<option> options;
+		options options;
 	};
 	vector<about> commands = {
 		about{"daily", "get a small gift from " + bot.me.username + " once a day", dpp::permissions::p_send_messages},
-		about{"profile", "your profile", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "mention user", true}}},
+		about{"profile", "your profile", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "name", "mention user", true}}},
 		about{"shop", "view the shop", dpp::permissions::p_send_messages},
-		about{"buy", "buy an item from shop", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna buy", true}}},
-		about{"sell", "sell an item", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna sell", true}}},
+		about{"buy", "buy an item from shop", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna buy", true}}},
+		about{"sell", "sell an item", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "id", "the item id", true}, option{dpp::command_option_type::co_string, "amount", "the amount of the item you wanna sell", true}}},
 		about{"fish", "go fishing", dpp::permissions::p_send_messages},
-		about{"repair", "the item you wanna repair", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "id", "the item id", true}}},
+		about{"repair", "the item you wanna repair", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "id", "the item id", true}}},
 		about{"leaderboard", "see top players", dpp::permissions::p_send_messages}, about{"top", "see top players", dpp::permissions::p_send_messages},
-		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, vector<option>{option{dpp::command_option_type::co_string, "amount", "amount of messages to which be deleted", true}}},
+		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, options{option{dpp::command_option_type::co_string, "amount", "amount of messages to which be deleted", true}}},
 		about{"membercount", "view all members in server", dpp::permissions::p_send_messages},
-		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, vector<option>{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", false}}},
+		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", false}}},
 		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
 		about{"hunt", "hunt down a animal", dpp::permissions::p_send_messages},
-		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
+		about{"nick", "change someone's nickname or yourself", dpp::permissions::p_manage_nicknames, options{option{dpp::command_option_type::co_string, "name", "the person you wanna change", false}, option{dpp::command_option_type::co_string, "nickname", "the nickname it'll change too", false}}},
 		about{"ping", "pong!", dpp::permissions::p_send_messages},
 		about{"serverinfo", "view information about this server", dpp::permissions::p_send_messages},
 		about{"help", "list of all commands", dpp::permissions::p_send_messages},
-		about{"timeout", "timeout a member", dpp::permissions::p_moderate_members, vector<option>{option{dpp::command_option_type::co_string, "name", "the person you wanna timeout", true}, option{dpp::command_option_type::co_string, "length", "the duration the timeout will last for. example: 12h", true}}}
+		about{"timeout", "timeout a member", dpp::permissions::p_moderate_members, options{option{dpp::command_option_type::co_string, "name", "the person you wanna timeout", true}, option{dpp::command_option_type::co_string, "length", "the duration the timeout will last for. example: 12h", true}}}
 	};
 	vector<dpp::slashcommand> slashcommand;
 	for (auto& command : commands) {
