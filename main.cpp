@@ -37,7 +37,7 @@ int main() {
 		});
 
 	bot.on_message_create([](const dpp::message_create_t& event) {
-		if (event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
+		if (event.msg.is_dm() /* TODO: DM interaction */ event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
 		thread::thread(await_on_message_create, event).detach();
 		});
 
