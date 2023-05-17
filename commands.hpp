@@ -575,24 +575,6 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 			bgra[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
 			//bgra[3] = cv::saturate_cast<uchar>(0.5 * (bgra[1] + bgra[2])); // REMOVE FOR TRANSPARENCY
 		}
-
-	Mat img = imread("bg.bmp");
-	Mat dst(img);
-	Mat ov = imread("R.jpg", -1);
-
-
-	for (int y = 0; y < img.rows; y++)
-		for (int x = 0; x < img.cols; x++)
-		{
-			//int alpha = ov.at<Vec4b>(y,x)[3];
-			int alpha = 256 * (x + y) / (img.rows + img.cols);
-			dst.at<Vec3b>(y, x)[0] = (1 - alpha / 256.0) * img.at<Vec3b>(y, x)[0] + (alpha * ov.at<Vec3b>(y, x)[0] / 256);
-			dst.at<Vec3b>(y, x)[1] = (1 - alpha / 256.0) * img.at<Vec3b>(y, x)[1] + (alpha * ov.at<Vec3b>(y, x)[1] / 256);
-			dst.at<Vec3b>(y, x)[2] = (1 - alpha / 256.0) * img.at<Vec3b>(y, x)[2] + (alpha * ov.at<Vec3b>(y, x)[2] / 256);
-		}
-
-	imwrite("bg_ov.bmp", dst);
-
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, 6);
 	cv::putText(im, "Level " + to_string(data.level), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
 	cv::putText(im, static_cast<cv::String>(to_string(data.exp)), cv::Point(67, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2);
