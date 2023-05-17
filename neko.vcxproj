@@ -63,7 +63,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>include/dpp/dpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>include/dpp/dpp.lib;include/opencv2/opencv_world470.lib;include/opencv2/opencv_world470d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
       <SwapRunFromNET>false</SwapRunFromNET>
       <NoEntryPoint>false</NoEntryPoint>
