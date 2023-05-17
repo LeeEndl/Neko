@@ -579,8 +579,9 @@ private: ty input;
 };
 class randomx {
 public:
-	static int Int(int min, int max) { std::random_device picker; std::uniform_int_distribution<int> numbers(min, max); return numbers(picker); }
-	static long Long(long min, long max) { std::random_device picker; std::uniform_int_distribution<long> numbers(min, max); return numbers(picker); }
+	randomx& Int(int min, int max) { std::random_device picker; std::uniform_int_distribution<int> numbers(min, max); val = numbers(picker); return *this; }
+	randomx& Long(long min, long max) { std::random_device picker; std::uniform_int_distribution<long> numbers(min, max); val = numbers(picker); return *this; }
+	uint64_t val = 0;
 };
 template <class T1, class T2, class Pred = std::greater<T1> >
 struct first {
