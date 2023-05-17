@@ -1,6 +1,7 @@
 ﻿/* Copyright(c) LeeEndl; License Apache License 2.0 */
 
 #include <dpp/nlohmann/json.hpp>
+#include <opencv2/opencv.hpp>
 #include <dpp/dpp.h>
 #include "database.hpp"
 #include "commands.hpp"
@@ -37,12 +38,12 @@ int main() {
 		});
 
 	bot.on_message_create([](const dpp::message_create_t& event) {
-		if (event.msg.is_dm() /* TODO: DM interaction */ or event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot() or event.msg.member.get_user()->is_verified_bot()) return;
+		if (event.msg.is_dm() or event.msg.webhook_id.empty() == 0 or event.msg.member.get_user()->is_bot()) return;
 		thread::thread(await_on_message_create, event).detach();
 		});
 
 	bot.on_slashcommand([](const dpp::slashcommand_t& event) {
-		if (event.command.member.get_user()->is_bot() or event.command.member.get_user()->is_verified_bot()) return;
+		if (event.command.member.get_user()->is_bot()) return;
 		thread::thread(await_on_slashcommand, event).detach();
 		});
 
