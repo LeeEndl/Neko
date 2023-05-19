@@ -554,26 +554,24 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 			}
 		if (after == static_cast<dpp::snowflake>(0)) break;
 	}
-	if (is_bot) msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::failed)
-		.set_description("> <@" + username(name) + "> is not human."));
-	else if (msg.embeds.empty()) msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::failed)
-		.set_description("> <@" + username(name) + "> is not in this server."));
+	if (msg.embeds.empty())
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::failed)
+			.set_description(string(is_bot ? "> <@" + username(name) + "> is not human." : "> <@" + username(name) + "> is not in this server.")));
 	dpp::message_edit(event, msg);
 	return true;
 }
 template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 	UserData data = GetUserData(dpp::member(event).user_id);
 	cv::Mat im(256, 640, CV_8UC4);
+	cv::Mat overlap = cv::imread("CDN\\image1.jpg");
+
 	CV_Assert(im.channels() == 4);
 	for (int i = 0; i < im.rows; ++i)
 		for (int j = 0; j < im.cols; ++j) {
-			cv::Vec4b& bgra = im.at<cv::Vec4b>(i, j);
-			bgra[0] = UCHAR_MAX;
-			bgra[1] = cv::saturate_cast<uchar>(UCHAR_MAX);
-			bgra[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
-			//bgra[3] = cv::saturate_cast<uchar>(0.5 * (bgra[1] + bgra[2])); // REMOVE FOR TRANSPARENCY
+			im.at<cv::Vec4b>(i, j)[0] = UCHAR_MAX;
+			im.at<cv::Vec4b>(i, j)[1] = cv::saturate_cast<uchar>(UCHAR_MAX);
+			im.at<cv::Vec4b>(i, j)[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
 		}
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, 6);
 	cv::putText(im, "Level " + to_string(data.level), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
@@ -582,15 +580,18 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 	cv::line(im,
 		cv::Point(static_cast<int>(65 + data.exp * (data.level * 200 < 565 ? 565 / (data.level * 200) : (data.level * 200) / 565)), static_cast<int>(640 / 4.2)),
 		cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(300, 300, 300, 100), 50, 6);
-
-	vector<int> compression;
-	compression.push_back(cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION);
-	compression.push_back(9);
+	for (int i = 0; i < im.rows; ++i)
+		for (int j = 0; j < im.cols; ++j) {
+			int alpha = 256 * (j + i) / (im.rows + im.cols); // remove transparency
+			im.at<cv::Vec4b>(i, j)[0] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[0] + (alpha * overlap.at<cv::Vec4b>(i, j)[0] / 256);
+			im.at<cv::Vec4b>(i, j)[1] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[1] + (alpha * overlap.at<cv::Vec4b>(i, j)[1] / 256);
+			im.at<cv::Vec4b>(i, j)[2] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[2] + (alpha * overlap.at<cv::Vec4b>(i, j)[2] / 256);
+		}
 	try {
-		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, compression);
+		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, { cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION , 9 });
 	}
-	catch (runtime_error& ex) {
-		fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+	catch (runtime_error& e) {
+		bot.log(dpp::ll_warning, "OpenCV error in /level; " + string(e.what()));
 		return false;
 	}
 	msg.set_content("");
