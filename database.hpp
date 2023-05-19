@@ -85,7 +85,7 @@ inline void new_guild(dpp::snowflake guild_id)
 {
 	GuildData data = GetGuildData(guild_id);
 	data.joined = false;
-	data.prefix = "!";
+	data.prefix = "$";
 	data.failed = false;
 	SaveGuildData(data, guild_id);
 }
@@ -97,6 +97,7 @@ inline void await_on_guild_create(const dpp::guild_create_t& event) {
 
 inline void wrap_database() {
 	getline(ifstream("token"), bot.token);
+	if (not filesystem::exists("CDN")) filesystem::create_directory("CDN");
 	if (not filesystem::exists("database")) filesystem::create_directory("database");
 	if (not filesystem::exists("./database/guilds")) filesystem::create_directory("./database/guilds");
 	if (not filesystem::exists("./database/users")) filesystem::create_directory("./database/users");
