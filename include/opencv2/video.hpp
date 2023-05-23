@@ -47,9 +47,9 @@
 /**
   @defgroup video Video Analysis
   @{
-    @defgroup video_motion Motion Analysis
-    @defgroup video_track Object Tracking
-    @defgroup video_c C API
+	@defgroup video_motion Motion Analysis
+	@defgroup video_track Object Tracking
+	@defgroup video_c C API
   @}
 */
 

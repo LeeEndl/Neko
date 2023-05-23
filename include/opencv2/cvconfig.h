@@ -126,24 +126,24 @@
 
 /* Define if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
-/* #undef WORDS_BIGENDIAN */
+   /* #undef WORDS_BIGENDIAN */
 
-/* VA library (libva) */
-/* #undef HAVE_VA */
+   /* VA library (libva) */
+   /* #undef HAVE_VA */
 
-/* Intel VA-API/OpenCL */
-/* #undef HAVE_VA_INTEL */
+   /* Intel VA-API/OpenCL */
+   /* #undef HAVE_VA_INTEL */
 
-/* Lapack */
-/* #undef HAVE_LAPACK */
+   /* Lapack */
+   /* #undef HAVE_LAPACK */
 
-/* Library was compiled with functions instrumentation */
-/* #undef ENABLE_INSTRUMENTATION */
+   /* Library was compiled with functions instrumentation */
+   /* #undef ENABLE_INSTRUMENTATION */
 
-/* OpenVX */
-/* #undef HAVE_OPENVX */
+   /* OpenVX */
+   /* #undef HAVE_OPENVX */
 
-/* OpenCV trace utilities */
+   /* OpenCV trace utilities */
 #define OPENCV_TRACE
 
 /* Library QR-code decoding */

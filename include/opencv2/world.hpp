@@ -48,9 +48,7 @@
 #ifdef __cplusplus
 namespace cv
 {
-
-CV_EXPORTS_W bool initAll();
-
+	CV_EXPORTS_W bool initAll();
 }
 
 #endif

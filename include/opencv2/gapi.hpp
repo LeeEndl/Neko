@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018-2021 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_HPP
 #define OPENCV_GAPI_HPP
 
@@ -12,14 +11,14 @@
 
 /** \defgroup gapi G-API framework
 @{
-    @defgroup gapi_main_classes G-API Main Classes
-    @defgroup gapi_data_objects G-API Data Types
-    @{
-      @defgroup gapi_meta_args G-API Metadata Descriptors
-    @}
-    @defgroup gapi_std_backends G-API Standard Backends
-    @defgroup gapi_compile_args G-API Graph Compilation Arguments
-    @defgroup gapi_serialization G-API Serialization functionality
+	@defgroup gapi_main_classes G-API Main Classes
+	@defgroup gapi_data_objects G-API Data Types
+	@{
+	  @defgroup gapi_meta_args G-API Metadata Descriptors
+	@}
+	@defgroup gapi_std_backends G-API Standard Backends
+	@defgroup gapi_compile_args G-API Graph Compilation Arguments
+	@defgroup gapi_serialization G-API Serialization functionality
 @}
  */
 
@@ -34,8 +33,8 @@
 #include <opencv2/gapi/gkernel.hpp>
 #include <opencv2/gapi/operators.hpp>
 
-// Include these files here to avoid cyclic dependency between
-// Desync & GKernel & GComputation & GStreamingCompiled.
+ // Include these files here to avoid cyclic dependency between
+ // Desync & GKernel & GComputation & GStreamingCompiled.
 #include <opencv2/gapi/streaming/desync.hpp>
 #include <opencv2/gapi/streaming/format.hpp>
 

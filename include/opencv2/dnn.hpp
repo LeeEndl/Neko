@@ -46,17 +46,16 @@
 // We are free to change headers layout in dnn subfolder, so please include
 // this header for future compatibility
 
-
 /** @defgroup dnn Deep Neural Network module
   @{
-    This module contains:
-        - API for new layers creation, layers are building bricks of neural networks;
-        - set of built-in most-useful Layers;
-        - API to construct and modify comprehensive neural networks from layers;
-        - functionality for loading serialized networks models from different frameworks.
+	This module contains:
+		- API for new layers creation, layers are building bricks of neural networks;
+		- set of built-in most-useful Layers;
+		- API to construct and modify comprehensive neural networks from layers;
+		- functionality for loading serialized networks models from different frameworks.
 
-    Functionality of this module is designed only for forward pass computations (i.e. network testing).
-    A network training is in principle not supported.
+	Functionality of this module is designed only for forward pass computations (i.e. network testing).
+	A network training is in principle not supported.
   @}
 */
 /** @example samples/dnn/classification.cpp
