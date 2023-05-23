@@ -3,7 +3,6 @@
 
 //! @addtogroup imgproc_hal_interface
 //! @{
-
 //! @name Interpolation modes
 //! @sa cv::InterpolationFlags
 //! @{

@@ -7,8 +7,8 @@
 
 enum InpaintingModes
 {
-    CV_INPAINT_NS      =0,
-    CV_INPAINT_TELEA   =1
+	CV_INPAINT_NS = 0,
+	CV_INPAINT_TELEA = 1
 };
 
 #endif // OPENCV_PHOTO_LEGACY_CONSTANTS_H

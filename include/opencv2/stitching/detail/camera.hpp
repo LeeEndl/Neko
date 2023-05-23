@@ -46,33 +46,30 @@
 #include "opencv2/core.hpp"
 
 namespace cv {
-namespace detail {
+	namespace detail {
+		//! @addtogroup stitching
+		//! @{
+		/** @brief Describes camera parameters.
 
-//! @addtogroup stitching
-//! @{
+		@note Translation is assumed to be zero during the whole stitching pipeline. :
+		 */
+		struct CV_EXPORTS_W_SIMPLE CameraParams
+		{
+			CameraParams();
+			CameraParams(const CameraParams& other);
+			CameraParams& operator =(const CameraParams& other);
+			CV_WRAP Mat K() const;
 
-/** @brief Describes camera parameters.
+			CV_PROP_RW double focal; // Focal length
+			CV_PROP_RW double aspect; // Aspect ratio
+			CV_PROP_RW double ppx; // Principal point X
+			CV_PROP_RW double ppy; // Principal point Y
+			CV_PROP_RW Mat R; // Rotation
+			CV_PROP_RW Mat t; // Translation
+		};
 
-@note Translation is assumed to be zero during the whole stitching pipeline. :
- */
-struct CV_EXPORTS_W_SIMPLE CameraParams
-{
-    CameraParams();
-    CameraParams(const CameraParams& other);
-    CameraParams& operator =(const CameraParams& other);
-    CV_WRAP Mat K() const;
-
-    CV_PROP_RW double focal; // Focal length
-    CV_PROP_RW double aspect; // Aspect ratio
-    CV_PROP_RW double ppx; // Principal point X
-    CV_PROP_RW double ppy; // Principal point Y
-    CV_PROP_RW Mat R; // Rotation
-    CV_PROP_RW Mat t; // Translation
-};
-
-//! @}
-
-} // namespace detail
+		//! @}
+	} // namespace detail
 } // namespace cv
 
 #endif // #ifndef OPENCV_STITCHING_CAMERA_HPP

@@ -50,80 +50,73 @@
 //! @cond IGNORED
 
 namespace cv {
-namespace detail {
+	namespace detail {
+		template <typename B>
+		B Graph::forEach(B body) const
+		{
+			for (int i = 0; i < numVertices(); ++i)
+			{
+				std::list<GraphEdge>::const_iterator edge = edges_[i].begin();
+				for (; edge != edges_[i].end(); ++edge)
+					body(*edge);
+			}
+			return body;
+		}
 
-template <typename B>
-B Graph::forEach(B body) const
-{
-    for (int i = 0; i < numVertices(); ++i)
-    {
-        std::list<GraphEdge>::const_iterator edge = edges_[i].begin();
-        for (; edge != edges_[i].end(); ++edge)
-            body(*edge);
-    }
-    return body;
-}
+		template <typename B>
+		B Graph::walkBreadthFirst(int from, B body) const
+		{
+			std::vector<bool> was(numVertices(), false);
+			std::queue<int> vertices;
 
+			was[from] = true;
+			vertices.push(from);
 
-template <typename B>
-B Graph::walkBreadthFirst(int from, B body) const
-{
-    std::vector<bool> was(numVertices(), false);
-    std::queue<int> vertices;
+			while (!vertices.empty())
+			{
+				int vertex = vertices.front();
+				vertices.pop();
 
-    was[from] = true;
-    vertices.push(from);
+				std::list<GraphEdge>::const_iterator edge = edges_[vertex].begin();
+				for (; edge != edges_[vertex].end(); ++edge)
+				{
+					if (!was[edge->to])
+					{
+						body(*edge);
+						was[edge->to] = true;
+						vertices.push(edge->to);
+					}
+				}
+			}
 
-    while (!vertices.empty())
-    {
-        int vertex = vertices.front();
-        vertices.pop();
+			return body;
+		}
 
-        std::list<GraphEdge>::const_iterator edge = edges_[vertex].begin();
-        for (; edge != edges_[vertex].end(); ++edge)
-        {
-            if (!was[edge->to])
-            {
-                body(*edge);
-                was[edge->to] = true;
-                vertices.push(edge->to);
-            }
-        }
-    }
+		//////////////////////////////////////////////////////////////////////////////
+		// Some auxiliary math functions
 
-    return body;
-}
+		static inline
+			float normL2(const Point3f& a)
+		{
+			return a.x * a.x + a.y * a.y + a.z * a.z;
+		}
 
+		static inline
+			float normL2(const Point3f& a, const Point3f& b)
+		{
+			return normL2(a - b);
+		}
 
-//////////////////////////////////////////////////////////////////////////////
-// Some auxiliary math functions
+		static inline
+			double normL2sq(const Mat& r)
+		{
+			return r.dot(r);
+		}
 
-static inline
-float normL2(const Point3f& a)
-{
-    return a.x * a.x + a.y * a.y + a.z * a.z;
-}
-
-
-static inline
-float normL2(const Point3f& a, const Point3f& b)
-{
-    return normL2(a - b);
-}
-
-
-static inline
-double normL2sq(const Mat &r)
-{
-    return r.dot(r);
-}
-
-
-static inline int sqr(int x) { return x * x; }
-static inline float sqr(float x) { return x * x; }
-static inline double sqr(double x) { return x * x; }
-
-} // namespace detail
+		static inline int sqr(int x) { return x * x; }
+		static inline float sqr(float x) { return x * x; }
+		static inline double sqr(double x) { return x * x; }
+	} // namespace detail
 } // namespace cv
 
 //! @endcond

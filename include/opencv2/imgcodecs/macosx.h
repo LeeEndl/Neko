@@ -11,7 +11,6 @@
 
 //! @addtogroup imgcodecs_macosx
 //! @{
-
 CV_EXPORTS CGImageRef MatToCGImage(const cv::Mat& image) CF_RETURNS_RETAINED;
 CV_EXPORTS void CGImageToMat(const CGImageRef image, cv::Mat& m, bool alphaExist = false);
 CV_EXPORTS NSImage* MatToNSImage(const cv::Mat& image);

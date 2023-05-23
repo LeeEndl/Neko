@@ -40,52 +40,47 @@
 //
 //M*/
 
-
 #ifndef OPENCV_STITCHING_TIMELAPSERS_HPP
 #define OPENCV_STITCHING_TIMELAPSERS_HPP
 
 #include "opencv2/core.hpp"
 
 namespace cv {
-namespace detail {
+	namespace detail {
+		//! @addtogroup stitching
+		//! @{
+		//  Base Timelapser class, takes a sequence of images, applies appropriate shift, stores result in dst_.
 
-//! @addtogroup stitching
-//! @{
+		class CV_EXPORTS_W Timelapser
+		{
+		public:
 
-//  Base Timelapser class, takes a sequence of images, applies appropriate shift, stores result in dst_.
+			enum { AS_IS, CROP };
 
-class CV_EXPORTS_W Timelapser
-{
-public:
+			virtual ~Timelapser() {}
 
-    enum {AS_IS, CROP};
+			CV_WRAP static Ptr<Timelapser> createDefault(int type);
 
-    virtual ~Timelapser() {}
+			CV_WRAP virtual void initialize(const std::vector<Point>& corners, const std::vector<Size>& sizes);
+			CV_WRAP virtual void process(InputArray img, InputArray mask, Point tl);
+			CV_WRAP virtual const UMat& getDst() { return dst_; }
 
-    CV_WRAP static Ptr<Timelapser> createDefault(int type);
+		protected:
 
-    CV_WRAP virtual void initialize(const std::vector<Point> &corners, const std::vector<Size> &sizes);
-    CV_WRAP virtual void process(InputArray img, InputArray mask, Point tl);
-    CV_WRAP virtual const UMat& getDst() {return dst_;}
+			virtual bool test_point(Point pt);
 
-protected:
+			UMat dst_;
+			Rect dst_roi_;
+		};
 
-    virtual bool test_point(Point pt);
+		class CV_EXPORTS_W TimelapserCrop : public Timelapser
+		{
+		public:
+			virtual void initialize(const std::vector<Point>& corners, const std::vector<Size>& sizes) CV_OVERRIDE;
+		};
 
-    UMat dst_;
-    Rect dst_roi_;
-};
-
-
-class CV_EXPORTS_W TimelapserCrop : public Timelapser
-{
-public:
-    virtual void initialize(const std::vector<Point> &corners, const std::vector<Size> &sizes) CV_OVERRIDE;
-};
-
-//! @}
-
-} // namespace detail
+		//! @}
+	} // namespace detail
 } // namespace cv
 
 #endif // OPENCV_STITCHING_TIMELAPSERS_HPP

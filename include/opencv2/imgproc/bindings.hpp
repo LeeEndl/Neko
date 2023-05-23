@@ -9,26 +9,24 @@
 // No need to use these functions in C++ code.
 
 namespace cv {
-
-/** @brief Finds lines in a binary image using the standard Hough transform and get accumulator.
- *
- * @note This function is for bindings use only. Use original function in C++ code
- *
- * @sa HoughLines
- */
-CV_WRAP static inline
-void HoughLinesWithAccumulator(
-        InputArray image, OutputArray lines,
-        double rho, double theta, int threshold,
-        double srn = 0, double stn = 0,
-        double min_theta = 0, double max_theta = CV_PI
-)
-{
-    std::vector<Vec3f> lines_acc;
-    HoughLines(image, lines_acc, rho, theta, threshold, srn, stn, min_theta, max_theta);
-    Mat(lines_acc).copyTo(lines);
-}
-
+	/** @brief Finds lines in a binary image using the standard Hough transform and get accumulator.
+	 *
+	 * @note This function is for bindings use only. Use original function in C++ code
+	 *
+	 * @sa HoughLines
+	 */
+	CV_WRAP static inline
+		void HoughLinesWithAccumulator(
+			InputArray image, OutputArray lines,
+			double rho, double theta, int threshold,
+			double srn = 0, double stn = 0,
+			double min_theta = 0, double max_theta = CV_PI
+		)
+	{
+		std::vector<Vec3f> lines_acc;
+		HoughLines(image, lines_acc, rho, theta, threshold, srn, stn, min_theta, max_theta);
+		Mat(lines_acc).copyTo(lines);
+	}
 }  // namespace
 
 #endif  // OPENCV_IMGPROC_BINDINGS_HPP

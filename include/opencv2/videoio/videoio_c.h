@@ -50,93 +50,93 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/**
-  @addtogroup videoio_c
-  @{
-*/
+	/**
+	  @addtogroup videoio_c
+	  @{
+	*/
 
-/****************************************************************************************\
-*                         Working with Video Files and Cameras                           *
-\****************************************************************************************/
+	/****************************************************************************************\
+	*                         Working with Video Files and Cameras                           *
+	\****************************************************************************************/
 
-/** @brief "black box" capture structure
+	/** @brief "black box" capture structure
 
-In C++ use cv::VideoCapture
-*/
-typedef struct CvCapture CvCapture;
+	In C++ use cv::VideoCapture
+	*/
+	typedef struct CvCapture CvCapture;
 
-/** @brief start capturing frames from video file
-*/
-CVAPI(CvCapture*) cvCreateFileCapture( const char* filename );
+	/** @brief start capturing frames from video file
+	*/
+	CVAPI(CvCapture*) cvCreateFileCapture(const char* filename);
 
-/** @brief start capturing frames from video file. allows specifying a preferred API to use
-*/
-CVAPI(CvCapture*) cvCreateFileCaptureWithPreference( const char* filename , int apiPreference);
+	/** @brief start capturing frames from video file. allows specifying a preferred API to use
+	*/
+	CVAPI(CvCapture*) cvCreateFileCaptureWithPreference(const char* filename, int apiPreference);
 
-/** @brief start capturing frames from camera: index = camera_index + domain_offset (CV_CAP_*)
-*/
-CVAPI(CvCapture*) cvCreateCameraCapture( int index );
+	/** @brief start capturing frames from camera: index = camera_index + domain_offset (CV_CAP_*)
+	*/
+	CVAPI(CvCapture*) cvCreateCameraCapture(int index);
 
-/** @brief grab a frame, return 1 on success, 0 on fail.
+	/** @brief grab a frame, return 1 on success, 0 on fail.
 
-  this function is thought to be fast
-*/
-CVAPI(int) cvGrabFrame( CvCapture* capture );
+	  this function is thought to be fast
+	*/
+	CVAPI(int) cvGrabFrame(CvCapture* capture);
 
-/** @brief get the frame grabbed with cvGrabFrame(..)
+	/** @brief get the frame grabbed with cvGrabFrame(..)
 
-  This function may apply some frame processing like
-  frame decompression, flipping etc.
-  @warning !!!DO NOT RELEASE or MODIFY the retrieved frame!!!
-*/
-CVAPI(IplImage*) cvRetrieveFrame( CvCapture* capture, int streamIdx CV_DEFAULT(0) );
+	  This function may apply some frame processing like
+	  frame decompression, flipping etc.
+	  @warning !!!DO NOT RELEASE or MODIFY the retrieved frame!!!
+	*/
+	CVAPI(IplImage*) cvRetrieveFrame(CvCapture* capture, int streamIdx CV_DEFAULT(0));
 
-/** @brief Just a combination of cvGrabFrame and cvRetrieveFrame
+	/** @brief Just a combination of cvGrabFrame and cvRetrieveFrame
 
-  @warning !!!DO NOT RELEASE or MODIFY the retrieved frame!!!
-*/
-CVAPI(IplImage*) cvQueryFrame( CvCapture* capture );
+	  @warning !!!DO NOT RELEASE or MODIFY the retrieved frame!!!
+	*/
+	CVAPI(IplImage*) cvQueryFrame(CvCapture* capture);
 
-/** @brief stop capturing/reading and free resources
-*/
-CVAPI(void) cvReleaseCapture( CvCapture** capture );
+	/** @brief stop capturing/reading and free resources
+	*/
+	CVAPI(void) cvReleaseCapture(CvCapture** capture);
 
-/** @brief retrieve capture properties
-*/
-CVAPI(double) cvGetCaptureProperty( CvCapture* capture, int property_id );
-/** @brief set capture properties
-*/
-CVAPI(int)    cvSetCaptureProperty( CvCapture* capture, int property_id, double value );
+	/** @brief retrieve capture properties
+	*/
+	CVAPI(double) cvGetCaptureProperty(CvCapture* capture, int property_id);
+	/** @brief set capture properties
+	*/
+	CVAPI(int)    cvSetCaptureProperty(CvCapture* capture, int property_id, double value);
 
-/** @brief Return the type of the capturer (eg, ::CV_CAP_VFW, ::CV_CAP_UNICAP)
+	/** @brief Return the type of the capturer (eg, ::CV_CAP_VFW, ::CV_CAP_UNICAP)
 
-It is unknown if created with ::CV_CAP_ANY
-*/
-CVAPI(int)    cvGetCaptureDomain( CvCapture* capture);
+	It is unknown if created with ::CV_CAP_ANY
+	*/
+	CVAPI(int)    cvGetCaptureDomain(CvCapture* capture);
 
-/** @brief "black box" video file writer structure
+	/** @brief "black box" video file writer structure
 
-In C++ use cv::VideoWriter
-*/
-typedef struct CvVideoWriter CvVideoWriter;
+	In C++ use cv::VideoWriter
+	*/
+	typedef struct CvVideoWriter CvVideoWriter;
 
-/** @brief initialize video file writer
-*/
-CVAPI(CvVideoWriter*) cvCreateVideoWriter( const char* filename, int fourcc,
-                                           double fps, CvSize frame_size,
-                                           int is_color CV_DEFAULT(1));
+	/** @brief initialize video file writer
+	*/
+	CVAPI(CvVideoWriter*) cvCreateVideoWriter(const char* filename, int fourcc,
+		double fps, CvSize frame_size,
+		int is_color CV_DEFAULT(1));
 
-/** @brief write frame to video file
-*/
-CVAPI(int) cvWriteFrame( CvVideoWriter* writer, const IplImage* image );
+	/** @brief write frame to video file
+	*/
+	CVAPI(int) cvWriteFrame(CvVideoWriter* writer, const IplImage* image);
 
-/** @brief close video file writer
-*/
-CVAPI(void) cvReleaseVideoWriter( CvVideoWriter** writer );
+	/** @brief close video file writer
+	*/
+	CVAPI(void) cvReleaseVideoWriter(CvVideoWriter** writer);
 
-// ***************************************************************************************
-//! @name Obsolete functions/synonyms
-//! @{
+	// ***************************************************************************************
+	//! @name Obsolete functions/synonyms
+	//! @{
 #define cvCaptureFromCAM cvCreateCameraCapture //!< @deprecated use cvCreateCameraCapture() instead
 #define cvCaptureFromFile cvCreateFileCapture  //!< @deprecated use cvCreateFileCapture() instead
 #define cvCaptureFromAVI cvCaptureFromFile     //!< @deprecated use cvCreateFileCapture() instead
