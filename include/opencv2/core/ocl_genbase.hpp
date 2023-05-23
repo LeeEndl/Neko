@@ -45,24 +45,23 @@
 //! @cond IGNORED
 
 namespace cv {
-namespace ocl {
+	namespace ocl {
+		class ProgramSource;
 
-class ProgramSource;
+		namespace internal {
+			struct CV_EXPORTS ProgramEntry
+			{
+				const char* module;
+				const char* name;
+				const char* programCode;
+				const char* programHash;
+				ProgramSource* pProgramSource;
 
-namespace internal {
-
-struct CV_EXPORTS ProgramEntry
-{
-    const char* module;
-    const char* name;
-    const char* programCode;
-    const char* programHash;
-    ProgramSource* pProgramSource;
-
-    operator ProgramSource& () const;
-};
-
-} } } // namespace
+				operator ProgramSource& () const;
+			};
+		}
+	}
+} // namespace
 
 //! @endcond
 

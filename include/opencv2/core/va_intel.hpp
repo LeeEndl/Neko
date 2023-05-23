@@ -19,57 +19,55 @@
 # include "va/va.h"
 #else  // HAVE_VA
 # if !defined(_VA_H_)
-    typedef void* VADisplay;
-    typedef unsigned int VASurfaceID;
+typedef void* VADisplay;
+typedef unsigned int VASurfaceID;
 # endif // !_VA_H_
 #endif // HAVE_VA
 
-namespace cv { namespace va_intel {
+namespace cv {
+	namespace va_intel {
+		/** @addtogroup core_va_intel
+		This section describes Intel VA-API/OpenCL (CL-VA) interoperability.
 
-/** @addtogroup core_va_intel
-This section describes Intel VA-API/OpenCL (CL-VA) interoperability.
+		To enable basic VA interoperability build OpenCV with libva library integration enabled: `-DWITH_VA=ON` (corresponding dev package should be installed).
 
-To enable basic VA interoperability build OpenCV with libva library integration enabled: `-DWITH_VA=ON` (corresponding dev package should be installed).
+		To enable advanced CL-VA interoperability support on Intel HW, enable option: `-DWITH_VA_INTEL=ON` (OpenCL integration should be enabled which is the default setting). Special runtime environment should be set up in order to use this feature: correct combination of [libva](https://github.com/intel/libva), [OpenCL runtime](https://github.com/intel/compute-runtime) and [media driver](https://github.com/intel/media-driver) should be installed.
 
-To enable advanced CL-VA interoperability support on Intel HW, enable option: `-DWITH_VA_INTEL=ON` (OpenCL integration should be enabled which is the default setting). Special runtime environment should be set up in order to use this feature: correct combination of [libva](https://github.com/intel/libva), [OpenCL runtime](https://github.com/intel/compute-runtime) and [media driver](https://github.com/intel/media-driver) should be installed.
+		Check usage example for details: samples/va_intel/va_intel_interop.cpp
+		*/
+		//! @{
+		/////////////////// CL-VA Interoperability Functions ///////////////////
 
-Check usage example for details: samples/va_intel/va_intel_interop.cpp
-*/
-//! @{
+		namespace ocl {
+			using namespace cv::ocl;
 
-/////////////////// CL-VA Interoperability Functions ///////////////////
+			// TODO static functions in the Context class
+			/** @brief Creates OpenCL context from VA.
+			@param display    - VADisplay for which CL interop should be established.
+			@param tryInterop - try to set up for interoperability, if true; set up for use slow copy if false.
+			@return Returns reference to OpenCL Context
+			 */
+			CV_EXPORTS Context& initializeContextFromVA(VADisplay display, bool tryInterop = true);
+		} // namespace cv::va_intel::ocl
 
-namespace ocl {
-using namespace cv::ocl;
+		/** @brief Converts InputArray to VASurfaceID object.
+		@param display - VADisplay object.
+		@param src     - source InputArray.
+		@param surface - destination VASurfaceID object.
+		@param size    - size of image represented by VASurfaceID object.
+		 */
+		CV_EXPORTS void convertToVASurface(VADisplay display, InputArray src, VASurfaceID surface, Size size);
 
-// TODO static functions in the Context class
-/** @brief Creates OpenCL context from VA.
-@param display    - VADisplay for which CL interop should be established.
-@param tryInterop - try to set up for interoperability, if true; set up for use slow copy if false.
-@return Returns reference to OpenCL Context
- */
-CV_EXPORTS Context& initializeContextFromVA(VADisplay display, bool tryInterop = true);
+		/** @brief Converts VASurfaceID object to OutputArray.
+		@param display - VADisplay object.
+		@param surface - source VASurfaceID object.
+		@param size    - size of image represented by VASurfaceID object.
+		@param dst     - destination OutputArray.
+		 */
+		CV_EXPORTS void convertFromVASurface(VADisplay display, VASurfaceID surface, Size size, OutputArray dst);
 
-} // namespace cv::va_intel::ocl
-
-/** @brief Converts InputArray to VASurfaceID object.
-@param display - VADisplay object.
-@param src     - source InputArray.
-@param surface - destination VASurfaceID object.
-@param size    - size of image represented by VASurfaceID object.
- */
-CV_EXPORTS void convertToVASurface(VADisplay display, InputArray src, VASurfaceID surface, Size size);
-
-/** @brief Converts VASurfaceID object to OutputArray.
-@param display - VADisplay object.
-@param surface - source VASurfaceID object.
-@param size    - size of image represented by VASurfaceID object.
-@param dst     - destination OutputArray.
- */
-CV_EXPORTS void convertFromVASurface(VADisplay display, VASurfaceID surface, Size size, OutputArray dst);
-
-//! @}
-
-}} // namespace cv::va_intel
+		//! @}
+	}
+} // namespace cv::va_intel
 
 #endif /* OPENCV_CORE_VA_INTEL_HPP */

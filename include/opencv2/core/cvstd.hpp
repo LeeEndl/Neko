@@ -63,128 +63,125 @@
 
 namespace cv
 {
-    static inline uchar abs(uchar a) { return a; }
-    static inline ushort abs(ushort a) { return a; }
-    static inline unsigned abs(unsigned a) { return a; }
-    static inline uint64 abs(uint64 a) { return a; }
+	static inline uchar abs(uchar a) { return a; }
+	static inline ushort abs(ushort a) { return a; }
+	static inline unsigned abs(unsigned a) { return a; }
+	static inline uint64 abs(uint64 a) { return a; }
 
-    using std::min;
-    using std::max;
-    using std::abs;
-    using std::swap;
-    using std::sqrt;
-    using std::exp;
-    using std::pow;
-    using std::log;
+	using std::min;
+	using std::max;
+	using std::abs;
+	using std::swap;
+	using std::sqrt;
+	using std::exp;
+	using std::pow;
+	using std::log;
 }
 
 #include "cvstd_wrapper.hpp"
 
 namespace cv {
+	//! @addtogroup core_utils
+	//! @{
+	//////////////////////////// memory management functions ////////////////////////////
 
-//! @addtogroup core_utils
-//! @{
+	/** @brief Allocates an aligned memory buffer.
 
-//////////////////////////// memory management functions ////////////////////////////
+	The function allocates the buffer of the specified size and returns it. When the buffer size is 16
+	bytes or more, the returned buffer is aligned to 16 bytes.
+	@param bufSize Allocated buffer size.
+	 */
+	CV_EXPORTS void* fastMalloc(size_t bufSize);
 
-/** @brief Allocates an aligned memory buffer.
+	/** @brief Deallocates a memory buffer.
 
-The function allocates the buffer of the specified size and returns it. When the buffer size is 16
-bytes or more, the returned buffer is aligned to 16 bytes.
-@param bufSize Allocated buffer size.
- */
-CV_EXPORTS void* fastMalloc(size_t bufSize);
+	The function deallocates the buffer allocated with fastMalloc . If NULL pointer is passed, the
+	function does nothing. C version of the function clears the pointer *pptr* to avoid problems with
+	double memory deallocation.
+	@param ptr Pointer to the allocated buffer.
+	 */
+	CV_EXPORTS void fastFree(void* ptr);
 
-/** @brief Deallocates a memory buffer.
+	/*!
+	  The STL-compliant memory Allocator based on cv::fastMalloc() and cv::fastFree()
+	*/
+	template<typename _Tp> class Allocator
+	{
+	public:
+		typedef _Tp value_type;
+		typedef value_type* pointer;
+		typedef const value_type* const_pointer;
+		typedef value_type& reference;
+		typedef const value_type& const_reference;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+		template<typename U> class rebind { typedef Allocator<U> other; };
 
-The function deallocates the buffer allocated with fastMalloc . If NULL pointer is passed, the
-function does nothing. C version of the function clears the pointer *pptr* to avoid problems with
-double memory deallocation.
-@param ptr Pointer to the allocated buffer.
- */
-CV_EXPORTS void fastFree(void* ptr);
+		explicit Allocator() {}
+		~Allocator() {}
+		explicit Allocator(Allocator const&) {}
+		template<typename U>
+		explicit Allocator(Allocator<U> const&) {}
 
-/*!
-  The STL-compliant memory Allocator based on cv::fastMalloc() and cv::fastFree()
-*/
-template<typename _Tp> class Allocator
-{
-public:
-    typedef _Tp value_type;
-    typedef value_type* pointer;
-    typedef const value_type* const_pointer;
-    typedef value_type& reference;
-    typedef const value_type& const_reference;
-    typedef size_t size_type;
-    typedef ptrdiff_t difference_type;
-    template<typename U> class rebind { typedef Allocator<U> other; };
+		// address
+		pointer address(reference r) { return &r; }
+		const_pointer address(const_reference r) { return &r; }
 
-    explicit Allocator() {}
-    ~Allocator() {}
-    explicit Allocator(Allocator const&) {}
-    template<typename U>
-    explicit Allocator(Allocator<U> const&) {}
+		pointer allocate(size_type count, const void* = 0) { return reinterpret_cast<pointer>(fastMalloc(count * sizeof(_Tp))); }
+		void deallocate(pointer p, size_type) { fastFree(p); }
 
-    // address
-    pointer address(reference r) { return &r; }
-    const_pointer address(const_reference r) { return &r; }
+		void construct(pointer p, const _Tp& v) { new(static_cast<void*>(p)) _Tp(v); }
+		void destroy(pointer p) { p->~_Tp(); }
 
-    pointer allocate(size_type count, const void* =0) { return reinterpret_cast<pointer>(fastMalloc(count * sizeof (_Tp))); }
-    void deallocate(pointer p, size_type) { fastFree(p); }
+		size_type max_size() const { return cv::max(static_cast<_Tp>(-1) / sizeof(_Tp), 1); }
+	};
 
-    void construct(pointer p, const _Tp& v) { new(static_cast<void*>(p)) _Tp(v); }
-    void destroy(pointer p) { p->~_Tp(); }
+	//! @} core_utils
 
-    size_type max_size() const { return cv::max(static_cast<_Tp>(-1)/sizeof(_Tp), 1); }
-};
+	//! @endcond
 
-//! @} core_utils
+	//! @addtogroup core_basic
+	//! @{
+	//////////////////////////////// string class ////////////////////////////////
 
-//! @endcond
+	class CV_EXPORTS FileNode; //for string constructor from FileNode
 
-//! @addtogroup core_basic
-//! @{
-
-//////////////////////////////// string class ////////////////////////////////
-
-class CV_EXPORTS FileNode; //for string constructor from FileNode
-
-typedef std::string String;
+	typedef std::string String;
 
 #ifndef OPENCV_DISABLE_STRING_LOWER_UPPER_CONVERSIONS
 
-//! @cond IGNORED
-namespace details {
-// std::tolower is int->int
-static inline char char_tolower(char ch)
-{
-    return (char)std::tolower((int)ch);
-}
-// std::toupper is int->int
-static inline char char_toupper(char ch)
-{
-    return (char)std::toupper((int)ch);
-}
-} // namespace details
-//! @endcond
+	//! @cond IGNORED
+	namespace details {
+		// std::tolower is int->int
+		static inline char char_tolower(char ch)
+		{
+			return (char)std::tolower((int)ch);
+		}
+		// std::toupper is int->int
+		static inline char char_toupper(char ch)
+		{
+			return (char)std::toupper((int)ch);
+		}
+	} // namespace details
+	//! @endcond
 
-static inline std::string toLowerCase(const std::string& str)
-{
-    std::string result(str);
-    std::transform(result.begin(), result.end(), result.begin(), details::char_tolower);
-    return result;
-}
+	static inline std::string toLowerCase(const std::string& str)
+	{
+		std::string result(str);
+		std::transform(result.begin(), result.end(), result.begin(), details::char_tolower);
+		return result;
+	}
 
-static inline std::string toUpperCase(const std::string& str)
-{
-    std::string result(str);
-    std::transform(result.begin(), result.end(), result.begin(), details::char_toupper);
-    return result;
-}
+	static inline std::string toUpperCase(const std::string& str)
+	{
+		std::string result(str);
+		std::transform(result.begin(), result.end(), result.begin(), details::char_toupper);
+		return result;
+	}
 
 #endif // OPENCV_DISABLE_STRING_LOWER_UPPER_CONVERSIONS
 
-//! @} core_basic
+	//! @} core_basic
 } // cv
 
 #endif //OPENCV_CORE_CVSTD_HPP

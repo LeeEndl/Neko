@@ -18,12 +18,10 @@
 #define CV_CPU_BASELINE_MODE 1
 #endif
 
-
 #define __CV_CPU_DISPATCH_CHAIN_END(fn, args, mode, ...)  /* done */
 #define __CV_CPU_DISPATCH(fn, args, mode, ...) __CV_EXPAND(__CV_CPU_DISPATCH_CHAIN_ ## mode(fn, args, __VA_ARGS__))
 #define __CV_CPU_DISPATCH_EXPAND(fn, args, ...) __CV_EXPAND(__CV_CPU_DISPATCH(fn, args, __VA_ARGS__))
 #define CV_CPU_DISPATCH(fn, args, ...) __CV_CPU_DISPATCH_EXPAND(fn, args, __VA_ARGS__, END) // expand macros
-
 
 #if defined CV_ENABLE_INTRINSICS \
     && !defined CV_DISABLE_OPTIMIZATION \
@@ -192,13 +190,13 @@
 #if defined CV_CPU_COMPILE_AVX && !defined CV_CPU_BASELINE_COMPILE_AVX
 struct VZeroUpperGuard {
 #ifdef __GNUC__
-    __attribute__((always_inline))
+	__attribute__((always_inline))
 #endif
-    inline VZeroUpperGuard() { _mm256_zeroupper(); }
+		inline VZeroUpperGuard() { _mm256_zeroupper(); }
 #ifdef __GNUC__
-    __attribute__((always_inline))
+	__attribute__((always_inline))
 #endif
-    inline ~VZeroUpperGuard() { _mm256_zeroupper(); }
+		inline ~VZeroUpperGuard() { _mm256_zeroupper(); }
 };
 #define __CV_AVX_GUARD VZeroUpperGuard __vzeroupper_guard; CV_UNUSED(__vzeroupper_guard);
 #endif
@@ -210,8 +208,6 @@ struct VZeroUpperGuard {
 #endif
 
 #endif // __OPENCV_BUILD
-
-
 
 #if !defined __OPENCV_BUILD /* Compatibility code */ \
     && !defined __CUDACC__ /* do not include SSE/AVX/NEON headers for NVCC compiler */
@@ -241,8 +237,6 @@ struct VZeroUpperGuard {
 #endif
 
 #endif // !__OPENCV_BUILD && !__CUDACC (Compatibility code)
-
-
 
 #ifndef CV_MMX
 #  define CV_MMX 0
