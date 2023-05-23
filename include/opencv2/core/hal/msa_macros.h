@@ -13,20 +13,19 @@
 extern "C" {
 #endif
 
-/* Define 64 bits vector types */
-typedef signed char v8i8 __attribute__ ((vector_size(8), aligned(8)));
-typedef unsigned char v8u8 __attribute__ ((vector_size(8), aligned(8)));
-typedef short v4i16 __attribute__ ((vector_size(8), aligned(8)));
-typedef unsigned short v4u16 __attribute__ ((vector_size(8), aligned(8)));
-typedef int v2i32 __attribute__ ((vector_size(8), aligned(8)));
-typedef unsigned int v2u32 __attribute__ ((vector_size(8), aligned(8)));
-typedef long long v1i64 __attribute__ ((vector_size(8), aligned(8)));
-typedef unsigned long long v1u64 __attribute__ ((vector_size(8), aligned(8)));
-typedef float v2f32 __attribute__ ((vector_size(8), aligned(8)));
-typedef double v1f64 __attribute__ ((vector_size(8), aligned(8)));
+	/* Define 64 bits vector types */
+	typedef signed char v8i8 __attribute__((vector_size(8), aligned(8)));
+	typedef unsigned char v8u8 __attribute__((vector_size(8), aligned(8)));
+	typedef short v4i16 __attribute__((vector_size(8), aligned(8)));
+	typedef unsigned short v4u16 __attribute__((vector_size(8), aligned(8)));
+	typedef int v2i32 __attribute__((vector_size(8), aligned(8)));
+	typedef unsigned int v2u32 __attribute__((vector_size(8), aligned(8)));
+	typedef long long v1i64 __attribute__((vector_size(8), aligned(8)));
+	typedef unsigned long long v1u64 __attribute__((vector_size(8), aligned(8)));
+	typedef float v2f32 __attribute__((vector_size(8), aligned(8)));
+	typedef double v1f64 __attribute__((vector_size(8), aligned(8)));
 
-
-/* Load values from the given memory a 64-bit vector. */
+	/* Load values from the given memory a 64-bit vector. */
 #define msa_ld1_s8(__a)  (*((v8i8*)(__a)))
 #define msa_ld1_s16(__a) (*((v4i16*)(__a)))
 #define msa_ld1_s32(__a) (*((v2i32*)(__a)))
@@ -399,7 +398,7 @@ typedef double v1f64 __attribute__ ((vector_size(8), aligned(8)));
   (v2u32)__builtin_msa_copy_u_d((v2i64)__e, 0); \
 })
 
-/* pack */
+   /* pack */
 #define msa_pack_s16(__a, __b) (__builtin_msa_pckev_b((v16i8)(__b), (v16i8)(__a)))
 #define msa_pack_s32(__a, __b) (__builtin_msa_pckev_h((v8i16)(__b), (v8i16)(__a)))
 #define msa_pack_s64(__a, __b) (__builtin_msa_pckev_w((v4i32)(__b), (v4i32)(__a)))
@@ -721,7 +720,6 @@ typedef double v1f64 __attribute__ ((vector_size(8), aligned(8)));
   _c = __builtin_msa_hadd_s_d(_b, _b);          \
   (int32_t)(_c[0] + _c[1]);                     \
 })
-
 
 /* uint32_t msa_sum_u32(v4u32 __a)*/
 #define msa_sum_u32(__a)                       \
@@ -1082,57 +1080,56 @@ typedef double v1f64 __attribute__ ((vector_size(8), aligned(8)));
 #define msa_rsqrtq_f32        __builtin_msa_frsqrt_w
 #define msa_rsqrtq_f64        __builtin_msa_frsqrt_d
 
-
 /* mlaq: r = a + b * c; */
-__extension__ extern __inline v4i32
-__attribute__ ((__always_inline__, __gnu_inline__, __artificial__))
-msa_mlaq_s32(v4i32 __a, v4i32 __b, v4i32 __c)
-{
-  __asm__ volatile("maddv.w %w[__a], %w[__b], %w[__c]\n"
-               // Outputs
-               : [__a] "+f"(__a)
-               // Inputs
-               : [__b] "f"(__b), [__c] "f"(__c));
-  return __a;
-}
+	__extension__ extern __inline v4i32
+		__attribute__((__always_inline__, __gnu_inline__, __artificial__))
+		msa_mlaq_s32(v4i32 __a, v4i32 __b, v4i32 __c)
+	{
+		__asm__ volatile("maddv.w %w[__a], %w[__b], %w[__c]\n"
+			// Outputs
+			: [__a] "+f"(__a)
+			// Inputs
+			: [__b] "f"(__b), [__c] "f"(__c));
+		return __a;
+	}
 
-__extension__ extern __inline v2i64
-__attribute__ ((__always_inline__, __gnu_inline__, __artificial__))
-msa_mlaq_s64(v2i64 __a, v2i64 __b, v2i64 __c)
-{
-  __asm__ volatile("maddv.d %w[__a], %w[__b], %w[__c]\n"
-               // Outputs
-               : [__a] "+f"(__a)
-               // Inputs
-               : [__b] "f"(__b), [__c] "f"(__c));
-  return __a;
-}
+	__extension__ extern __inline v2i64
+		__attribute__((__always_inline__, __gnu_inline__, __artificial__))
+		msa_mlaq_s64(v2i64 __a, v2i64 __b, v2i64 __c)
+	{
+		__asm__ volatile("maddv.d %w[__a], %w[__b], %w[__c]\n"
+			// Outputs
+			: [__a] "+f"(__a)
+			// Inputs
+			: [__b] "f"(__b), [__c] "f"(__c));
+		return __a;
+	}
 
-__extension__ extern __inline v4f32
-__attribute__ ((__always_inline__, __gnu_inline__, __artificial__))
-msa_mlaq_f32(v4f32 __a, v4f32 __b, v4f32 __c)
-{
-  __asm__ volatile("fmadd.w %w[__a], %w[__b], %w[__c]\n"
-               // Outputs
-               : [__a] "+f"(__a)
-               // Inputs
-               : [__b] "f"(__b), [__c] "f"(__c));
-  return __a;
-}
+	__extension__ extern __inline v4f32
+		__attribute__((__always_inline__, __gnu_inline__, __artificial__))
+		msa_mlaq_f32(v4f32 __a, v4f32 __b, v4f32 __c)
+	{
+		__asm__ volatile("fmadd.w %w[__a], %w[__b], %w[__c]\n"
+			// Outputs
+			: [__a] "+f"(__a)
+			// Inputs
+			: [__b] "f"(__b), [__c] "f"(__c));
+		return __a;
+	}
 
-__extension__ extern __inline v2f64
-__attribute__ ((__always_inline__, __gnu_inline__, __artificial__))
-msa_mlaq_f64(v2f64 __a, v2f64 __b, v2f64 __c)
-{
-  __asm__ volatile("fmadd.d %w[__a], %w[__b], %w[__c]\n"
-               // Outputs
-               : [__a] "+f"(__a)
-               // Inputs
-               : [__b] "f"(__b), [__c] "f"(__c));
-  return __a;
-}
+	__extension__ extern __inline v2f64
+		__attribute__((__always_inline__, __gnu_inline__, __artificial__))
+		msa_mlaq_f64(v2f64 __a, v2f64 __b, v2f64 __c)
+	{
+		__asm__ volatile("fmadd.d %w[__a], %w[__b], %w[__c]\n"
+			// Outputs
+			: [__a] "+f"(__a)
+			// Inputs
+			: [__b] "f"(__b), [__c] "f"(__c));
+		return __a;
+	}
 
-/* cntq */
+	/* cntq */
 #define msa_cntq_s8           __builtin_msa_pcnt_b
 #define msa_cntq_s16          __builtin_msa_pcnt_h
 #define msa_cntq_s32          __builtin_msa_pcnt_w
@@ -1229,16 +1226,16 @@ msa_st2q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b) \
   msa_st1q_##suffix(ptr + nlanes, (_Tpv)__builtin_msa_ilvl_##df((_Tpvs)b, (_Tpvs)a)); \
 }
 
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint8_t, v16u8, v16i8, u8, b, 16)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int8_t, v16i8, v16i8, s8, b, 16)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint16_t, v8u16, v8i16, u16, h, 8)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int16_t, v8i16, v8i16, s16, h, 8)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint32_t, v4u32, v4i32, u32, w, 4)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int32_t, v4i32, v4i32, s32, w, 4)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(float, v4f32, v4i32, f32, w, 4)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint64_t, v2u64, v2i64, u64, d, 2)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int64_t, v2i64, v2i64, s64, d, 2)
-MSA_INTERLEAVED_IMPL_LOAD2_STORE2(double, v2f64, v2i64, f64, d, 2)
+	MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint8_t, v16u8, v16i8, u8, b, 16)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int8_t, v16i8, v16i8, s8, b, 16)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint16_t, v8u16, v8i16, u16, h, 8)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int16_t, v8i16, v8i16, s16, h, 8)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint32_t, v4u32, v4i32, u32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int32_t, v4i32, v4i32, s32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(float, v4f32, v4i32, f32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(uint64_t, v2u64, v2i64, u64, d, 2)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(int64_t, v2i64, v2i64, s64, d, 2)
+		MSA_INTERLEAVED_IMPL_LOAD2_STORE2(double, v2f64, v2i64, f64, d, 2)
 
 #ifdef _MIPSEB
 #define MSA_INTERLEAVED_IMPL_LOAD3_8(_Tp, _Tpv, _Tpvs, suffix) \
@@ -1274,8 +1271,8 @@ msa_ld3q_##suffix(const _Tp* ptr, _Tpv* a, _Tpv* b, _Tpv* c) \
 }
 #endif
 
-MSA_INTERLEAVED_IMPL_LOAD3_8(uint8_t, v16u8, v16i8, u8)
-MSA_INTERLEAVED_IMPL_LOAD3_8(int8_t, v16i8, v16i8, s8)
+		MSA_INTERLEAVED_IMPL_LOAD3_8(uint8_t, v16u8, v16i8, u8)
+		MSA_INTERLEAVED_IMPL_LOAD3_8(int8_t, v16i8, v16i8, s8)
 
 #ifdef _MIPSEB
 #define MSA_INTERLEAVED_IMPL_LOAD3_16(_Tp, _Tpv, _Tpvs, suffix) \
@@ -1311,8 +1308,8 @@ msa_ld3q_##suffix(const _Tp* ptr, _Tpv* a, _Tpv* b, _Tpv* c) \
 }
 #endif
 
-MSA_INTERLEAVED_IMPL_LOAD3_16(uint16_t, v8u16, v8i16, u16)
-MSA_INTERLEAVED_IMPL_LOAD3_16(int16_t, v8i16, v8i16, s16)
+		MSA_INTERLEAVED_IMPL_LOAD3_16(uint16_t, v8u16, v8i16, u16)
+		MSA_INTERLEAVED_IMPL_LOAD3_16(int16_t, v8i16, v8i16, s16)
 
 #define MSA_INTERLEAVED_IMPL_LOAD3_32(_Tp, _Tpv, _Tpvs, suffix) \
 __extension__ extern __inline void \
@@ -1330,9 +1327,9 @@ msa_ld3q_##suffix(const _Tp* ptr, _Tpv* a, _Tpv* b, _Tpv* c) \
   *c = (_Tpv)__builtin_msa_ilvr_w((_Tpvs)__builtin_msa_ilvl_d((v2i64)v12, (v2i64)v12), v11); \
 }
 
-MSA_INTERLEAVED_IMPL_LOAD3_32(uint32_t, v4u32, v4i32, u32)
-MSA_INTERLEAVED_IMPL_LOAD3_32(int32_t, v4i32, v4i32, s32)
-MSA_INTERLEAVED_IMPL_LOAD3_32(float, v4f32, v4i32, f32)
+		MSA_INTERLEAVED_IMPL_LOAD3_32(uint32_t, v4u32, v4i32, u32)
+		MSA_INTERLEAVED_IMPL_LOAD3_32(int32_t, v4i32, v4i32, s32)
+		MSA_INTERLEAVED_IMPL_LOAD3_32(float, v4f32, v4i32, f32)
 
 #define MSA_INTERLEAVED_IMPL_LOAD3_64(_Tp, _Tpv, suffix) \
 __extension__ extern __inline void \
@@ -1343,9 +1340,9 @@ msa_ld3q_##suffix(const _Tp* ptr, _Tpv* a, _Tpv* b, _Tpv* c) \
   *((_Tp*)a + 1) = *(ptr + 3); *((_Tp*)b + 1) = *(ptr + 4); *((_Tp*)c + 1) = *(ptr + 5); \
 }
 
-MSA_INTERLEAVED_IMPL_LOAD3_64(uint64_t, v2u64, u64)
-MSA_INTERLEAVED_IMPL_LOAD3_64(int64_t, v2i64, s64)
-MSA_INTERLEAVED_IMPL_LOAD3_64(double, v2f64, f64)
+		MSA_INTERLEAVED_IMPL_LOAD3_64(uint64_t, v2u64, u64)
+		MSA_INTERLEAVED_IMPL_LOAD3_64(int64_t, v2i64, s64)
+		MSA_INTERLEAVED_IMPL_LOAD3_64(double, v2f64, f64)
 
 #ifdef _MIPSEB
 #define MSA_INTERLEAVED_IMPL_STORE3_8(_Tp, _Tpv, _Tpvs, suffix) \
@@ -1381,8 +1378,8 @@ msa_st3q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c) \
 }
 #endif
 
-MSA_INTERLEAVED_IMPL_STORE3_8(uint8_t, v16u8, v16i8, u8)
-MSA_INTERLEAVED_IMPL_STORE3_8(int8_t, v16i8, v16i8, s8)
+		MSA_INTERLEAVED_IMPL_STORE3_8(uint8_t, v16u8, v16i8, u8)
+		MSA_INTERLEAVED_IMPL_STORE3_8(int8_t, v16i8, v16i8, s8)
 
 #ifdef _MIPSEB
 #define MSA_INTERLEAVED_IMPL_STORE3_16(_Tp, _Tpv, _Tpvs, suffix) \
@@ -1418,8 +1415,8 @@ msa_st3q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c) \
 }
 #endif
 
-MSA_INTERLEAVED_IMPL_STORE3_16(uint16_t, v8u16, v8i16, u16)
-MSA_INTERLEAVED_IMPL_STORE3_16(int16_t, v8i16, v8i16, s16)
+		MSA_INTERLEAVED_IMPL_STORE3_16(uint16_t, v8u16, v8i16, u16)
+		MSA_INTERLEAVED_IMPL_STORE3_16(int16_t, v8i16, v8i16, s16)
 
 #ifdef _MIPSEB
 #define MSA_INTERLEAVED_IMPL_STORE3_32(_Tp, _Tpv, _Tpvs, suffix) \
@@ -1455,9 +1452,9 @@ msa_st3q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c) \
 }
 #endif
 
-MSA_INTERLEAVED_IMPL_STORE3_32(uint32_t, v4u32, v4i32, u32)
-MSA_INTERLEAVED_IMPL_STORE3_32(int32_t, v4i32, v4i32, s32)
-MSA_INTERLEAVED_IMPL_STORE3_32(float, v4f32, v4i32, f32)
+		MSA_INTERLEAVED_IMPL_STORE3_32(uint32_t, v4u32, v4i32, u32)
+		MSA_INTERLEAVED_IMPL_STORE3_32(int32_t, v4i32, v4i32, s32)
+		MSA_INTERLEAVED_IMPL_STORE3_32(float, v4f32, v4i32, f32)
 
 #define MSA_INTERLEAVED_IMPL_STORE3_64(_Tp, _Tpv, suffix) \
 __extension__ extern __inline void \
@@ -1468,9 +1465,9 @@ msa_st3q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c) \
   *(ptr + 3) = a[1]; *(ptr + 4) = b[1]; *(ptr + 5) = c[1]; \
 }
 
-MSA_INTERLEAVED_IMPL_STORE3_64(uint64_t, v2u64, u64)
-MSA_INTERLEAVED_IMPL_STORE3_64(int64_t, v2i64, s64)
-MSA_INTERLEAVED_IMPL_STORE3_64(double, v2f64, f64)
+		MSA_INTERLEAVED_IMPL_STORE3_64(uint64_t, v2u64, u64)
+		MSA_INTERLEAVED_IMPL_STORE3_64(int64_t, v2i64, s64)
+		MSA_INTERLEAVED_IMPL_STORE3_64(double, v2f64, f64)
 
 #define MSA_INTERLEAVED_IMPL_LOAD4_STORE4(_Tp, _Tpv, _Tpvs, suffix, df, nlanes) \
 __extension__ extern __inline void \
@@ -1504,13 +1501,13 @@ msa_st4q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c, const _Tpv
   msa_st1q_##suffix(ptr + 3 * nlanes, (_Tpv)__builtin_msa_ilvl_##df(v3, v2)); \
 }
 
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint8_t, v16u8, v16i8, u8, b, 16)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int8_t, v16i8, v16i8, s8, b, 16)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint16_t, v8u16, v8i16, u16, h, 8)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int16_t, v8i16, v8i16, s16, h, 8)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint32_t, v4u32, v4i32, u32, w, 4)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int32_t, v4i32, v4i32, s32, w, 4)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4(float, v4f32, v4i32, f32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint8_t, v16u8, v16i8, u8, b, 16)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int8_t, v16i8, v16i8, s8, b, 16)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint16_t, v8u16, v8i16, u16, h, 8)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int16_t, v8i16, v8i16, s16, h, 8)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(uint32_t, v4u32, v4i32, u32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(int32_t, v4i32, v4i32, s32, w, 4)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4(float, v4f32, v4i32, f32, w, 4)
 
 #define MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(_Tp, _Tpv, _Tpvs, suffix) \
 __extension__ extern __inline void \
@@ -1536,19 +1533,19 @@ msa_st4q_##suffix(_Tp* ptr, const _Tpv a, const _Tpv b, const _Tpv c, const _Tpv
   msa_st1q_##suffix(ptr + 6, (_Tpv)__builtin_msa_ilvl_d((_Tpvs)d, (_Tpvs)c)); \
 }
 
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(uint64_t, v2u64, v2i64, u64)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(int64_t, v2i64, v2i64, s64)
-MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(double, v2f64, v2i64, f64)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(uint64_t, v2u64, v2i64, u64)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(int64_t, v2i64, v2i64, s64)
+		MSA_INTERLEAVED_IMPL_LOAD4_STORE4_64(double, v2f64, v2i64, f64)
 
-__extension__ extern __inline v8i16
-__attribute__ ((__always_inline__, __gnu_inline__, __artificial__))
-msa_qdmulhq_n_s16(v8i16 a, int16_t b)
-{
-  v8i16 a_lo, a_hi;
-  ILVRL_H2_SH(a, msa_dupq_n_s16(0), a_lo, a_hi);
-  return msa_packr_s32(msa_shlq_n_s32(msa_mulq_s32(msa_paddlq_s16(a_lo), msa_dupq_n_s32(b)), 1),
-                       msa_shlq_n_s32(msa_mulq_s32(msa_paddlq_s16(a_hi), msa_dupq_n_s32(b)), 1), 16);
-}
+		__extension__ extern __inline v8i16
+		__attribute__((__always_inline__, __gnu_inline__, __artificial__))
+		msa_qdmulhq_n_s16(v8i16 a, int16_t b)
+	{
+		v8i16 a_lo, a_hi;
+		ILVRL_H2_SH(a, msa_dupq_n_s16(0), a_lo, a_hi);
+		return msa_packr_s32(msa_shlq_n_s32(msa_mulq_s32(msa_paddlq_s16(a_lo), msa_dupq_n_s32(b)), 1),
+			msa_shlq_n_s32(msa_mulq_s32(msa_paddlq_s16(a_hi), msa_dupq_n_s32(b)), 1), 16);
+	}
 
 #ifdef __cplusplus
 } // extern "C"

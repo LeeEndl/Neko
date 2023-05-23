@@ -35,7 +35,6 @@ typedef cl_uint     cl_kernel_exec_info;
 #define CL_MEM_SVM_ATOMICS (1 << 11)
 #endif
 
-
 #endif // CL_VERSION_2_0
 #endif // HAVE_OPENCL_SVM
 

@@ -20,134 +20,136 @@
 #include "tbb/task_arena.h"
 #endif
 
-namespace cv { namespace parallel { namespace tbb {
-
-using namespace ::tbb;
+namespace cv {
+	namespace parallel {
+		namespace tbb {
+			using namespace ::tbb;
 
 #if TBB_INTERFACE_VERSION >= 8000
-static tbb::task_arena& getArena()
-{
-    static tbb::task_arena tbbArena(tbb::task_arena::automatic);
-    return tbbArena;
-}
+			static tbb::task_arena& getArena()
+			{
+				static tbb::task_arena tbbArena(tbb::task_arena::automatic);
+				return tbbArena;
+			}
 #else
-static tbb::task_scheduler_init& getScheduler()
-{
-    static tbb::task_scheduler_init tbbScheduler(tbb::task_scheduler_init::deferred);
-    return tbbScheduler;
-}
+			static tbb::task_scheduler_init& getScheduler()
+			{
+				static tbb::task_scheduler_init tbbScheduler(tbb::task_scheduler_init::deferred);
+				return tbbScheduler;
+			}
 #endif
 
-/** TBB parallel_for API implementation
- *
- * @sa setParallelForBackend
- * @ingroup core_parallel_backend
- */
-class ParallelForBackend : public ParallelForAPI
-{
-protected:
-    int numThreads;
-    int numThreadsMax;
-public:
-    ParallelForBackend()
-    {
-        CV_LOG_INFO(NULL, "Initializing TBB parallel backend: TBB_INTERFACE_VERSION=" << TBB_INTERFACE_VERSION);
-        numThreads = 0;
+			/** TBB parallel_for API implementation
+			 *
+			 * @sa setParallelForBackend
+			 * @ingroup core_parallel_backend
+			 */
+			class ParallelForBackend : public ParallelForAPI
+			{
+			protected:
+				int numThreads;
+				int numThreadsMax;
+			public:
+				ParallelForBackend()
+				{
+					CV_LOG_INFO(NULL, "Initializing TBB parallel backend: TBB_INTERFACE_VERSION=" << TBB_INTERFACE_VERSION);
+					numThreads = 0;
 #if TBB_INTERFACE_VERSION >= 8000
-        (void)getArena();
+					(void)getArena();
 #else
-        (void)getScheduler();
+					(void)getScheduler();
 #endif
-    }
+				}
 
-    virtual ~ParallelForBackend() {}
+				virtual ~ParallelForBackend() {}
 
-    class CallbackProxy
-    {
-        const FN_parallel_for_body_cb_t& callback;
-        void* const callback_data;
-        const int tasks;
-    public:
-        inline CallbackProxy(int tasks_, FN_parallel_for_body_cb_t& callback_, void* callback_data_)
-            : callback(callback_), callback_data(callback_data_), tasks(tasks_)
-        {
-            // nothing
-        }
+				class CallbackProxy
+				{
+					const FN_parallel_for_body_cb_t& callback;
+					void* const callback_data;
+					const int tasks;
+				public:
+					inline CallbackProxy(int tasks_, FN_parallel_for_body_cb_t& callback_, void* callback_data_)
+						: callback(callback_), callback_data(callback_data_), tasks(tasks_)
+					{
+						// nothing
+					}
 
-        void operator()(const tbb::blocked_range<int>& range) const
-        {
-            this->callback(range.begin(), range.end(), callback_data);
-        }
+					void operator()(const tbb::blocked_range<int>& range) const
+					{
+						this->callback(range.begin(), range.end(), callback_data);
+					}
 
-        void operator()() const
-        {
-            tbb::parallel_for(tbb::blocked_range<int>(0, tasks), *this);
-        }
-    };
+					void operator()() const
+					{
+						tbb::parallel_for(tbb::blocked_range<int>(0, tasks), *this);
+					}
+				};
 
-    virtual void parallel_for(int tasks, FN_parallel_for_body_cb_t body_callback, void* callback_data) CV_OVERRIDE
-    {
-        CallbackProxy task(tasks, body_callback, callback_data);
+				virtual void parallel_for(int tasks, FN_parallel_for_body_cb_t body_callback, void* callback_data) CV_OVERRIDE
+				{
+					CallbackProxy task(tasks, body_callback, callback_data);
 #if TBB_INTERFACE_VERSION >= 8000
-        getArena().execute(task);
+					getArena().execute(task);
 #else
-        task();
+					task();
 #endif
-    }
+				}
 
-    virtual int getThreadNum() const CV_OVERRIDE
-    {
+				virtual int getThreadNum() const CV_OVERRIDE
+				{
 #if TBB_INTERFACE_VERSION >= 9100
-        return tbb::this_task_arena::current_thread_index();
+					return tbb::this_task_arena::current_thread_index();
 #elif TBB_INTERFACE_VERSION >= 8000
-        return tbb::task_arena::current_thread_index();
+					return tbb::task_arena::current_thread_index();
 #else
-        return 0;
+					return 0;
 #endif
-    }
+				}
 
-    virtual int getNumThreads() const CV_OVERRIDE
-    {
+				virtual int getNumThreads() const CV_OVERRIDE
+				{
 #if TBB_INTERFACE_VERSION >= 9100
-    return getArena().max_concurrency();
+					return getArena().max_concurrency();
 #elif TBB_INTERFACE_VERSION >= 8000
-    return numThreads > 0
-        ? numThreads
-        : tbb::task_scheduler_init::default_num_threads();
+					return numThreads > 0
+						? numThreads
+						: tbb::task_scheduler_init::default_num_threads();
 #else
-    return getScheduler().is_active()
-           ? numThreads
-           : tbb::task_scheduler_init::default_num_threads();
+					return getScheduler().is_active()
+						? numThreads
+						: tbb::task_scheduler_init::default_num_threads();
 #endif
-    }
+				}
 
-    virtual int setNumThreads(int nThreads) CV_OVERRIDE
-    {
-        int oldNumThreads = numThreads;
-        numThreads = nThreads;
+				virtual int setNumThreads(int nThreads) CV_OVERRIDE
+				{
+					int oldNumThreads = numThreads;
+					numThreads = nThreads;
 
 #if TBB_INTERFACE_VERSION >= 8000
-        auto& tbbArena = getArena();
-        if (tbbArena.is_active())
-            tbbArena.terminate();
-        if (numThreads > 0)
-            tbbArena.initialize(numThreads);
+					auto& tbbArena = getArena();
+					if (tbbArena.is_active())
+						tbbArena.terminate();
+					if (numThreads > 0)
+						tbbArena.initialize(numThreads);
 #else
-        auto& tbbScheduler = getScheduler();
-        if (tbbScheduler.is_active())
-            tbbScheduler.terminate();
-        if (numThreads > 0)
-            tbbScheduler.initialize(numThreads);
+					auto& tbbScheduler = getScheduler();
+					if (tbbScheduler.is_active())
+						tbbScheduler.terminate();
+					if (numThreads > 0)
+						tbbScheduler.initialize(numThreads);
 #endif
-        return oldNumThreads;
-    }
+					return oldNumThreads;
+				}
 
-    const char* getName() const CV_OVERRIDE
-    {
-        return "tbb";
-    }
-};
-
-}}}  // namespace
+				const char* getName() const CV_OVERRIDE
+				{
+					return "tbb";
+				}
+			};
+		}
+	}
+}  // namespace
 
 #endif  // OPENCV_CORE_PARALLEL_FOR_TBB_HPP

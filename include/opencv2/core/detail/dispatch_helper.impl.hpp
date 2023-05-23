@@ -8,41 +8,40 @@
 //! @cond IGNORED
 
 namespace cv {
-namespace detail {
-
-template<template<typename> class Functor, typename... Args>
-static inline void depthDispatch(const int depth, Args&&... args)
-{
-    switch (depth)
-    {
-        case CV_8U:
-            Functor<uint8_t>{}(std::forward<Args>(args)...);
-            break;
-        case CV_8S:
-            Functor<int8_t>{}(std::forward<Args>(args)...);
-            break;
-        case CV_16U:
-            Functor<uint16_t>{}(std::forward<Args>(args)...);
-            break;
-        case CV_16S:
-            Functor<int16_t>{}(std::forward<Args>(args)...);
-            break;
-        case CV_32S:
-            Functor<int32_t>{}(std::forward<Args>(args)...);
-            break;
-        case CV_32F:
-            Functor<float>{}(std::forward<Args>(args)...);
-            break;
-        case CV_64F:
-            Functor<double>{}(std::forward<Args>(args)...);
-            break;
-        case CV_16F:
-        default:
-            CV_Error(cv::Error::BadDepth, "Unsupported matrix type.");
-    };
+	namespace detail {
+		template<template<typename> class Functor, typename... Args>
+		static inline void depthDispatch(const int depth, Args&&... args)
+		{
+			switch (depth)
+			{
+			case CV_8U:
+				Functor<uint8_t>{}(std::forward<Args>(args)...);
+				break;
+			case CV_8S:
+				Functor<int8_t>{}(std::forward<Args>(args)...);
+				break;
+			case CV_16U:
+				Functor<uint16_t>{}(std::forward<Args>(args)...);
+				break;
+			case CV_16S:
+				Functor<int16_t>{}(std::forward<Args>(args)...);
+				break;
+			case CV_32S:
+				Functor<int32_t>{}(std::forward<Args>(args)...);
+				break;
+			case CV_32F:
+				Functor<float>{}(std::forward<Args>(args)...);
+				break;
+			case CV_64F:
+				Functor<double>{}(std::forward<Args>(args)...);
+				break;
+			case CV_16F:
+			default:
+				CV_Error(cv::Error::BadDepth, "Unsupported matrix type.");
+			};
+		}
+	}
 }
-
-}}
 
 //! @endcond
 

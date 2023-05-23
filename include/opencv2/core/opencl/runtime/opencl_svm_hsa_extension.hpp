@@ -34,9 +34,9 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  ******************************************************************************/
 
-/*******************************************
- * Shared Virtual Memory (SVM) extension
- *******************************************/
+ /*******************************************
+  * Shared Virtual Memory (SVM) extension
+  *******************************************/
 typedef cl_bitfield                      cl_device_svm_capabilities_amd;
 typedef cl_bitfield                      cl_svm_mem_flags_amd;
 typedef cl_uint                          cl_kernel_exec_info_amd;
@@ -70,94 +70,94 @@ typedef cl_uint                          cl_kernel_exec_info_amd;
 #define CL_COMMAND_SVM_UNMAP_AMD                          0x120D
 
 typedef CL_API_ENTRY void*
-(CL_API_CALL * clSVMAllocAMD_fn)(
-    cl_context            /* context */,
-    cl_svm_mem_flags_amd  /* flags */,
-    size_t                /* size */,
-    unsigned int          /* alignment */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clSVMAllocAMD_fn)(
+	cl_context            /* context */,
+	cl_svm_mem_flags_amd  /* flags */,
+	size_t                /* size */,
+	unsigned int          /* alignment */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY void
-(CL_API_CALL * clSVMFreeAMD_fn)(
-    cl_context  /* context */,
-    void*       /* svm_pointer */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clSVMFreeAMD_fn)(
+	cl_context  /* context */,
+	void*       /* svm_pointer */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clEnqueueSVMFreeAMD_fn)(
-    cl_command_queue /* command_queue */,
-    cl_uint          /* num_svm_pointers */,
-    void**           /* svm_pointers */,
-    void (CL_CALLBACK *)( /*pfn_free_func*/
-        cl_command_queue /* queue */,
-        cl_uint          /* num_svm_pointers */,
-        void**           /* svm_pointers */,
-        void*            /* user_data */),
-    void*             /* user_data */,
-    cl_uint           /* num_events_in_wait_list */,
-    const cl_event*   /* event_wait_list */,
-    cl_event*         /* event */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clEnqueueSVMFreeAMD_fn)(
+	cl_command_queue /* command_queue */,
+	cl_uint          /* num_svm_pointers */,
+	void**           /* svm_pointers */,
+	void (CL_CALLBACK*)( /*pfn_free_func*/
+		cl_command_queue /* queue */,
+		cl_uint          /* num_svm_pointers */,
+		void**           /* svm_pointers */,
+		void*            /* user_data */),
+	void*             /* user_data */,
+	cl_uint           /* num_events_in_wait_list */,
+	const cl_event*   /* event_wait_list */,
+	cl_event*         /* event */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clEnqueueSVMMemcpyAMD_fn)(
-    cl_command_queue /* command_queue */,
-    cl_bool          /* blocking_copy */,
-    void*            /* dst_ptr */,
-    const void*      /* src_ptr */,
-    size_t           /* size */,
-    cl_uint          /* num_events_in_wait_list */,
-    const cl_event*  /* event_wait_list */,
-    cl_event*        /* event */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clEnqueueSVMMemcpyAMD_fn)(
+	cl_command_queue /* command_queue */,
+	cl_bool          /* blocking_copy */,
+	void*            /* dst_ptr */,
+	const void*      /* src_ptr */,
+	size_t           /* size */,
+	cl_uint          /* num_events_in_wait_list */,
+	const cl_event*  /* event_wait_list */,
+	cl_event*        /* event */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clEnqueueSVMMemFillAMD_fn)(
-    cl_command_queue /* command_queue */,
-    void*            /* svm_ptr */,
-    const void*      /* pattern */,
-    size_t           /* pattern_size */,
-    size_t           /* size */,
-    cl_uint          /* num_events_in_wait_list */,
-    const cl_event*  /* event_wait_list */,
-    cl_event*        /* event */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clEnqueueSVMMemFillAMD_fn)(
+	cl_command_queue /* command_queue */,
+	void*            /* svm_ptr */,
+	const void*      /* pattern */,
+	size_t           /* pattern_size */,
+	size_t           /* size */,
+	cl_uint          /* num_events_in_wait_list */,
+	const cl_event*  /* event_wait_list */,
+	cl_event*        /* event */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clEnqueueSVMMapAMD_fn)(
-    cl_command_queue /* command_queue */,
-    cl_bool          /* blocking_map */,
-    cl_map_flags     /* map_flags */,
-    void*            /* svm_ptr */,
-    size_t           /* size */,
-    cl_uint          /* num_events_in_wait_list */,
-    const cl_event*  /* event_wait_list */,
-    cl_event*        /* event */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clEnqueueSVMMapAMD_fn)(
+	cl_command_queue /* command_queue */,
+	cl_bool          /* blocking_map */,
+	cl_map_flags     /* map_flags */,
+	void*            /* svm_ptr */,
+	size_t           /* size */,
+	cl_uint          /* num_events_in_wait_list */,
+	const cl_event*  /* event_wait_list */,
+	cl_event*        /* event */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clEnqueueSVMUnmapAMD_fn)(
-    cl_command_queue /* command_queue */,
-    void*            /* svm_ptr */,
-    cl_uint          /* num_events_in_wait_list */,
-    const cl_event*  /* event_wait_list */,
-    cl_event*        /* event */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clEnqueueSVMUnmapAMD_fn)(
+	cl_command_queue /* command_queue */,
+	void*            /* svm_ptr */,
+	cl_uint          /* num_events_in_wait_list */,
+	const cl_event*  /* event_wait_list */,
+	cl_event*        /* event */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clSetKernelArgSVMPointerAMD_fn)(
-    cl_kernel     /* kernel */,
-    cl_uint       /* arg_index */,
-    const void *  /* arg_value */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clSetKernelArgSVMPointerAMD_fn)(
+	cl_kernel     /* kernel */,
+	cl_uint       /* arg_index */,
+	const void*  /* arg_value */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 typedef CL_API_ENTRY cl_int
-(CL_API_CALL * clSetKernelExecInfoAMD_fn)(
-     cl_kernel                /* kernel */,
-     cl_kernel_exec_info_amd  /* param_name */,
-     size_t                   /* param_value_size */,
-     const void *             /* param_value */
-) CL_EXT_SUFFIX__VERSION_1_2;
+(CL_API_CALL* clSetKernelExecInfoAMD_fn)(
+	cl_kernel                /* kernel */,
+	cl_kernel_exec_info_amd  /* param_name */,
+	size_t                   /* param_value_size */,
+	const void*             /* param_value */
+	) CL_EXT_SUFFIX__VERSION_1_2;
 
 #endif
 

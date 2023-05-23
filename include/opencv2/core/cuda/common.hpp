@@ -52,79 +52,86 @@
  * @deprecated Use @ref cudev instead.
  */
 
-//! @cond IGNORED
+ //! @cond IGNORED
 
 #ifndef CV_PI_F
-    #ifndef CV_PI
-        #define CV_PI_F 3.14159265f
-    #else
-        #define CV_PI_F ((float)CV_PI)
-    #endif
+#ifndef CV_PI
+#define CV_PI_F 3.14159265f
+#else
+#define CV_PI_F ((float)CV_PI)
+#endif
 #endif
 
-namespace cv { namespace cuda {
-    static inline void checkCudaError(cudaError_t err, const char* file, const int line, const char* func)
-    {
-        if (cudaSuccess != err) {
-            cudaGetLastError(); // reset the last stored error to cudaSuccess
-            cv::error(cv::Error::GpuApiCallError, cudaGetErrorString(err), func, file, line);
-        }
-    }
-}}
+namespace cv {
+	namespace cuda {
+		static inline void checkCudaError(cudaError_t err, const char* file, const int line, const char* func)
+		{
+			if (cudaSuccess != err) {
+				cudaGetLastError(); // reset the last stored error to cudaSuccess
+				cv::error(cv::Error::GpuApiCallError, cudaGetErrorString(err), func, file, line);
+			}
+		}
+	}
+}
 
 #ifndef cudaSafeCall
-    #define cudaSafeCall(expr)  cv::cuda::checkCudaError(expr, __FILE__, __LINE__, CV_Func)
+#define cudaSafeCall(expr)  cv::cuda::checkCudaError(expr, __FILE__, __LINE__, CV_Func)
 #endif
 
-namespace cv { namespace cuda
-{
-    template <typename T> static inline bool isAligned(const T* ptr, size_t size)
-    {
-        return reinterpret_cast<size_t>(ptr) % size == 0;
-    }
+namespace cv {
+	namespace cuda
+	{
+		template <typename T> static inline bool isAligned(const T* ptr, size_t size)
+		{
+			return reinterpret_cast<size_t>(ptr) % size == 0;
+		}
 
-    static inline bool isAligned(size_t step, size_t size)
-    {
-        return step % size == 0;
-    }
-}}
+		static inline bool isAligned(size_t step, size_t size)
+		{
+			return step % size == 0;
+		}
+	}
+}
 
-namespace cv { namespace cuda
-{
-    namespace device
-    {
-        __host__ __device__ __forceinline__ int divUp(int total, int grain)
-        {
-            return (total + grain - 1) / grain;
-        }
+namespace cv {
+	namespace cuda
+	{
+		namespace device
+		{
+			__host__ __device__ __forceinline__ int divUp(int total, int grain)
+			{
+				return (total + grain - 1) / grain;
+			}
 
 #if (CUDART_VERSION >= 12000)
-        template<class T> inline void createTextureObjectPitch2D(cudaTextureObject_t* tex, PtrStepSz<T>& img, const cudaTextureDesc& texDesc) {
-            CV_Error(cv::Error::GpuNotSupported, "Function removed in CUDA SDK 12"); }
+			template<class T> inline void createTextureObjectPitch2D(cudaTextureObject_t* tex, PtrStepSz<T>& img, const cudaTextureDesc& texDesc) {
+				CV_Error(cv::Error::GpuNotSupported, "Function removed in CUDA SDK 12");
+			}
 #else
-        //TODO: remove from OpenCV 5.x
-        template<class T> inline void bindTexture(const textureReference* tex, const PtrStepSz<T>& img)
-        {
-            cudaChannelFormatDesc desc = cudaCreateChannelDesc<T>();
-            cudaSafeCall( cudaBindTexture2D(0, tex, img.ptr(), &desc, img.cols, img.rows, img.step) );
-        }
+			//TODO: remove from OpenCV 5.x
+			template<class T> inline void bindTexture(const textureReference* tex, const PtrStepSz<T>& img)
+			{
+				cudaChannelFormatDesc desc = cudaCreateChannelDesc<T>();
+				cudaSafeCall(cudaBindTexture2D(0, tex, img.ptr(), &desc, img.cols, img.rows, img.step));
+			}
 
-        template<class T> inline void createTextureObjectPitch2D(cudaTextureObject_t* tex, PtrStepSz<T>& img, const cudaTextureDesc& texDesc)
-        {
-            cudaResourceDesc resDesc;
-            memset(&resDesc, 0, sizeof(resDesc));
-            resDesc.resType = cudaResourceTypePitch2D;
-            resDesc.res.pitch2D.devPtr = static_cast<void*>(img.ptr());
-            resDesc.res.pitch2D.height = img.rows;
-            resDesc.res.pitch2D.width = img.cols;
-            resDesc.res.pitch2D.pitchInBytes = img.step;
-            resDesc.res.pitch2D.desc = cudaCreateChannelDesc<T>();
+			template<class T> inline void createTextureObjectPitch2D(cudaTextureObject_t* tex, PtrStepSz<T>& img, const cudaTextureDesc& texDesc)
+			{
+				cudaResourceDesc resDesc;
+				memset(&resDesc, 0, sizeof(resDesc));
+				resDesc.resType = cudaResourceTypePitch2D;
+				resDesc.res.pitch2D.devPtr = static_cast<void*>(img.ptr());
+				resDesc.res.pitch2D.height = img.rows;
+				resDesc.res.pitch2D.width = img.cols;
+				resDesc.res.pitch2D.pitchInBytes = img.step;
+				resDesc.res.pitch2D.desc = cudaCreateChannelDesc<T>();
 
-            cudaSafeCall( cudaCreateTextureObject(tex, &resDesc, &texDesc, NULL) );
-        }
+				cudaSafeCall(cudaCreateTextureObject(tex, &resDesc, &texDesc, NULL));
+			}
 #endif
-    }
-}}
+		}
+	}
+}
 
 //! @endcond
 

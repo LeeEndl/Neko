@@ -5,7 +5,6 @@
 // This header is not standalone. Don't include directly, use "intrin.hpp" instead.
 #ifdef OPENCV_HAL_INTRIN_HPP  // defined in intrin.hpp
 
-
 #if CV_SIMD128 || CV_SIMD128_CPP
 
 template<typename _T> struct Type2Vec128_Traits;
@@ -46,7 +45,6 @@ template<> inline Type2Vec128_Traits<double>::vec_type v_setall<double>(const do
 
 #endif  // SIMD128
 
-
 #if CV_SIMD256
 
 template<typename _T> struct Type2Vec256_Traits;
@@ -86,7 +84,6 @@ template<> inline Type2Vec256_Traits<double>::vec_type v256_setall<double>(const
 #endif
 
 #endif  // SIMD256
-
 
 #if CV_SIMD512
 
@@ -165,7 +162,6 @@ template<> inline Type2Vec_Traits<double>::vec_type v_setall<double>(const doubl
 #endif
 #endif
 
-
 #if CV_SIMD_SCALABLE
 template<typename _T> static inline
 typename Type2Vec_Traits<_T>::vec_type vx_setall(const _T& a) { return v_setall(a); }
@@ -181,6 +177,5 @@ typename Type2Vec512_Traits<_T>::vec_type vx_setall(const _T& a) { return v512_s
 #else
 #error "Build configuration error, unsupported CV_SIMD_WIDTH"
 #endif
-
 
 #endif  // OPENCV_HAL_INTRIN_HPP

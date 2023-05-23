@@ -13,60 +13,62 @@
 
 #include <omp.h>
 
-namespace cv { namespace parallel { namespace openmp {
+namespace cv {
+	namespace parallel {
+		namespace openmp {
+			/** OpenMP parallel_for API implementation
+			 *
+			 * @sa setParallelForBackend
+			 * @ingroup core_parallel_backend
+			 */
+			class ParallelForBackend : public ParallelForAPI
+			{
+			protected:
+				int numThreads;
+				int numThreadsMax;
+			public:
+				ParallelForBackend()
+				{
+					numThreads = 0;
+					numThreadsMax = omp_get_max_threads();
+				}
 
-/** OpenMP parallel_for API implementation
- *
- * @sa setParallelForBackend
- * @ingroup core_parallel_backend
- */
-class ParallelForBackend : public ParallelForAPI
-{
-protected:
-    int numThreads;
-    int numThreadsMax;
-public:
-    ParallelForBackend()
-    {
-        numThreads = 0;
-        numThreadsMax = omp_get_max_threads();
-    }
+				virtual ~ParallelForBackend() {}
 
-    virtual ~ParallelForBackend() {}
-
-    virtual void parallel_for(int tasks, FN_parallel_for_body_cb_t body_callback, void* callback_data) CV_OVERRIDE
-    {
+				virtual void parallel_for(int tasks, FN_parallel_for_body_cb_t body_callback, void* callback_data) CV_OVERRIDE
+				{
 #pragma omp parallel for schedule(dynamic) num_threads(numThreads > 0 ? numThreads : numThreadsMax)
-        for (int i = 0; i < tasks; ++i)
-            body_callback(i, i + 1, callback_data);
-    }
+					for (int i = 0; i < tasks; ++i)
+						body_callback(i, i + 1, callback_data);
+				}
 
-    virtual int getThreadNum() const CV_OVERRIDE
-    {
-        return omp_get_thread_num();
-    }
+				virtual int getThreadNum() const CV_OVERRIDE
+				{
+					return omp_get_thread_num();
+				}
 
-    virtual int getNumThreads() const CV_OVERRIDE
-    {
-        return numThreads > 0
-               ? numThreads
-               : numThreadsMax;
-    }
+				virtual int getNumThreads() const CV_OVERRIDE
+				{
+					return numThreads > 0
+						? numThreads
+						: numThreadsMax;
+				}
 
-    virtual int setNumThreads(int nThreads) CV_OVERRIDE
-    {
-        int oldNumThreads = numThreads;
-        numThreads = nThreads;
-        // nothing needed as numThreads is used in #pragma omp parallel for directly
-        return oldNumThreads;
-    }
+				virtual int setNumThreads(int nThreads) CV_OVERRIDE
+				{
+					int oldNumThreads = numThreads;
+					numThreads = nThreads;
+					// nothing needed as numThreads is used in #pragma omp parallel for directly
+					return oldNumThreads;
+				}
 
-    const char* getName() const CV_OVERRIDE
-    {
-        return "openmp";
-    }
-};
-
-}}}  // namespace
+				const char* getName() const CV_OVERRIDE
+				{
+					return "openmp";
+				}
+			};
+		}
+	}
+}  // namespace
 
 #endif  // OPENCV_CORE_PARALLEL_FOR_OPENMP_HPP
