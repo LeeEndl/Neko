@@ -15,56 +15,55 @@
 #include <string>
 
 namespace cv {
-namespace gapi {
-namespace ie {
+	namespace gapi {
+		namespace ie {
+			// NB: Used by python wrapper
+			// This class can be marked as SIMPLE, because it's implemented as pimpl
+			class GAPI_EXPORTS_W_SIMPLE PyParams {
+			public:
+				GAPI_WRAP
+					PyParams() = default;
 
-// NB: Used by python wrapper
-// This class can be marked as SIMPLE, because it's implemented as pimpl
-class GAPI_EXPORTS_W_SIMPLE PyParams {
-public:
-    GAPI_WRAP
-    PyParams() = default;
+				GAPI_WRAP
+					PyParams(const std::string& tag,
+						const std::string& model,
+						const std::string& weights,
+						const std::string& device);
 
-    GAPI_WRAP
-    PyParams(const std::string &tag,
-             const std::string &model,
-             const std::string &weights,
-             const std::string &device);
+				GAPI_WRAP
+					PyParams(const std::string& tag,
+						const std::string& model,
+						const std::string& device);
 
-    GAPI_WRAP
-    PyParams(const std::string &tag,
-             const std::string &model,
-             const std::string &device);
+				GAPI_WRAP
+					PyParams& constInput(const std::string& layer_name,
+						const cv::Mat& data,
+						TraitAs hint = TraitAs::TENSOR);
 
-    GAPI_WRAP
-    PyParams& constInput(const std::string &layer_name,
-                         const cv::Mat &data,
-                         TraitAs hint = TraitAs::TENSOR);
+				GAPI_WRAP
+					PyParams& cfgNumRequests(size_t nireq);
 
-    GAPI_WRAP
-    PyParams& cfgNumRequests(size_t nireq);
+				GAPI_WRAP
+					PyParams& cfgBatchSize(const size_t size);
 
-    GAPI_WRAP
-    PyParams& cfgBatchSize(const size_t size);
+				GBackend      backend() const;
+				std::string   tag()     const;
+				cv::util::any params()  const;
 
-    GBackend      backend() const;
-    std::string   tag()     const;
-    cv::util::any params()  const;
+			private:
+				std::shared_ptr<Params<cv::gapi::Generic>> m_priv;
+			};
 
-private:
-    std::shared_ptr<Params<cv::gapi::Generic>> m_priv;
-};
+			GAPI_EXPORTS_W PyParams params(const std::string& tag,
+				const std::string& model,
+				const std::string& weights,
+				const std::string& device);
 
-GAPI_EXPORTS_W PyParams params(const std::string &tag,
-                               const std::string &model,
-                               const std::string &weights,
-                               const std::string &device);
-
-GAPI_EXPORTS_W PyParams params(const std::string &tag,
-                               const std::string &model,
-                               const std::string &device);
-} // namespace ie
-} // namespace gapi
+			GAPI_EXPORTS_W PyParams params(const std::string& tag,
+				const std::string& model,
+				const std::string& device);
+		} // namespace ie
+	} // namespace gapi
 } // namespace cv
 
 #endif // OPENCV_GAPI_INFER_BINDINGS_IE_HPP

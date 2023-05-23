@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_CV_DEFS_HPP
 #define OPENCV_GAPI_CV_DEFS_HPP
 
@@ -131,34 +130,34 @@ typedef unsigned short ushort;
 // base.h:
 namespace cv
 {
-enum BorderTypes {
-    BORDER_CONSTANT    = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
-    BORDER_REPLICATE   = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
-    BORDER_REFLECT     = 2, //!< `fedcba|abcdefgh|hgfedcb`
-    BORDER_WRAP        = 3, //!< `cdefgh|abcdefgh|abcdefg`
-    BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
-    BORDER_TRANSPARENT = 5, //!< `uvwxyz|abcdefgh|ijklmno`
+	enum BorderTypes {
+		BORDER_CONSTANT = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
+		BORDER_REPLICATE = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
+		BORDER_REFLECT = 2, //!< `fedcba|abcdefgh|hgfedcb`
+		BORDER_WRAP = 3, //!< `cdefgh|abcdefgh|abcdefg`
+		BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
+		BORDER_TRANSPARENT = 5, //!< `uvwxyz|abcdefgh|ijklmno`
 
-    BORDER_REFLECT101  = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    BORDER_DEFAULT     = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    BORDER_ISOLATED    = 16 //!< do not look outside of ROI
-};
-// imgproc.hpp:
-enum InterpolationFlags{
-    INTER_NEAREST        = 0,
-    INTER_LINEAR         = 1,
-    INTER_CUBIC          = 2,
-    INTER_AREA           = 3,
-    INTER_LANCZOS4       = 4,
-    INTER_LINEAR_EXACT   = 5,
-    INTER_MAX            = 7,
-};
+		BORDER_REFLECT101 = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
+		BORDER_DEFAULT = BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
+		BORDER_ISOLATED = 16 //!< do not look outside of ROI
+	};
+	// imgproc.hpp:
+	enum InterpolationFlags {
+		INTER_NEAREST = 0,
+		INTER_LINEAR = 1,
+		INTER_CUBIC = 2,
+		INTER_AREA = 3,
+		INTER_LANCZOS4 = 4,
+		INTER_LINEAR_EXACT = 5,
+		INTER_MAX = 7,
+	};
 } // namespace cv
 
-static inline int cvFloor( double value )
+static inline int cvFloor(double value)
 {
-    int i = (int)value;
-    return i - (i > value);
+	int i = (int)value;
+	return i - (i > value);
 }
 
 #endif //  defined(GAPI_STANDALONE)

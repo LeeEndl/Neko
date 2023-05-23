@@ -10,16 +10,13 @@
 #include <opencv2/gapi/gkernel.hpp> // GKernelPackage
 
 namespace cv {
-namespace gapi {
-namespace video {
-namespace cpu {
-
-GAPI_EXPORTS GKernelPackage kernels();
-
-} // namespace cpu
-} // namespace video
-} // namespace gapi
+	namespace gapi {
+		namespace video {
+			namespace cpu {
+				GAPI_EXPORTS GKernelPackage kernels();
+			} // namespace cpu
+		} // namespace video
+	} // namespace gapi
 } // namespace cv
-
 
 #endif // OPENCV_GAPI_CPU_VIDEO_API_HPP

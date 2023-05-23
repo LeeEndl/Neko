@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_GPU_IMGPROC_API_HPP
 #define OPENCV_GAPI_GPU_IMGPROC_API_HPP
 /** @file
@@ -13,16 +12,14 @@
 
 #include <opencv2/gapi/ocl/imgproc.hpp>
 
-
 namespace cv {
-namespace gapi {
-namespace imgproc {
-namespace gpu {
-    using namespace ocl;
-} // namespace gpu
-} // namespace imgproc
-} // namespace gapi
+	namespace gapi {
+		namespace imgproc {
+			namespace gpu {
+				using namespace ocl;
+			} // namespace gpu
+		} // namespace imgproc
+	} // namespace gapi
 } // namespace cv
-
 
 #endif // OPENCV_GAPI_GPU_IMGPROC_API_HPP

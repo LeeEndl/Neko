@@ -4,17 +4,20 @@
 //
 // Copyright (C) 2019 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_PLAIDML_CORE_HPP
 #define OPENCV_GAPI_PLAIDML_CORE_HPP
 
 #include <opencv2/gapi/gkernel.hpp>     // GKernelPackage
 #include <opencv2/gapi/own/exports.hpp> // GAPI_EXPORTS
 
-namespace cv { namespace gapi { namespace core { namespace plaidml {
-
-GAPI_EXPORTS cv::GKernelPackage kernels();
-
-}}}}
+namespace cv {
+	namespace gapi {
+		namespace core {
+			namespace plaidml {
+				GAPI_EXPORTS cv::GKernelPackage kernels();
+			}
+		}
+	}
+}
 
 #endif // OPENCV_GAPI_PLAIDML_CORE_HPP

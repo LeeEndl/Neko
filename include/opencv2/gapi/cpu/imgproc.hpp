@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_CPU_IMGPROC_API_HPP
 #define OPENCV_GAPI_CPU_IMGPROC_API_HPP
 
@@ -12,16 +11,13 @@
 #include <opencv2/gapi/gkernel.hpp> // GKernelPackage
 
 namespace cv {
-namespace gapi {
-namespace imgproc {
-namespace cpu {
-
-GAPI_EXPORTS GKernelPackage kernels();
-
-} // namespace cpu
-} // namespace imgproc
-} // namespace gapi
+	namespace gapi {
+		namespace imgproc {
+			namespace cpu {
+				GAPI_EXPORTS GKernelPackage kernels();
+			} // namespace cpu
+		} // namespace imgproc
+	} // namespace gapi
 } // namespace cv
-
 
 #endif // OPENCV_GAPI_CPU_IMGPROC_API_HPP

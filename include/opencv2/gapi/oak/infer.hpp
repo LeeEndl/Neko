@@ -19,48 +19,46 @@
 #include <opencv2/gapi/gkernel.hpp> // GKernelPackage
 
 namespace cv {
-namespace gapi {
-namespace oak {
+	namespace gapi {
+		namespace oak {
+			namespace detail {
+				/**
+				* @brief This structure contains description of inference parameters
+				* which is specific to OAK models.
+				*/
+				struct ParamDesc {
+					std::string blob_file;
+				};
+			} // namespace detail
 
-namespace detail {
-/**
-* @brief This structure contains description of inference parameters
-* which is specific to OAK models.
-*/
-struct ParamDesc {
-    std::string blob_file;
-};
-} // namespace detail
+			/**
+			 * Contains description of inference parameters and kit of functions that
+			 * fill this parameters.
+			 */
+			template<typename Net> class Params {
+			public:
+				/** @brief Class constructor.
 
-/**
- * Contains description of inference parameters and kit of functions that
- * fill this parameters.
- */
-template<typename Net> class Params {
-public:
-    /** @brief Class constructor.
+				Constructs Params based on model information and sets default values for other
+				inference description parameters.
 
-    Constructs Params based on model information and sets default values for other
-    inference description parameters.
+				@param model Path to model (.blob file)
+				*/
+				explicit Params(const std::string& model) {
+					desc.blob_file = model;
+				};
 
-    @param model Path to model (.blob file)
-    */
-    explicit Params(const std::string &model) {
-        desc.blob_file = model;
-    };
+				// BEGIN(G-API's network parametrization API)
+				GBackend      backend() const { return cv::gapi::oak::backend(); }
+				std::string   tag()     const { return Net::tag(); }
+				cv::util::any params()  const { return { desc }; }
+				// END(G-API's network parametrization API)
 
-    // BEGIN(G-API's network parametrization API)
-    GBackend      backend() const { return cv::gapi::oak::backend(); }
-    std::string   tag()     const { return Net::tag(); }
-    cv::util::any params()  const { return { desc }; }
-    // END(G-API's network parametrization API)
-
-protected:
-    detail::ParamDesc desc;
-};
-
-} // namespace oak
-} // namespace gapi
+			protected:
+				detail::ParamDesc desc;
+			};
+		} // namespace oak
+	} // namespace gapi
 } // namespace cv
 
 #endif // OPENCV_GAPI_OAK_INFER_HPP

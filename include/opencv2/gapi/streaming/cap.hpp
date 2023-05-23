@@ -28,105 +28,103 @@
 #include <opencv2/gapi/streaming/meta.hpp>
 
 namespace cv {
-namespace gapi {
-namespace wip {
+	namespace gapi {
+		namespace wip {
+			/**
+			 * @brief OpenCV's VideoCapture-based streaming source.
+			 *
+			 * This class implements IStreamSource interface.
+			 * Its constructor takes the same parameters as cv::VideoCapture does.
+			 *
+			 * Please make sure that videoio OpenCV module is available before using
+			 * this in your application (G-API doesn't depend on it directly).
+			 *
+			 * @note stream sources are passed to G-API via shared pointers, so
+			 *  please gapi::make_src<> to create objects and ptr() to pass a
+			 *  GCaptureSource to cv::gin().
+			 */
+			class GCaptureSource : public IStreamSource
+			{
+			public:
+				explicit GCaptureSource(int id) : cap(id) { prep(); }
+				explicit GCaptureSource(const std::string& path) : cap(path) { prep(); }
 
-/**
- * @brief OpenCV's VideoCapture-based streaming source.
- *
- * This class implements IStreamSource interface.
- * Its constructor takes the same parameters as cv::VideoCapture does.
- *
- * Please make sure that videoio OpenCV module is available before using
- * this in your application (G-API doesn't depend on it directly).
- *
- * @note stream sources are passed to G-API via shared pointers, so
- *  please gapi::make_src<> to create objects and ptr() to pass a
- *  GCaptureSource to cv::gin().
- */
-class GCaptureSource: public IStreamSource
-{
-public:
-    explicit GCaptureSource(int id) : cap(id) { prep(); }
-    explicit GCaptureSource(const std::string &path) : cap(path) { prep(); }
+				// TODO: Add more constructor overloads to make it
+				// fully compatible with VideoCapture's interface.
 
-    // TODO: Add more constructor overloads to make it
-    // fully compatible with VideoCapture's interface.
+			protected:
+				cv::VideoCapture cap;
+				cv::Mat first;
+				bool first_pulled = false;
+				int64_t counter = 0;
 
-protected:
-    cv::VideoCapture cap;
-    cv::Mat first;
-    bool first_pulled = false;
-    int64_t counter = 0;
+				void prep()
+				{
+					// Prepare first frame to report its meta to engine
+					// when needed
+					GAPI_Assert(first.empty());
+					cv::Mat tmp;
+					if (!cap.read(tmp))
+					{
+						GAPI_Error("Couldn't grab the very first frame");
+					}
+					// NOTE: Some decode/media VideoCapture backends continue
+					// owning the video buffer under cv::Mat so in order to
+					// process it safely in a highly concurrent pipeline, clone()
+					// is the only right way.
+					first = tmp.clone();
+				}
 
-    void prep()
-    {
-        // Prepare first frame to report its meta to engine
-        // when needed
-        GAPI_Assert(first.empty());
-        cv::Mat tmp;
-        if (!cap.read(tmp))
-        {
-            GAPI_Error("Couldn't grab the very first frame");
-        }
-        // NOTE: Some decode/media VideoCapture backends continue
-        // owning the video buffer under cv::Mat so in order to
-        // process it safely in a highly concurrent pipeline, clone()
-        // is the only right way.
-        first = tmp.clone();
-    }
+				virtual bool pull(cv::gapi::wip::Data& data) override
+				{
+					if (!first_pulled)
+					{
+						GAPI_Assert(!first.empty());
+						first_pulled = true;
+						data = first; // no need to clone here since it was cloned already
+					}
+					else
+					{
+						if (!cap.isOpened()) return false;
 
-    virtual bool pull(cv::gapi::wip::Data &data) override
-    {
-        if (!first_pulled)
-        {
-            GAPI_Assert(!first.empty());
-            first_pulled = true;
-            data = first; // no need to clone here since it was cloned already
-        }
-        else
-        {
-            if (!cap.isOpened()) return false;
+						cv::Mat frame;
+						if (!cap.read(frame))
+						{
+							// end-of-stream happened
+							return false;
+						}
+						// Same reason to clone as in prep()
+						data = frame.clone();
+					}
+					// Tag data with seq_id/ts
+					const auto now = std::chrono::system_clock::now();
+					const auto dur = std::chrono::duration_cast<std::chrono::microseconds>
+						(now.time_since_epoch());
+					data.meta[cv::gapi::streaming::meta_tag::timestamp] = int64_t{ dur.count() };
+					data.meta[cv::gapi::streaming::meta_tag::seq_id] = int64_t{ counter++ };
+					return true;
+				}
 
-            cv::Mat frame;
-            if (!cap.read(frame))
-            {
-                // end-of-stream happened
-                return false;
-            }
-            // Same reason to clone as in prep()
-            data = frame.clone();
-        }
-        // Tag data with seq_id/ts
-        const auto now = std::chrono::system_clock::now();
-        const auto dur = std::chrono::duration_cast<std::chrono::microseconds>
-            (now.time_since_epoch());
-        data.meta[cv::gapi::streaming::meta_tag::timestamp] = int64_t{dur.count()};
-        data.meta[cv::gapi::streaming::meta_tag::seq_id]    = int64_t{counter++};
-        return true;
-    }
+				virtual GMetaArg descr_of() const override
+				{
+					GAPI_Assert(!first.empty());
+					return cv::GMetaArg{ cv::descr_of(first) };
+				}
+			};
 
-    virtual GMetaArg descr_of() const override
-    {
-        GAPI_Assert(!first.empty());
-        return cv::GMetaArg{cv::descr_of(first)};
-    }
-};
+			// NB: Overload for using from python
+			GAPI_EXPORTS_W cv::Ptr<IStreamSource> inline make_capture_src(const std::string& path)
+			{
+				return make_src<GCaptureSource>(path);
+			}
 
-// NB: Overload for using from python
-GAPI_EXPORTS_W cv::Ptr<IStreamSource> inline make_capture_src(const std::string& path)
-{
-    return make_src<GCaptureSource>(path);
-}
-
-// NB: Overload for using from python
-GAPI_EXPORTS_W cv::Ptr<IStreamSource> inline make_capture_src(const int id)
-{
-    return make_src<GCaptureSource>(id);
-}
-
-} // namespace wip
-} // namespace gapi
+			// NB: Overload for using from python
+			GAPI_EXPORTS_W cv::Ptr<IStreamSource> inline make_capture_src(const int id)
+			{
+				return make_src<GCaptureSource>(id);
+			}
+		} // namespace wip
+	} // namespace gapi
 } // namespace cv
 
 #endif // OPENCV_GAPI_STREAMING_CAP_HPP

@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018-2020 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_RENDER_HPP
 #define OPENCV_GAPI_RENDER_HPP
 
@@ -63,134 +62,129 @@
 
 namespace cv
 {
-namespace gapi
-{
-namespace wip
-{
-namespace draw
-{
+	namespace gapi
+	{
+		namespace wip
+		{
+			namespace draw
+			{
+				using GMat2 = std::tuple<cv::GMat, cv::GMat>;
+				using GMatDesc2 = std::tuple<cv::GMatDesc, cv::GMatDesc>;
 
-using GMat2     = std::tuple<cv::GMat,cv::GMat>;
-using GMatDesc2 = std::tuple<cv::GMatDesc,cv::GMatDesc>;
+				//! @addtogroup gapi_draw_api
+				//! @{
+				/** @brief The function renders on the input image passed drawing primitivies
 
-//! @addtogroup gapi_draw_api
-//! @{
-/** @brief The function renders on the input image passed drawing primitivies
+				@param bgr input image: 8-bit unsigned 3-channel image @ref CV_8UC3.
+				@param prims vector of drawing primitivies
+				@param args graph compile time parameters
+				*/
+				void GAPI_EXPORTS_W render(cv::Mat& bgr,
+					const Prims& prims,
+					cv::GCompileArgs&& args = {});
 
-@param bgr input image: 8-bit unsigned 3-channel image @ref CV_8UC3.
-@param prims vector of drawing primitivies
-@param args graph compile time parameters
-*/
-void GAPI_EXPORTS_W render(cv::Mat& bgr,
-                           const Prims& prims,
-                           cv::GCompileArgs&& args = {});
+				/** @brief The function renders on two NV12 planes passed drawing primitivies
 
-/** @brief The function renders on two NV12 planes passed drawing primitivies
+				@param y_plane input image: 8-bit unsigned 1-channel image @ref CV_8UC1.
+				@param uv_plane input image: 8-bit unsigned 2-channel image @ref CV_8UC2.
+				@param prims vector of drawing primitivies
+				@param args graph compile time parameters
+				*/
+				void GAPI_EXPORTS_W render(cv::Mat& y_plane,
+					cv::Mat& uv_plane,
+					const Prims& prims,
+					cv::GCompileArgs&& args = {});
 
-@param y_plane input image: 8-bit unsigned 1-channel image @ref CV_8UC1.
-@param uv_plane input image: 8-bit unsigned 2-channel image @ref CV_8UC2.
-@param prims vector of drawing primitivies
-@param args graph compile time parameters
-*/
-void GAPI_EXPORTS_W render(cv::Mat& y_plane,
-                           cv::Mat& uv_plane,
-                           const Prims& prims,
-                           cv::GCompileArgs&& args = {});
+				/** @brief The function renders on the input media frame passed drawing primitivies
 
-/** @brief The function renders on the input media frame passed drawing primitivies
+				@param frame input Media Frame :  @ref cv::MediaFrame.
+				@param prims vector of drawing primitivies
+				@param args graph compile time parameters
+				*/
+				void GAPI_EXPORTS render(cv::MediaFrame& frame,
+					const Prims& prims,
+					cv::GCompileArgs&& args = {});
 
-@param frame input Media Frame :  @ref cv::MediaFrame.
-@param prims vector of drawing primitivies
-@param args graph compile time parameters
-*/
-void GAPI_EXPORTS render(cv::MediaFrame& frame,
-                         const Prims& prims,
-                         cv::GCompileArgs&& args = {});
+				G_TYPED_KERNEL_M(GRenderNV12, <GMat2(cv::GMat, cv::GMat, cv::GArray<wip::draw::Prim>)>, "org.opencv.render.nv12")
+				{
+					static GMatDesc2 outMeta(GMatDesc y_plane, GMatDesc uv_plane, GArrayDesc)
+					{
+						return std::make_tuple(y_plane, uv_plane);
+					}
+				};
 
+				G_TYPED_KERNEL(GRenderBGR, <cv::GMat(cv::GMat, cv::GArray<wip::draw::Prim>)>, "org.opencv.render.bgr")
+				{
+					static GMatDesc outMeta(GMatDesc bgr, GArrayDesc)
+					{
+						return bgr;
+					}
+				};
 
-G_TYPED_KERNEL_M(GRenderNV12, <GMat2(cv::GMat,cv::GMat,cv::GArray<wip::draw::Prim>)>, "org.opencv.render.nv12")
-{
-     static GMatDesc2 outMeta(GMatDesc y_plane, GMatDesc uv_plane, GArrayDesc)
-     {
-         return std::make_tuple(y_plane, uv_plane);
-     }
-};
+				G_TYPED_KERNEL(GRenderFrame, <cv::GFrame(cv::GFrame, cv::GArray<wip::draw::Prim>)>, "org.opencv.render.frame")
+				{
+					static GFrameDesc outMeta(GFrameDesc desc, GArrayDesc)
+					{
+						return desc;
+					}
+				};
 
-G_TYPED_KERNEL(GRenderBGR, <cv::GMat(cv::GMat,cv::GArray<wip::draw::Prim>)>, "org.opencv.render.bgr")
-{
-     static GMatDesc outMeta(GMatDesc bgr, GArrayDesc)
-     {
-         return bgr;
-     }
-};
+				/** @brief Renders on 3 channels input
 
-G_TYPED_KERNEL(GRenderFrame, <cv::GFrame(cv::GFrame, cv::GArray<wip::draw::Prim>)>, "org.opencv.render.frame")
-{
-    static GFrameDesc outMeta(GFrameDesc desc, GArrayDesc)
-    {
-        return desc;
-    }
-};
+				Output image must be 8-bit unsigned planar 3-channel image
 
-/** @brief Renders on 3 channels input
+				@param src input image: 8-bit unsigned 3-channel image @ref CV_8UC3
+				@param prims draw primitives
+				*/
+				GAPI_EXPORTS_W GMat render3ch(const GMat& src, const GArray<Prim>& prims);
 
-Output image must be 8-bit unsigned planar 3-channel image
+				/** @brief Renders on two planes
 
-@param src input image: 8-bit unsigned 3-channel image @ref CV_8UC3
-@param prims draw primitives
-*/
-GAPI_EXPORTS_W GMat render3ch(const GMat& src, const GArray<Prim>& prims);
+				Output y image must be 8-bit unsigned planar 1-channel image @ref CV_8UC1
+				uv image must be 8-bit unsigned planar 2-channel image @ref CV_8UC2
 
-/** @brief Renders on two planes
+				@param y  input image: 8-bit unsigned 1-channel image @ref CV_8UC1
+				@param uv input image: 8-bit unsigned 2-channel image @ref CV_8UC2
+				@param prims draw primitives
+				*/
+				GAPI_EXPORTS_W GMat2 renderNV12(const GMat& y,
+					const GMat& uv,
+					const GArray<Prim>& prims);
 
-Output y image must be 8-bit unsigned planar 1-channel image @ref CV_8UC1
-uv image must be 8-bit unsigned planar 2-channel image @ref CV_8UC2
+				/** @brief Renders Media Frame
 
-@param y  input image: 8-bit unsigned 1-channel image @ref CV_8UC1
-@param uv input image: 8-bit unsigned 2-channel image @ref CV_8UC2
-@param prims draw primitives
-*/
-GAPI_EXPORTS_W GMat2 renderNV12(const GMat& y,
-                                const GMat& uv,
-                                const GArray<Prim>& prims);
+				Output media frame frame cv::MediaFrame
 
-/** @brief Renders Media Frame
+				@param m_frame input image: cv::MediaFrame @ref cv::MediaFrame
+				@param prims draw primitives
+				*/
+				GAPI_EXPORTS GFrame renderFrame(const GFrame& m_frame,
+					const GArray<Prim>& prims);
 
-Output media frame frame cv::MediaFrame
+				//! @} gapi_draw_api
+			} // namespace draw
+		} // namespace wip
 
-@param m_frame input image: cv::MediaFrame @ref cv::MediaFrame
-@param prims draw primitives
-*/
-GAPI_EXPORTS GFrame renderFrame(const GFrame& m_frame,
-                                const GArray<Prim>& prims);
+		/**
+		 * @brief This namespace contains G-API CPU rendering backend functions,
+		 * structures, and symbols. See @ref gapi_draw for details.
+		 */
+		namespace render
+		{
+			namespace ocv
+			{
+				GAPI_EXPORTS_W cv::GKernelPackage kernels();
+			} // namespace ocv
+		} // namespace render
+	} // namespace gapi
 
-//! @} gapi_draw_api
-
-} // namespace draw
-} // namespace wip
-
-/**
- * @brief This namespace contains G-API CPU rendering backend functions,
- * structures, and symbols. See @ref gapi_draw for details.
- */
-namespace render
-{
-namespace ocv
-{
-    GAPI_EXPORTS_W cv::GKernelPackage kernels();
-
-} // namespace ocv
-} // namespace render
-} // namespace gapi
-
-namespace detail
-{
-    template<> struct CompileArgTag<cv::gapi::wip::draw::freetype_font>
-    {
-        static const char* tag() { return "gapi.freetype_font"; }
-    };
-} // namespace detail
-
+	namespace detail
+	{
+		template<> struct CompileArgTag<cv::gapi::wip::draw::freetype_font>
+		{
+			static const char* tag() { return "gapi.freetype_font"; }
+		};
+	} // namespace detail
 } // namespace cv
 
 #endif // OPENCV_GAPI_RENDER_HPP

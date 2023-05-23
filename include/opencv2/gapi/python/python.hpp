@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2021 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_PYTHON_API_HPP
 #define OPENCV_GAPI_PYTHON_API_HPP
 
@@ -12,60 +11,57 @@
 #include <opencv2/gapi/own/exports.hpp> // GAPI_EXPORTS
 
 namespace cv {
-namespace gapi {
+	namespace gapi {
+		/**
+		 * @brief This namespace contains G-API Python backend functions,
+		 * structures, and symbols.
+		 *
+		 * This functionality is required to enable G-API custom operations
+		 * and kernels when using G-API from Python, no need to use it in the
+		 * C++ form.
+		 */
+		namespace python {
+			GAPI_EXPORTS cv::gapi::GBackend backend();
 
-/**
- * @brief This namespace contains G-API Python backend functions,
- * structures, and symbols.
- *
- * This functionality is required to enable G-API custom operations
- * and kernels when using G-API from Python, no need to use it in the
- * C++ form.
- */
-namespace python {
+			struct GPythonContext
+			{
+				const cv::GArgs& ins;
+				const cv::GMetaArgs& in_metas;
+				const cv::GTypesInfo& out_info;
 
-GAPI_EXPORTS cv::gapi::GBackend backend();
+				cv::optional<cv::GArg> m_state;
+			};
 
-struct GPythonContext
-{
-    const cv::GArgs      &ins;
-    const cv::GMetaArgs  &in_metas;
-    const cv::GTypesInfo &out_info;
+			using Impl = std::function<cv::GRunArgs(const GPythonContext&)>;
+			using Setup = std::function<cv::GArg(const GMetaArgs&, const GArgs&)>;
 
-    cv::optional<cv::GArg> m_state;
-};
+			class GAPI_EXPORTS GPythonKernel
+			{
+			public:
+				GPythonKernel() = default;
+				GPythonKernel(Impl run, Setup setup);
 
-using Impl = std::function<cv::GRunArgs(const GPythonContext&)>;
-using Setup = std::function<cv::GArg(const GMetaArgs&, const GArgs&)>;
+				Impl  run;
+				Setup setup = nullptr;
+				bool  is_stateful = false;
+			};
 
-class GAPI_EXPORTS GPythonKernel
-{
-public:
-    GPythonKernel() = default;
-    GPythonKernel(Impl run, Setup setup);
+			class GAPI_EXPORTS GPythonFunctor : public cv::gapi::GFunctor
+			{
+			public:
+				using Meta = cv::GKernel::M;
 
-    Impl  run;
-    Setup setup       = nullptr;
-    bool  is_stateful = false;
-};
+				GPythonFunctor(const char* id, const Meta& meta, const Impl& impl,
+					const Setup& setup = nullptr);
 
-class GAPI_EXPORTS GPythonFunctor : public cv::gapi::GFunctor
-{
-public:
-    using Meta = cv::GKernel::M;
+				GKernelImpl    impl()    const override;
+				gapi::GBackend backend() const override;
 
-    GPythonFunctor(const char* id, const Meta& meta, const Impl& impl,
-                   const Setup& setup = nullptr);
-
-    GKernelImpl    impl()    const override;
-    gapi::GBackend backend() const override;
-
-private:
-    GKernelImpl impl_;
-};
-
-} // namespace python
-} // namespace gapi
+			private:
+				GKernelImpl impl_;
+			};
+		} // namespace python
+	} // namespace gapi
 } // namespace cv
 
 #endif // OPENCV_GAPI_PYTHON_API_HPP

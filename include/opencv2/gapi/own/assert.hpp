@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018-2020 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_OWN_ASSERT_HPP
 #define OPENCV_GAPI_OWN_ASSERT_HPP
 
@@ -34,12 +33,12 @@
 
 namespace detail
 {
-    [[noreturn]] inline void assert_abort(const char* str, int line, const char* file, const char* func)
-    {
-        std::stringstream ss;
-        ss << file << ":" << line << ": Assertion " << str << " in function " << func << " failed\n";
-        cv::util::throw_error(std::logic_error(ss.str()));
-    }
+	[[noreturn]] inline void assert_abort(const char* str, int line, const char* file, const char* func)
+	{
+		std::stringstream ss;
+		ss << file << ":" << line << ": Assertion " << str << " in function " << func << " failed\n";
+		cv::util::throw_error(std::logic_error(ss.str()));
+	}
 }
 
 #define GAPI_Assert(expr) \

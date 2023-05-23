@@ -20,68 +20,66 @@
 
 namespace cv
 {
+	struct GAPI_EXPORTS GTransform
+	{
+		// FIXME: consider another simplified
+		// class instead of GComputation
+		using F = std::function<GComputation()>;
 
-struct GAPI_EXPORTS GTransform
-{
-    // FIXME: consider another simplified
-    // class instead of GComputation
-    using F = std::function<GComputation()>;
+		std::string description;
+		F pattern;
+		F substitute;
 
-    std::string description;
-    F pattern;
-    F substitute;
+		GTransform(const std::string& d, const F& p, const F& s) : description(d), pattern(p), substitute(s) {}
+	};
 
-    GTransform(const std::string& d, const F &p, const F &s) : description(d), pattern(p), substitute(s) {}
-};
+	namespace detail
+	{
+		template <typename, typename, typename>
+		struct TransHelper;
 
-namespace detail
-{
+		template <typename K, typename... Ins, typename Out>
+		struct TransHelper<K, std::tuple<Ins...>, Out>
+		{
+			template <typename Callable, int... IIs, int... OIs>
+			static GComputation invoke(Callable f, Seq<IIs...>, Seq<OIs...>)
+			{
+				const std::tuple<Ins...> ins;
+				const auto r = tuple_wrap_helper<Out>::get(f(std::get<IIs>(ins)...));
+				return GComputation(cv::GIn(std::get<IIs>(ins)...),
+					cv::GOut(std::get<OIs>(r)...));
+			}
 
-template <typename, typename, typename>
-struct TransHelper;
+			static GComputation get_pattern()
+			{
+				return invoke(K::pattern, typename MkSeq<sizeof...(Ins)>::type(),
+					typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
+			}
+			static GComputation get_substitute()
+			{
+				return invoke(K::substitute, typename MkSeq<sizeof...(Ins)>::type(),
+					typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
+			}
+		};
+	} // namespace detail
 
-template <typename K, typename... Ins, typename Out>
-struct TransHelper<K, std::tuple<Ins...>, Out>
-{
-    template <typename Callable, int... IIs, int... OIs>
-    static GComputation invoke(Callable f, Seq<IIs...>, Seq<OIs...>)
-    {
-        const std::tuple<Ins...> ins;
-        const auto r = tuple_wrap_helper<Out>::get(f(std::get<IIs>(ins)...));
-        return GComputation(cv::GIn(std::get<IIs>(ins)...),
-                            cv::GOut(std::get<OIs>(r)...));
-    }
+	template <typename, typename>
+	class GTransformImpl;
 
-    static GComputation get_pattern()
-    {
-        return invoke(K::pattern, typename MkSeq<sizeof...(Ins)>::type(),
-                      typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
-    }
-    static GComputation get_substitute()
-    {
-        return invoke(K::substitute, typename MkSeq<sizeof...(Ins)>::type(),
-                      typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
-    }
-};
-} // namespace detail
+	template <typename K, typename R, typename... Args>
+	class GTransformImpl<K, std::function<R(Args...)>> : public cv::detail::TransHelper<K, std::tuple<Args...>, R>,
+		public cv::detail::TransformTag
+	{
+	public:
+		// FIXME: currently there is no check that transformations' signatures are unique
+		// and won't be any intersection in graph compilation stage
+		using API = K;
 
-template <typename, typename>
-class GTransformImpl;
-
-template <typename K, typename R, typename... Args>
-class GTransformImpl<K, std::function<R(Args...)>> : public cv::detail::TransHelper<K, std::tuple<Args...>, R>,
-                                                     public cv::detail::TransformTag
-{
-public:
-    // FIXME: currently there is no check that transformations' signatures are unique
-    // and won't be any intersection in graph compilation stage
-    using API = K;
-
-    static GTransform transformation()
-    {
-        return GTransform(K::descr(), &K::get_pattern, &K::get_substitute);
-    }
-};
+		static GTransform transformation()
+		{
+			return GTransform(K::descr(), &K::get_pattern, &K::get_substitute);
+		}
+	};
 } // namespace cv
 
 #define G_DESCR_HELPER_CLASS(Class) Class##DescrHelper

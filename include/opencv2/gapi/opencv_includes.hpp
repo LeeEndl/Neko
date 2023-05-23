@@ -5,7 +5,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_OPENCV_INCLUDES_HPP
 #define OPENCV_GAPI_OPENCV_INCLUDES_HPP
 
@@ -27,12 +26,12 @@
 #  include <opencv2/gapi/own/mat.hpp>
 // replacement of cv's structures:
 namespace cv {
-    using Rect    = gapi::own::Rect;
-    using Size    = gapi::own::Size;
-    using Point   = gapi::own::Point;
-    using Point2f = gapi::own::Point2f;
-    using Scalar  = gapi::own::Scalar;
-    using Mat     = gapi::own::Mat;
+	using Rect = gapi::own::Rect;
+	using Size = gapi::own::Size;
+	using Point = gapi::own::Point;
+	using Point2f = gapi::own::Point2f;
+	using Scalar = gapi::own::Scalar;
+	using Mat = gapi::own::Mat;
 }  // namespace cv
 #define GAPI_OWN_TYPES_LIST     cv::gapi::own::VoidType
 

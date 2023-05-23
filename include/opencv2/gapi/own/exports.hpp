@@ -4,14 +4,13 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_OWN_TYPES_HPP
 #define OPENCV_GAPI_OWN_TYPES_HPP
 
 #   if defined(__OPENCV_BUILD)
 #       include <opencv2/core/base.hpp>
 #       define GAPI_EXPORTS CV_EXPORTS
-        /* special informative macros for wrapper generators */
+		/* special informative macros for wrapper generators */
 #       define GAPI_PROP CV_PROP
 #       define GAPI_PROP_RW CV_PROP_RW
 #       define GAPI_WRAP CV_WRAP

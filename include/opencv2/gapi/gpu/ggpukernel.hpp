@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_GGPUKERNEL_HPP
 #define OPENCV_GAPI_GGPUKERNEL_HPP
 /** @file
@@ -13,6 +12,5 @@
 
 #include <opencv2/gapi/ocl/goclkernel.hpp>
 #define GAPI_GPU_KERNEL GAPI_OCL_KERNEL
-
 
 #endif // OPENCV_GAPI_GGPUKERNEL_HPP

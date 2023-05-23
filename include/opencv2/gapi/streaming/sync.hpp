@@ -8,23 +8,20 @@
 #define OPENCV_GAPI_STREAMING_SYNC_HPP
 
 namespace cv {
-namespace gapi {
-namespace streaming {
+	namespace gapi {
+		namespace streaming {
+			enum class sync_policy {
+				dont_sync,
+				drop
+			};
+		} // namespace streaming
+	} // namespace gapi
 
-enum class sync_policy {
-    dont_sync,
-    drop
-};
-
-} // namespace streaming
-} // namespace gapi
-
-namespace detail {
-    template<> struct CompileArgTag<gapi::streaming::sync_policy> {
-        static const char* tag() { return "gapi.streaming.sync_policy"; }
-    };
-
-} // namespace detail
+	namespace detail {
+		template<> struct CompileArgTag<gapi::streaming::sync_policy> {
+			static const char* tag() { return "gapi.streaming.sync_policy"; }
+		};
+	} // namespace detail
 } // namespace cv
 
 #endif // OPENCV_GAPI_STREAMING_SYNC_HPP

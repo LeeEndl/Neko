@@ -4,7 +4,6 @@
 //
 // Copyright (C) 2018 Intel Corporation
 
-
 #ifndef OPENCV_GAPI_UTIL_THROW_HPP
 #define OPENCV_GAPI_UTIL_THROW_HPP
 
@@ -17,20 +16,20 @@
 
 namespace cv
 {
-namespace util
-{
-template <class ExceptionType>
-[[noreturn]] void throw_error(ExceptionType &&e)
-{
+	namespace util
+	{
+		template <class ExceptionType>
+		[[noreturn]] void throw_error(ExceptionType&& e)
+		{
 #if defined(__EXCEPTIONS) || defined(_CPPUNWIND)
-    throw std::forward<ExceptionType>(e);
+			throw std::forward<ExceptionType>(e);
 #else
-    fprintf(stderr, "An exception thrown! %s\n" , e.what());
-    fflush(stderr);
-    abort();
+			fprintf(stderr, "An exception thrown! %s\n", e.what());
+			fflush(stderr);
+			abort();
 #endif
-}
-} // namespace util
+		}
+	} // namespace util
 } // namespace cv
 
 #endif // OPENCV_GAPI_UTIL_THROW_HPP
