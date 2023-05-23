@@ -26,11 +26,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************/
 
-
 #ifndef OPENCV_FLANN_CONFIG_H_
 #define OPENCV_FLANN_CONFIG_H_
 
-//! @cond IGNORED
+ //! @cond IGNORED
 
 #ifdef FLANN_VERSION_
 #undef FLANN_VERSION_

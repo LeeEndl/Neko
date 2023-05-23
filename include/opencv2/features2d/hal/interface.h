@@ -4,7 +4,6 @@
 #include "opencv2/core/cvdef.h"
 //! @addtogroup features2d_hal_interface
 //! @{
-
 //! @name Fast feature detector types
 //! @sa cv::FastFeatureDetector
 //! @{
@@ -18,13 +17,13 @@
 //! @{
 struct CV_EXPORTS cvhalKeyPoint
 {
-    float x;
-    float y;
-    float size;
-    float angle;
-    float response;
-    int octave;
-    int class_id;
+	float x;
+	float y;
+	float size;
+	float angle;
+	float response;
+	int octave;
+	int class_id;
 };
 //! @}
 

@@ -49,242 +49,242 @@
 #include <sstream>
 
 namespace cv {
-namespace dnn {
-CV__DNN_INLINE_NS_BEGIN
+	namespace dnn {
+		CV__DNN_INLINE_NS_BEGIN
 
-//Slicing
+			//Slicing
 
-struct _Range : public cv::Range
-{
-    _Range(const Range &r) : cv::Range(r) {}
-    _Range(int start_, int size_ = 1) : cv::Range(start_, start_ + size_) {}
-};
+			struct _Range : public cv::Range
+		{
+			_Range(const Range& r) : cv::Range(r) {}
+			_Range(int start_, int size_ = 1) : cv::Range(start_, start_ + size_) {}
+		};
 
-static inline Mat slice(const Mat &m, const _Range &r0)
-{
-    Range ranges[CV_MAX_DIM];
-    for (int i = 1; i < m.dims; i++)
-        ranges[i] = Range::all();
-    ranges[0] = r0;
-    return m(&ranges[0]);
-}
+		static inline Mat slice(const Mat& m, const _Range& r0)
+		{
+			Range ranges[CV_MAX_DIM];
+			for (int i = 1; i < m.dims; i++)
+				ranges[i] = Range::all();
+			ranges[0] = r0;
+			return m(&ranges[0]);
+		}
 
-static inline Mat slice(const Mat &m, const _Range &r0, const _Range &r1)
-{
-    CV_Assert(m.dims >= 2);
-    Range ranges[CV_MAX_DIM];
-    for (int i = 2; i < m.dims; i++)
-        ranges[i] = Range::all();
-    ranges[0] = r0;
-    ranges[1] = r1;
-    return m(&ranges[0]);
-}
+		static inline Mat slice(const Mat& m, const _Range& r0, const _Range& r1)
+		{
+			CV_Assert(m.dims >= 2);
+			Range ranges[CV_MAX_DIM];
+			for (int i = 2; i < m.dims; i++)
+				ranges[i] = Range::all();
+			ranges[0] = r0;
+			ranges[1] = r1;
+			return m(&ranges[0]);
+		}
 
-static inline Mat slice(const Mat &m, const _Range &r0, const _Range &r1, const _Range &r2)
-{
-    CV_Assert(m.dims >= 3);
-    Range ranges[CV_MAX_DIM];
-    for (int i = 3; i < m.dims; i++)
-        ranges[i] = Range::all();
-    ranges[0] = r0;
-    ranges[1] = r1;
-    ranges[2] = r2;
-    return m(&ranges[0]);
-}
+		static inline Mat slice(const Mat& m, const _Range& r0, const _Range& r1, const _Range& r2)
+		{
+			CV_Assert(m.dims >= 3);
+			Range ranges[CV_MAX_DIM];
+			for (int i = 3; i < m.dims; i++)
+				ranges[i] = Range::all();
+			ranges[0] = r0;
+			ranges[1] = r1;
+			ranges[2] = r2;
+			return m(&ranges[0]);
+		}
 
-static inline Mat slice(const Mat &m, const _Range &r0, const _Range &r1, const _Range &r2, const _Range &r3)
-{
-    CV_Assert(m.dims >= 4);
-    Range ranges[CV_MAX_DIM];
-    for (int i = 4; i < m.dims; i++)
-        ranges[i] = Range::all();
-    ranges[0] = r0;
-    ranges[1] = r1;
-    ranges[2] = r2;
-    ranges[3] = r3;
-    return m(&ranges[0]);
-}
+		static inline Mat slice(const Mat& m, const _Range& r0, const _Range& r1, const _Range& r2, const _Range& r3)
+		{
+			CV_Assert(m.dims >= 4);
+			Range ranges[CV_MAX_DIM];
+			for (int i = 4; i < m.dims; i++)
+				ranges[i] = Range::all();
+			ranges[0] = r0;
+			ranges[1] = r1;
+			ranges[2] = r2;
+			ranges[3] = r3;
+			return m(&ranges[0]);
+		}
 
-static inline Mat getPlane(const Mat &m, int n, int cn)
-{
-    CV_Assert(m.dims > 2);
-    int sz[CV_MAX_DIM];
-    for(int i = 2; i < m.dims; i++)
-    {
-        sz[i-2] = m.size.p[i];
-    }
-    return Mat(m.dims - 2, sz, m.type(), (void*)m.ptr<float>(n, cn));
-}
+		static inline Mat getPlane(const Mat& m, int n, int cn)
+		{
+			CV_Assert(m.dims > 2);
+			int sz[CV_MAX_DIM];
+			for (int i = 2; i < m.dims; i++)
+			{
+				sz[i - 2] = m.size.p[i];
+			}
+			return Mat(m.dims - 2, sz, m.type(), (void*)m.ptr<float>(n, cn));
+		}
 
-static inline MatShape shape(const int* dims, const int n)
-{
-    MatShape shape;
-    shape.assign(dims, dims + n);
-    return shape;
-}
+		static inline MatShape shape(const int* dims, const int n)
+		{
+			MatShape shape;
+			shape.assign(dims, dims + n);
+			return shape;
+		}
 
-static inline MatShape shape(const Mat& mat)
-{
-    return shape(mat.size.p, mat.dims);
-}
+		static inline MatShape shape(const Mat& mat)
+		{
+			return shape(mat.size.p, mat.dims);
+		}
 
-static inline MatShape shape(const MatSize& sz)
-{
-    return shape(sz.p, sz.dims());
-}
+		static inline MatShape shape(const MatSize& sz)
+		{
+			return shape(sz.p, sz.dims());
+		}
 
-static inline MatShape shape(const UMat& mat)
-{
-    return shape(mat.size.p, mat.dims);
-}
+		static inline MatShape shape(const UMat& mat)
+		{
+			return shape(mat.size.p, mat.dims);
+		}
 
 #if 0  // issues with MatExpr wrapped into InputArray
-static inline
-MatShape shape(InputArray input)
-{
-    int sz[CV_MAX_DIM];
-    int ndims = input.sizend(sz);
-    return shape(sz, ndims);
-}
+		static inline
+			MatShape shape(InputArray input)
+		{
+			int sz[CV_MAX_DIM];
+			int ndims = input.sizend(sz);
+			return shape(sz, ndims);
+		}
 #endif
 
-namespace {inline bool is_neg(int i) { return i < 0; }}
+		namespace { inline bool is_neg(int i) { return i < 0; } }
 
-static inline MatShape shape(int a0, int a1=-1, int a2=-1, int a3=-1)
-{
-    int dims[] = {a0, a1, a2, a3};
-    MatShape s = shape(dims, 4);
-    s.erase(std::remove_if(s.begin(), s.end(), is_neg), s.end());
-    return s;
-}
+		static inline MatShape shape(int a0, int a1 = -1, int a2 = -1, int a3 = -1)
+		{
+			int dims[] = { a0, a1, a2, a3 };
+			MatShape s = shape(dims, 4);
+			s.erase(std::remove_if(s.begin(), s.end(), is_neg), s.end());
+			return s;
+		}
 
-static inline int total(const MatShape& shape, int start = -1, int end = -1)
-{
-    if (shape.empty())
-        return 0;
+		static inline int total(const MatShape& shape, int start = -1, int end = -1)
+		{
+			if (shape.empty())
+				return 0;
 
-    int dims = (int)shape.size();
+			int dims = (int)shape.size();
 
-    if (start == -1) start = 0;
-    if (end == -1) end = dims;
+			if (start == -1) start = 0;
+			if (end == -1) end = dims;
 
-    CV_CheckLE(0, start, "");
-    CV_CheckLE(start, end, "");
-    CV_CheckLE(end, dims, "");
+			CV_CheckLE(0, start, "");
+			CV_CheckLE(start, end, "");
+			CV_CheckLE(end, dims, "");
 
-    int elems = 1;
-    for (int i = start; i < end; i++)
-    {
-        elems *= shape[i];
-    }
-    return elems;
-}
+			int elems = 1;
+			for (int i = start; i < end; i++)
+			{
+				elems *= shape[i];
+			}
+			return elems;
+		}
 
-// TODO: rename to countDimsElements()
-static inline int total(const Mat& mat, int start = -1, int end = -1)
-{
-    if (mat.empty())
-        return 0;
+		// TODO: rename to countDimsElements()
+		static inline int total(const Mat& mat, int start = -1, int end = -1)
+		{
+			if (mat.empty())
+				return 0;
 
-    int dims = mat.dims;
+			int dims = mat.dims;
 
-    if (start == -1) start = 0;
-    if (end == -1) end = dims;
+			if (start == -1) start = 0;
+			if (end == -1) end = dims;
 
-    CV_CheckLE(0, start, "");
-    CV_CheckLE(start, end, "");
-    CV_CheckLE(end, dims, "");
+			CV_CheckLE(0, start, "");
+			CV_CheckLE(start, end, "");
+			CV_CheckLE(end, dims, "");
 
-    int elems = 1;
-    for (int i = start; i < end; i++)
-    {
-        elems *= mat.size[i];
-    }
-    return elems;
-}
+			int elems = 1;
+			for (int i = start; i < end; i++)
+			{
+				elems *= mat.size[i];
+			}
+			return elems;
+		}
 
-static inline MatShape concat(const MatShape& a, const MatShape& b)
-{
-    MatShape c = a;
-    c.insert(c.end(), b.begin(), b.end());
+		static inline MatShape concat(const MatShape& a, const MatShape& b)
+		{
+			MatShape c = a;
+			c.insert(c.end(), b.begin(), b.end());
 
-    return c;
-}
+			return c;
+		}
 
-template<typename _Tp>
-static inline std::string toString(const std::vector<_Tp>& shape, const String& name = "")
-{
-    std::ostringstream ss;
-    if (!name.empty())
-        ss << name << ' ';
-    ss << '[';
-    for(size_t i = 0, n = shape.size(); i < n; ++i)
-        ss << ' ' << shape[i];
-    ss << " ]";
-    return ss.str();
-}
+		template<typename _Tp>
+		static inline std::string toString(const std::vector<_Tp>& shape, const String& name = "")
+		{
+			std::ostringstream ss;
+			if (!name.empty())
+				ss << name << ' ';
+			ss << '[';
+			for (size_t i = 0, n = shape.size(); i < n; ++i)
+				ss << ' ' << shape[i];
+			ss << " ]";
+			return ss.str();
+		}
 
-template<typename _Tp>
-static inline void print(const std::vector<_Tp>& shape, const String& name = "")
-{
-    std::cout << toString(shape, name) << std::endl;
-}
-template<typename _Tp>
-static inline std::ostream& operator<<(std::ostream &out, const std::vector<_Tp>& shape)
-{
-    out << toString(shape);
-    return out;
-}
+		template<typename _Tp>
+		static inline void print(const std::vector<_Tp>& shape, const String& name = "")
+		{
+			std::cout << toString(shape, name) << std::endl;
+		}
+		template<typename _Tp>
+		static inline std::ostream& operator<<(std::ostream& out, const std::vector<_Tp>& shape)
+		{
+			out << toString(shape);
+			return out;
+		}
 
-/// @brief Converts axis from `[-dims; dims)` (similar to Python's slice notation) to `[0; dims)` range.
-static inline
-int normalize_axis(int axis, int dims)
-{
-    CV_Check(axis, axis >= -dims && axis < dims, "");
-    axis = (axis < 0) ? (dims + axis) : axis;
-    CV_DbgCheck(axis, axis >= 0 && axis < dims, "");
-    return axis;
-}
+		/// @brief Converts axis from `[-dims; dims)` (similar to Python's slice notation) to `[0; dims)` range.
+		static inline
+			int normalize_axis(int axis, int dims)
+		{
+			CV_Check(axis, axis >= -dims && axis < dims, "");
+			axis = (axis < 0) ? (dims + axis) : axis;
+			CV_DbgCheck(axis, axis >= 0 && axis < dims, "");
+			return axis;
+		}
 
-static inline
-int normalize_axis(int axis, const MatShape& shape)
-{
-    return normalize_axis(axis, (int)shape.size());
-}
+		static inline
+			int normalize_axis(int axis, const MatShape& shape)
+		{
+			return normalize_axis(axis, (int)shape.size());
+		}
 
-static inline
-Range normalize_axis_range(const Range& r, int axisSize)
-{
-    if (r == Range::all())
-        return Range(0, axisSize);
-    CV_CheckGE(r.start, 0, "");
-    Range clamped(r.start,
-                  r.end > 0 ? std::min(r.end, axisSize) : axisSize + r.end + 1);
-    CV_DbgCheckGE(clamped.start, 0, "");
-    CV_CheckLT(clamped.start, clamped.end, "");
-    CV_CheckLE(clamped.end, axisSize, "");
-    return clamped;
-}
+		static inline
+			Range normalize_axis_range(const Range& r, int axisSize)
+		{
+			if (r == Range::all())
+				return Range(0, axisSize);
+			CV_CheckGE(r.start, 0, "");
+			Range clamped(r.start,
+				r.end > 0 ? std::min(r.end, axisSize) : axisSize + r.end + 1);
+			CV_DbgCheckGE(clamped.start, 0, "");
+			CV_CheckLT(clamped.start, clamped.end, "");
+			CV_CheckLE(clamped.end, axisSize, "");
+			return clamped;
+		}
 
-static inline
-bool isAllOnes(const MatShape &inputShape, int startPos, int endPos)
-{
-    CV_Assert(!inputShape.empty());
+		static inline
+			bool isAllOnes(const MatShape& inputShape, int startPos, int endPos)
+		{
+			CV_Assert(!inputShape.empty());
 
-    CV_CheckGE((int) inputShape.size(), startPos, "");
-    CV_CheckGE(startPos, 0, "");
-    CV_CheckLE(startPos, endPos, "");
-    CV_CheckLE((size_t)endPos, inputShape.size(), "");
+			CV_CheckGE((int)inputShape.size(), startPos, "");
+			CV_CheckGE(startPos, 0, "");
+			CV_CheckLE(startPos, endPos, "");
+			CV_CheckLE((size_t)endPos, inputShape.size(), "");
 
-    for (size_t i = startPos; i < endPos; i++)
-    {
-        if (inputShape[i] != 1)
-            return false;
-    }
-    return true;
-}
+			for (size_t i = startPos; i < endPos; i++)
+			{
+				if (inputShape[i] != 1)
+					return false;
+			}
+			return true;
+		}
 
-CV__DNN_INLINE_NS_END
-}
+		CV__DNN_INLINE_NS_END
+	}
 }
 #endif

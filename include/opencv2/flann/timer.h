@@ -31,7 +31,7 @@
 #ifndef OPENCV_FLANN_TIMER_H
 #define OPENCV_FLANN_TIMER_H
 
-//! @cond IGNORED
+ //! @cond IGNORED
 
 #include <time.h>
 #include "opencv2/core.hpp"
@@ -39,59 +39,55 @@
 
 namespace cvflann
 {
+	/**
+	 * A start-stop timer class.
+	 *
+	 * Can be used to time portions of code.
+	 */
+	class StartStopTimer
+	{
+		int64 startTime;
 
-/**
- * A start-stop timer class.
- *
- * Can be used to time portions of code.
- */
-class StartStopTimer
-{
-    int64 startTime;
+	public:
+		/**
+		 * Value of the timer.
+		 */
+		double value;
 
-public:
-    /**
-     * Value of the timer.
-     */
-    double value;
+		/**
+		 * Constructor.
+		 */
+		StartStopTimer()
+			: startTime(0)
+		{
+			reset();
+		}
 
+		/**
+		 * Starts the timer.
+		 */
+		void start()
+		{
+			startTime = cv::getTickCount();
+		}
 
-    /**
-     * Constructor.
-     */
-    StartStopTimer()
-        : startTime(0)
-    {
-        reset();
-    }
+		/**
+		 * Stops the timer and updates timer value.
+		 */
+		void stop()
+		{
+			int64 stopTime = cv::getTickCount();
+			value += ((double)stopTime - startTime) / cv::getTickFrequency();
+		}
 
-    /**
-     * Starts the timer.
-     */
-    void start()
-    {
-        startTime = cv::getTickCount();
-    }
-
-    /**
-     * Stops the timer and updates timer value.
-     */
-    void stop()
-    {
-        int64 stopTime = cv::getTickCount();
-        value += ( (double)stopTime - startTime) / cv::getTickFrequency();
-    }
-
-    /**
-     * Resets the timer value to 0.
-     */
-    void reset()
-    {
-        value = 0;
-    }
-
-};
-
+		/**
+		 * Resets the timer value to 0.
+		 */
+		void reset()
+		{
+			value = 0;
+		}
+	};
 }
 
 //! @endcond

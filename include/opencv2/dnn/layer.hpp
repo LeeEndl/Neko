@@ -44,45 +44,44 @@
 #include <opencv2/dnn.hpp>
 
 namespace cv {
-namespace dnn {
-CV__DNN_INLINE_NS_BEGIN
-//! @addtogroup dnn
-//! @{
-//!
-//! @defgroup dnnLayerFactory Utilities for New Layers Registration
-//! @{
+	namespace dnn {
+		CV__DNN_INLINE_NS_BEGIN
+			//! @addtogroup dnn
+			//! @{
+			//!
+			//! @defgroup dnnLayerFactory Utilities for New Layers Registration
+			//! @{
+			/** @brief %Layer factory allows to create instances of registered layers. */
+			class CV_EXPORTS LayerFactory
+		{
+		public:
 
-/** @brief %Layer factory allows to create instances of registered layers. */
-class CV_EXPORTS LayerFactory
-{
-public:
+			//! Each Layer class must provide this function to the factory
+			typedef Ptr<Layer>(*Constructor)(LayerParams& params);
 
-    //! Each Layer class must provide this function to the factory
-    typedef Ptr<Layer>(*Constructor)(LayerParams &params);
+			//! Registers the layer class with typename @p type and specified @p constructor. Thread-safe.
+			static void registerLayer(const String& type, Constructor constructor);
 
-    //! Registers the layer class with typename @p type and specified @p constructor. Thread-safe.
-    static void registerLayer(const String &type, Constructor constructor);
+			//! Unregisters registered layer with specified type name. Thread-safe.
+			static void unregisterLayer(const String& type);
 
-    //! Unregisters registered layer with specified type name. Thread-safe.
-    static void unregisterLayer(const String &type);
+			//! Check if layer is registered.
+			static bool isLayerRegistered(const std::string& type);
 
-    //! Check if layer is registered.
-    static bool isLayerRegistered(const std::string& type);
+			/** @brief Creates instance of registered layer.
+			 *  @param type type name of creating layer.
+			 *  @param params parameters which will be used for layer initialization.
+			 *  @note Thread-safe.
+			 */
+			static Ptr<Layer> createLayerInstance(const String& type, LayerParams& params);
 
-    /** @brief Creates instance of registered layer.
-     *  @param type type name of creating layer.
-     *  @param params parameters which will be used for layer initialization.
-     *  @note Thread-safe.
-     */
-    static Ptr<Layer> createLayerInstance(const String &type, LayerParams& params);
+		private:
+			LayerFactory();
+		};
 
-private:
-    LayerFactory();
-};
-
-//! @}
-//! @}
-CV__DNN_INLINE_NS_END
-}
+		//! @}
+		//! @}
+		CV__DNN_INLINE_NS_END
+	}
 }
 #endif
