@@ -47,12 +47,6 @@
 
 #include "opencv2/core/version.hpp"
 
-//! @addtogroup core_utils
-//! @{
-#ifdef OPENCV_INCLUDE_PORT_FILE  // User-provided header file with custom platform configuration
-#include OPENCV_INCLUDE_PORT_FILE
-#endif
-
 #if !defined CV_DOXYGEN && !defined CV_IGNORE_DEBUG_BUILD_GUARD
 #if (defined(_MSC_VER) && (defined(DEBUG) || defined(_DEBUG))) || \
     (defined(_GLIBCXX_DEBUG) || defined(_GLIBCXX_DEBUG_PEDANTIC))
