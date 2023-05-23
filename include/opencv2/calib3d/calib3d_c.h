@@ -50,7 +50,7 @@
 extern "C" {
 #endif
 
-/* Calculates fundamental matrix given a set of corresponding points */
+	/* Calculates fundamental matrix given a set of corresponding points */
 #define CV_FM_7POINT 1
 #define CV_FM_8POINT 2
 
@@ -62,13 +62,13 @@ extern "C" {
 #define CV_FM_LMEDS CV_LMEDS
 #define CV_FM_RANSAC CV_RANSAC
 
-enum
-{
-    CV_ITERATIVE = 0,
-    CV_EPNP = 1, // F.Moreno-Noguer, V.Lepetit and P.Fua "EPnP: Efficient Perspective-n-Point Camera Pose Estimation"
-    CV_P3P = 2, // X.S. Gao, X.-R. Hou, J. Tang, H.-F. Chang; "Complete Solution Classification for the Perspective-Three-Point Problem"
-    CV_DLS = 3 // Joel A. Hesch and Stergios I. Roumeliotis. "A Direct Least-Squares (DLS) Method for PnP"
-};
+	enum
+	{
+		CV_ITERATIVE = 0,
+		CV_EPNP = 1, // F.Moreno-Noguer, V.Lepetit and P.Fua "EPnP: Efficient Perspective-n-Point Camera Pose Estimation"
+		CV_P3P = 2, // X.S. Gao, X.-R. Hou, J. Tang, H.-F. Chang; "Complete Solution Classification for the Perspective-Three-Point Problem"
+		CV_DLS = 3 // Joel A. Hesch and Stergios I. Roumeliotis. "A Direct Least-Squares (DLS) Method for PnP"
+	};
 
 #define CV_CALIB_CB_ADAPTIVE_THRESH  1
 #define CV_CALIB_CB_NORMALIZE_IMAGE  2
@@ -100,7 +100,7 @@ enum
 
 #define CV_CALIB_ZERO_DISPARITY 1024
 
-/* stereo correspondence parameters and functions */
+	/* stereo correspondence parameters and functions */
 #define CV_STEREO_BM_NORMALIZED_RESPONSE  0
 #define CV_STEREO_BM_XSOBEL               1
 
@@ -111,38 +111,38 @@ enum
 class CV_EXPORTS CvLevMarq
 {
 public:
-    CvLevMarq();
-    CvLevMarq( int nparams, int nerrs, CvTermCriteria criteria=
-              cvTermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,30,DBL_EPSILON),
-              bool completeSymmFlag=false );
-    ~CvLevMarq();
-    void init( int nparams, int nerrs, CvTermCriteria criteria=
-              cvTermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,30,DBL_EPSILON),
-              bool completeSymmFlag=false );
-    bool update( const CvMat*& param, CvMat*& J, CvMat*& err );
-    bool updateAlt( const CvMat*& param, CvMat*& JtJ, CvMat*& JtErr, double*& errNorm );
+	CvLevMarq();
+	CvLevMarq(int nparams, int nerrs, CvTermCriteria criteria =
+		cvTermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, DBL_EPSILON),
+		bool completeSymmFlag = false);
+	~CvLevMarq();
+	void init(int nparams, int nerrs, CvTermCriteria criteria =
+		cvTermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, DBL_EPSILON),
+		bool completeSymmFlag = false);
+	bool update(const CvMat*& param, CvMat*& J, CvMat*& err);
+	bool updateAlt(const CvMat*& param, CvMat*& JtJ, CvMat*& JtErr, double*& errNorm);
 
-    void clear();
-    void step();
-    enum { DONE=0, STARTED=1, CALC_J=2, CHECK_ERR=3 };
+	void clear();
+	void step();
+	enum { DONE = 0, STARTED = 1, CALC_J = 2, CHECK_ERR = 3 };
 
-    cv::Ptr<CvMat> mask;
-    cv::Ptr<CvMat> prevParam;
-    cv::Ptr<CvMat> param;
-    cv::Ptr<CvMat> J;
-    cv::Ptr<CvMat> err;
-    cv::Ptr<CvMat> JtJ;
-    cv::Ptr<CvMat> JtJN;
-    cv::Ptr<CvMat> JtErr;
-    cv::Ptr<CvMat> JtJV;
-    cv::Ptr<CvMat> JtJW;
-    double prevErrNorm, errNorm;
-    int lambdaLg10;
-    CvTermCriteria criteria;
-    int state;
-    int iters;
-    bool completeSymmFlag;
-    int solveMethod;
+	cv::Ptr<CvMat> mask;
+	cv::Ptr<CvMat> prevParam;
+	cv::Ptr<CvMat> param;
+	cv::Ptr<CvMat> J;
+	cv::Ptr<CvMat> err;
+	cv::Ptr<CvMat> JtJ;
+	cv::Ptr<CvMat> JtJN;
+	cv::Ptr<CvMat> JtErr;
+	cv::Ptr<CvMat> JtJV;
+	cv::Ptr<CvMat> JtJW;
+	double prevErrNorm, errNorm;
+	int lambdaLg10;
+	CvTermCriteria criteria;
+	int state;
+	int iters;
+	bool completeSymmFlag;
+	int solveMethod;
 };
 
 #endif
