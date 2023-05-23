@@ -221,7 +221,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				GIDS.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[GID].entries.size()) + " entries."));
 				bot.message_edit_sync(GIDS.second.msg);
 			}
-		double entries = giveaway_entries[GID].entries.size();
+		double entries = static_cast<double>(giveaway_entries[GID].entries.size());
 		event.reply(dpp::message("> You entered the giveaway; odds of winning are **" + dpp::remove_tail(stod(dpp::comma(static_cast<double>(100 / entries)))) + "%**").set_flags(dpp::message_flags::m_ephemeral));
 	}
 }
@@ -339,14 +339,15 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 }
 template<typename event_t> string membercount_t(event_t event, bool send_embed = true, dpp::message msg = dpp::message())
 {
-	double membercount = 0, bots = 0, after = 0;
+	double membercount = 0, bots = 0;
+	dpp::snowflake after = 0;
 	while (true) {
 		for (auto& members : bot.guild_get_members_sync(dpp::guild_id(event), 1000, after)) {
 			if (members.second.get_user()->is_bot()) bots++;
 			membercount++;
-			membercount + bots >= 1000 ? after = members.second.user_id : after = 0;
+			membercount + bots >= 1000.0 ? after = members.second.user_id : after = 0;
 		}
-		if (after == 0) break;
+		if (after == dpp::snowflake(0)) break;
 	}
 	if (send_embed) {
 		msg.set_content("");
@@ -450,7 +451,7 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 		.set_description("> **Ownership**: <@" + to_string(guild.owner_id) + "> \n\
                           > **Members**: " + membercount_t(event, false) + " \n\
                           > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
-                          > **Created**: " + dpp::utility::timestamp(guild.get_creation_time(), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(guild.get_creation_time(), dpp::utility::tf_short_time) + ""));
+                          > **Created**: " + dpp::utility::timestamp(static_cast<time_t>(guild.get_creation_time()), dpp::utility::tf_relative_time) + " at " + dpp::utility::timestamp(static_cast<time_t>(guild.get_creation_time()), dpp::utility::tf_short_time) + ""));
 	dpp::message_edit(event, msg);
 	return true;
 }
@@ -564,14 +565,13 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 	UserData data = GetUserData(dpp::member(event).user_id);
 	cv::Mat im(256, 640, CV_8UC4);
-	cv::Mat overlap = cv::imread("CDN\\image1.jpg");
-
 	CV_Assert(im.channels() == 4);
 	for (int i = 0; i < im.rows; ++i)
 		for (int j = 0; j < im.cols; ++j) {
 			im.at<cv::Vec4b>(i, j)[0] = UCHAR_MAX;
 			im.at<cv::Vec4b>(i, j)[1] = cv::saturate_cast<uchar>(UCHAR_MAX);
 			im.at<cv::Vec4b>(i, j)[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
+			//im.at<cv::Vec4b>(i, j)[3] = cv::saturate_cast<uchar>(UCHAR_MAX);
 		}
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, 6);
 	cv::putText(im, "Level " + to_string(data.level), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
@@ -580,15 +580,8 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 	cv::line(im,
 		cv::Point(static_cast<int>(65 + data.exp * (data.level * 200 < 565 ? 565 / (data.level * 200) : (data.level * 200) / 565)), static_cast<int>(640 / 4.2)),
 		cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(300, 300, 300, 100), 50, 6);
-	for (int i = 0; i < im.rows; ++i)
-		for (int j = 0; j < im.cols; ++j) {
-			int alpha = 256 * (j + i) / (im.rows + im.cols); // remove transparency
-			im.at<cv::Vec4b>(i, j)[0] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[0] + (alpha * overlap.at<cv::Vec4b>(i, j)[0] / 256);
-			im.at<cv::Vec4b>(i, j)[1] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[1] + (alpha * overlap.at<cv::Vec4b>(i, j)[1] / 256);
-			im.at<cv::Vec4b>(i, j)[2] = (1 - alpha / 256.0) * im.at<cv::Vec4b>(i, j)[2] + (alpha * overlap.at<cv::Vec4b>(i, j)[2] / 256);
-		}
 	try {
-		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, { cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION , 9 });
+		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, { cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION, 9 });
 	}
 	catch (runtime_error& e) {
 		bot.log(dpp::ll_warning, "OpenCV error in /level; " + string(e.what()));
