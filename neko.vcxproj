@@ -43,7 +43,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level2</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -51,7 +51,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4858;26800;26819</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4858;26800;26819;4251</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
@@ -487,6 +487,10 @@
     <ClInclude Include="include\opencv2\video\tracking.hpp" />
     <ClInclude Include="include\opencv2\video\video.hpp" />
     <ClInclude Include="include\opencv2\world.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="include\opencv2\opencv_world470.lib" />
+    <Library Include="include\opencv2\opencv_world470d.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1347,4 +1347,12 @@
       <UniqueIdentifier>{ca610bac-7d96-40a7-a488-cb5fb04cbb48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="include\opencv2\opencv_world470.lib">
+      <Filter>opencv2</Filter>
+    </Library>
+    <Library Include="include\opencv2\opencv_world470d.lib">
+      <Filter>opencv2</Filter>
+    </Library>
+  </ItemGroup>
 </Project>

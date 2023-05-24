@@ -22,13 +22,13 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				games.second.msg.embeds[0].color = dpp::colors::success;
 				games.second.msg.components.clear();
 				bot.message_edit_sync(games.second.msg);
-				{ randomx draw = randomx().Int(1, 52); games.second.p1.emplace(make_pair(0, cards[draw.val].second), make_pair(card_back, cards[draw.val].first)); }
-				{ randomx draw = randomx().Int(1, 52); games.second.p1.emplace(make_pair(cards[draw.val].second, cards[draw.val].second), make_pair(cards[draw.val].first, cards[draw.val].first)); }
+				{ randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(0, cards[draw.val32].second), make_pair(card_back, cards[draw.val32].first)); }
+				{ randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(cards[draw.val32].second, cards[draw.val32].second), make_pair(cards[draw.val32].first, cards[draw.val32].first)); }
 				for (auto& deck : games.second.p1) games.second.p1_deck += deck.second.first + " ", games.second.p1_value += deck.first.first;
 				for (auto& deck : games.second.p1) games.second.p1POV_deck += deck.second.second + " ", games.second.p1POV_value += deck.first.second;
 
-				{ randomx draw = randomx().Int(1, 52); games.second.p2.emplace(cards[draw.val].second, cards[draw.val].first); }
-				{ randomx draw = randomx().Int(1, 52); games.second.p2.emplace(cards[draw.val].second, cards[draw.val].first); }
+				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
+				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				for (auto& deck : games.second.p2) games.second.p2_deck += deck.second + " ", games.second.p2_value += deck.first;
 
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
@@ -126,16 +126,16 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 		for (auto& games : bj_callback) {
 			if (games.first.first == index[1] and games.second.turn == 2 or games.first.second == index[1] and games.second.turn == 1) {
 				if (games.second.turn == 1) {
-					randomx draw = randomx().Int(1, 52); games.second.p1.emplace(make_pair(cards[draw.val].second, cards[draw.val].second), make_pair(cards[draw.val].first, cards[draw.val].first));
-					games.second.p1_deck += cards[draw.val].first, games.second.p1POV_deck += cards[draw.val].first;
-					games.second.p1_value += cards[draw.val].second, games.second.p1POV_value += cards[draw.val].second;
-					event.reply(dpp::message(event.command.channel_id, cards[draw.val].first).set_flags(dpp::message_flags::m_ephemeral));
+					randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(cards[draw.val32].second, cards[draw.val32].second), make_pair(cards[draw.val32].first, cards[draw.val32].first));
+					games.second.p1_deck += cards[draw.val32].first, games.second.p1POV_deck += cards[draw.val32].first;
+					games.second.p1_value += cards[draw.val32].second, games.second.p1POV_value += cards[draw.val32].second;
+					event.reply(dpp::message(event.command.channel_id, cards[draw.val32].first).set_flags(dpp::message_flags::m_ephemeral));
 				}
 				else {
-					randomx draw = randomx().Int(1, 52); games.second.p2.emplace(cards[draw.val].second, cards[draw.val].first);
-					games.second.p2_deck += cards[draw.val].first + " ";
-					games.second.p2_value += cards[draw.val].second;
-					event.reply(dpp::message(event.command.channel_id, cards[draw.val].first).set_flags(dpp::message_flags::m_ephemeral));
+					randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first);
+					games.second.p2_deck += cards[draw.val32].first + " ";
+					games.second.p2_value += cards[draw.val32].second;
+					event.reply(dpp::message(event.command.channel_id, cards[draw.val32].first).set_flags(dpp::message_flags::m_ephemeral));
 				}
 
 				games.second.msg.components.clear();
@@ -245,12 +245,12 @@ template<typename event_t> bool daily_t(event_t event, dpp::message msg)
 	tm* claimed = dpp::utility::mtm(data.daily);
 	time_t ct = dpp::utility::mt_t(claimed, claimed->tm_sec, claimed->tm_min, claimed->tm_hour + 12, claimed->tm_wday, claimed->tm_mday, claimed->tm_mon);
 	if (ct < time(0)) {
-		randomx rand = randomx().Int(30, 92);
+		randomx rand = randomx().i64(30, 92);
 		data.daily = time(0);
-		data.dollars += rand.val;
+		data.dollars += rand.val64;
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
-			.set_description("> claimed " + to_string(rand.val) + " :dollar:"));
+			.set_description("> claimed " + to_string(rand.val64) + " :dollar:"));
 		SaveUserData(data, dpp::member(event).user_id);
 	}
 	else msg.add_embed(dpp::embed()
@@ -517,8 +517,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 	string name = "", bet = "";
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name"), bet = dpp::index(event, "bet");
 	else name = dpp::index(event, "1"), bet = dpp::index(event, "2");
-	if (has_char(username(name)) or has_char(bet)) return false;
-	if (username(name) == to_string(dpp::member(event).user_id));
+	if (has_char(username(name)) or has_char(bet) or username(name) == to_string(dpp::member(event).user_id)) return false;
 	for (auto& games : bj_callback) {
 		if (username(name) == games.first.first) {
 			msg.add_embed(dpp::embed()
@@ -591,9 +590,9 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	msg.set_content("");
 	string prize = "", length = "";
-	int64_t winners = 0, This_GID = randomx().Int(100000, 999999).val;
-	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) prize = dpp::index(event, "prize"), winners = dpp::index_int(event, "winners"), length = dpp::index(event, "length");
-	else prize = dpp::index(event, "1"), winners = dpp::index_int(event, "2"), length = dpp::index(event, "3");
+	int64_t winners = 0, This_GID = randomx().i64(100000, 999999).val64;
+	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) prize = dpp::index(event, "prize"), winners = dpp::indexi64(event, "winners"), length = dpp::index(event, "length");
+	else prize = dpp::index(event, "1"), winners = dpp::indexi64(event, "2"), length = dpp::index(event, "3");
 	time_t ct = time(0);
 	tm* giveaway = dpp::utility::mtm(ct);
 	string chrono = "";
@@ -624,7 +623,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	msg.embeds[0].set_description(u8"**🎉 ∙ Giveaway Ended " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
 	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
 	string winner_list = ""; vector<dpp::snowflake> winner_vec;// orianted
-	for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().Int(1, giveaway_entries[This_GID].entries.size()).val - 1]);
+	for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().i64(1, giveaway_entries[This_GID].entries.size()).val64 - 1]);
 	for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
 	winner_list.pop_back();
 	msg.set_content("Winners: " + winner_list);

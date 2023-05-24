@@ -1,3 +1,4 @@
+/* Copyright(c) LeeEndl; License Apache License 2.0 */
 #pragma once
 
 namespace command { map<string, dpp::snowflake> name_to_id; }
@@ -202,5 +203,5 @@ public:
 	vector<dpp::snowflake> entries;
 	int id = 0;
 };
-map<int/*giveaway id*/, giveaway_traffic> giveaway_entries;
-map<int, giveaway_traffic> giveaway_callback;
+map<int64_t, giveaway_traffic> giveaway_entries;
+map<int64_t, giveaway_traffic> giveaway_callback;
