@@ -579,14 +579,15 @@ private: ty input;
 };
 class randomx {
 public:
-	randomx& Int(int min, int max) { std::random_device picker; std::uniform_int_distribution<int> numbers(min, max); val = numbers(picker); return *this; }
-	randomx& Long(long min, long max) { std::random_device picker; std::uniform_int_distribution<long> numbers(min, max); val = numbers(picker); return *this; }
-	uint64_t val = 0;
+	randomx& i32(int32_t min, int32_t max) { std::random_device picker; std::uniform_int_distribution<int32_t> numbers(min, max); val32 = numbers(picker); return *this; }
+	randomx& i64(int64_t min, int64_t max) { std::random_device picker; std::uniform_int_distribution<int64_t> numbers(min, max); val64 = numbers(picker); return *this; }
+	int64_t val64 = 0;
+	int32_t val32 = 0;
 };
 template <class T1, class T2, class Pred = std::greater<T1> >
 struct first {
 	bool operator()(const std::pair<T1, T2>& left, const std::pair<T1, T2>& right) {
-		Pred p;
+		Pred p = Pred();
 		return p(left.first, right.first);
 	}
 };
