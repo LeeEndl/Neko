@@ -323,17 +323,15 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 			}
 			if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
 		}
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::failed)
+			.set_description("> Deleted `" + amount + "` Message(s)"));
 	}
-	catch (dpp::exception dpp_e) {
+	catch (dpp::exception e) {
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::failed)
 			.set_description("> you cannot delete messages older then ``14 days``"));
-		dpp::message_edit(event, msg);
-		return false;
 	}
-	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::failed)
-		.set_description("> Deleted `" + amount + "` Message(s)"));
 	dpp::message_edit(event, msg);
 	return true;
 }
