@@ -13,8 +13,8 @@ namespace dpp {
 	dpp::snowflake guild_id(const dpp::slashcommand_t& event) { return event.command.guild_id; }
 	string index(const dpp::message_create_t& event, string pos) { return dpp::index(event.msg.content, ' ')[stoi(pos)]; }
 	string index(const dpp::slashcommand_t& event, string pos) { return get<string>(event.get_parameter(pos)); }
-	int64_t index_int(const dpp::message_create_t& event, string pos) { return stoull(dpp::index(event.msg.content, ' ')[stoi(pos)]); }
-	int64_t index_int(const dpp::slashcommand_t& event, string pos) { return get<int64_t>(event.get_parameter(pos)); }
+	int64_t indexi64(const dpp::message_create_t& event, string pos) { return stoull(dpp::index(event.msg.content, ' ')[stoull(pos)]); }
+	int64_t indexi64(const dpp::slashcommand_t& event, string pos) { return get<int64_t>(event.get_parameter(pos)); }
 	bool empty_index(const dpp::message_create_t& event, string pos) { if (dpp::index(event.msg.content, ' ').size() == stoi(pos)) return true; else return false; }
 	bool empty_index(const dpp::slashcommand_t& event, string pos) { if (event.get_parameter("name").index() == 0) return true; else return false; }
 	dpp::message message_create(const dpp::message_create_t& event, dpp::message msg) { return bot.message_create_sync(msg); }
