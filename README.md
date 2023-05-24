@@ -1,8 +1,4 @@
-[![MSBuild](https://github.com/LeeEndl/Neko/actions/workflows/msbuild.yml/badge.svg?branch=latest)](https://github.com/LeeEndl/Neko/actions/workflows/msbuild.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/38519a15520846e6bddb9ec73e6b45bb)](https://app.codacy.com/gh/LeeEndl/Neko/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Neko Discord Link](https://badgen.net/badge/Discord/Join/786bff?icon=discord)](https://discord.gg/H75mc6XmVM)
+[![](https://github.com/LeeEndl/Neko/actions/workflows/msbuild.yml/badge.svg?branch=latest)](https://github.com/LeeEndl/Neko/actions/workflows/msbuild.yml) [![](https://app.codacy.com/project/badge/Grade/38519a15520846e6bddb9ec73e6b45bb)](https://app.codacy.com/gh/LeeEndl/Neko/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![](https://badgen.net/badge/Discord/Join/786bff?icon=discord)](https://discord.gg/H75mc6XmVM)
 
-
-## Supporting
-
-> - **C++17** and above
-> 
-> - **Visual Studio 2022**
+### Tested Build 
+[![](https://badgen.net/badge/VS/2022/3d3d44?icon=visualstudio&labelColor=786bff)](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) ![](https://badgen.net/badge/C++/17/3d3d44?labelColor=3d3d44) ![](https://badgen.net/badge/C++/20/3d3d44?labelColor=3d3d44) ![](https://badgen.net/badge/C++/latest/3d3d44?labelColor=3d3d44) 
