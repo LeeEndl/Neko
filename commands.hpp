@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿/* Copyright(c) LeeEndl; License Apache License 2.0 */
+#pragma once
 
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
@@ -459,12 +460,14 @@ template<typename event_t> bool help_t(event_t event, dpp::message msg) {
 		.set_color(dpp::colors::success)
 		.set_title(bot.me.username + " Commands")
 		.set_description(":moneybag: **__Economy__**:\n\
-                          > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\n\
+                          > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\
+                          > </blackjack:" + to_string(command::name_to_id["blackjack"]) + ">: play a game of blackjack. `{Mention} {Bet}` *--* Alias: </bj:" + to_string(command::name_to_id["bj"]) + "> \n\n\
                              :busts_in_silhouette: **__Social__**:\n\
                           > </profile:" + to_string(command::name_to_id["profile"]) + ">: check out someone's profile. `{Mention}`\n\
                           > </leaderboard:" + to_string(command::name_to_id["leaderboard"]) + ">: show richest players. *--* Alias: </top:" + to_string(command::name_to_id["top"]) + "> \n\
-                          > </avatar:" + to_string(command::name_to_id["avatar"]) + ">: check out someone's avatar. `{Mention}`\n\n\
-                             <:mod:1105640054136774667> **__Moderation__**:\n\
+                          > </avatar:" + to_string(command::name_to_id["avatar"]) + ">: check out someone's avatar. `{Mention}`\n\
+                          > </level:" + to_string(command::name_to_id["level"]) + ">: view your level. *--* Alias: </lvl:" + to_string(command::name_to_id["lvl"]) + ">\n\n\
+                             <:mod:1105971852888776816> **__Moderation__**:\n\
                           > </purge:" + to_string(command::name_to_id["purge"]) + ">: mass delete messages in a channel. `{Amount}`\n\
                           > </nick:" + to_string(command::name_to_id["nick"]) + ">: change a member's nickname. `{Mention} {Nickname}`\n\
                           > </timeout:" + to_string(command::name_to_id["timeout"]) + ">: timeout someone. `{Mention} {Legnth}`\n\n\
@@ -487,17 +490,13 @@ template<typename event_t> bool timeout_t(event_t event, dpp::message msg) {
 		string duration_type = "";
 		tm* timeout = dpp::utility::mtm(ct);
 		if (length.find("s") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec + stoi(length), timeout->tm_min, timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 's'), length.end()), duration_type = " seconds**";
-
+			length.erase(remove(length.begin(), length.end(), 's'), length.end()), duration_type = " second" + string(stoi(length) <= 1 ? "" : "s") + "**";
 		else if (length.find("m") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min + stoi(length), timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'm'), length.end()), duration_type = " minutes**";
-
+			length.erase(remove(length.begin(), length.end(), 'm'), length.end()), duration_type = " minute" + string(stoi(length) <= 1 ? "" : "s") + "**";
 		else if (length.find("h") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour + stoi(length), timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'h'), length.end()), duration_type = " hours**";
-
+			length.erase(remove(length.begin(), length.end(), 'h'), length.end()), duration_type = " hour" + string(stoi(length) <= 1 ? "" : "s") + "**";
 		else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour, timeout->tm_wday + stoi(length), timeout->tm_mday + stoi(length), timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'd'), length.end()), duration_type = " days**";
-
+			length.erase(remove(length.begin(), length.end(), 'd'), length.end()), duration_type = " day" + string(stoi(length) <= 1 ? "" : "s") + "**";
 		bot.guild_member_timeout_sync(dpp::guild_id(event), stoull(username(name)), ct);
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
@@ -551,7 +550,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 				);
 				bj_callback.emplace(make_pair(username(name), to_string(dpp::member(event).user_id)), blackjack().set_msg(msg).set_bet(stoull(bet)));
 			}
-		if (after == static_cast<dpp::snowflake>(0)) break;
+		if (after == dpp::snowflake(0)) break;
 	}
 	if (msg.embeds.empty())
 		msg.add_embed(dpp::embed()
@@ -569,7 +568,6 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 			im.at<cv::Vec4b>(i, j)[0] = UCHAR_MAX;
 			im.at<cv::Vec4b>(i, j)[1] = cv::saturate_cast<uchar>(UCHAR_MAX);
 			im.at<cv::Vec4b>(i, j)[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
-			//im.at<cv::Vec4b>(i, j)[3] = cv::saturate_cast<uchar>(UCHAR_MAX);
 		}
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, 6);
 	cv::putText(im, "Level " + to_string(data.level), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
@@ -601,16 +599,12 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	string chrono = "";
 	if (length.find("s") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec + stoi(length), giveaway->tm_min, giveaway->tm_hour, giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
 		length.erase(remove(length.begin(), length.end(), 's'), length.end()), chrono = "s";
-
 	else if (length.find("m") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min + stoi(length), giveaway->tm_hour, giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
 		length.erase(remove(length.begin(), length.end(), 'm'), length.end()), chrono = "m";
-
 	else if (length.find("h") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min, giveaway->tm_hour + stoi(length), giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
 		length.erase(remove(length.begin(), length.end(), 'h'), length.end()), chrono = "h";
-
 	else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min, giveaway->tm_hour, giveaway->tm_wday + stoi(length), giveaway->tm_mday + stoi(length), giveaway->tm_mon),
 		length.erase(remove(length.begin(), length.end(), 'd'), length.end()), chrono = "d";
-
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::PS)
 		.set_description(u8"**🎉 ∙ Giveaway Ends " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
@@ -619,7 +613,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 		.add_component(dpp::component()
 			.set_emoji("giveaway", 1107511917544738939, true)
 			.set_label("Join")
-			.set_disabled(false) // for later
+			.set_disabled(false)
 			.set_style(dpp::cos_primary)
 			.set_id("GID_" + to_string(This_GID))));
 	dpp::message_edit(event, msg);
@@ -628,7 +622,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 		chrono == "h" ? chrono::hours(stoull(length) - 1) : chrono == "d" ? chrono::hours(stoull(length) * 24 - 1) : 0s);
 	msg.components[0].components[0].set_disabled(true);
 	msg.embeds[0].set_description(u8"**🎉 ∙ Giveaway Ended " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
-	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries.")); // confused why it doesn't inharit through the giveaway_callback
+	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
 	string winner_list = ""; vector<dpp::snowflake> winner_vec;// orianted
 	for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().Int(1, giveaway_entries[This_GID].entries.size()).val - 1]);
 	for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
@@ -698,9 +692,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1)
+	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1)
 		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
 			.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
 	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1)
