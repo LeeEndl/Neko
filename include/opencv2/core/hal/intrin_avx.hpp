@@ -399,39 +399,39 @@ namespace cv
 
 #define OPENCV_HAL_IMPL_AVX_LOADSTORE(_Tpvec, _Tp)                    \
     inline _Tpvec v256_load(const _Tp* ptr)                           \
-    { return _Tpvec(_mm256_loadu_si256((const __m256i*)ptr)); }       \
+    { return _Tpvec(_mm256_loadu_si256(static_cast<const __m256i*>(ptr))); }       \
     inline _Tpvec v256_load_aligned(const _Tp* ptr)                   \
-    { return _Tpvec(_mm256_load_si256((const __m256i*)ptr)); }        \
+    { return _Tpvec(_mm256_load_si256(static_cast<const __m256i*>(ptr))); }        \
     inline _Tpvec v256_load_low(const _Tp* ptr)                       \
     {                                                                 \
-        __m128i v128 = _mm_loadu_si128((const __m128i*)ptr);          \
+        __m128i v128 = _mm_loadu_si128(static_cast<const __m128i*>(ptr));          \
         return _Tpvec(_mm256_castsi128_si256(v128));                  \
     }                                                                 \
     inline _Tpvec v256_load_halves(const _Tp* ptr0, const _Tp* ptr1)  \
     {                                                                 \
-        __m128i vlo = _mm_loadu_si128((const __m128i*)ptr0);          \
-        __m128i vhi = _mm_loadu_si128((const __m128i*)ptr1);          \
+        __m128i vlo = _mm_loadu_si128(static_cast<const __m128i*>(ptr0));          \
+        __m128i vhi = _mm_loadu_si128(static_cast<const __m128i*>(ptr1));          \
         return _Tpvec(_v256_combine(vlo, vhi));                       \
     }                                                                 \
     inline void v_store(_Tp* ptr, const _Tpvec& a)                    \
-    { _mm256_storeu_si256((__m256i*)ptr, a.val); }                    \
+    { _mm256_storeu_si256(static_cast<const __m128i*>(ptr), a.val); }                    \
     inline void v_store_aligned(_Tp* ptr, const _Tpvec& a)            \
-    { _mm256_store_si256((__m256i*)ptr, a.val); }                     \
+    { _mm256_store_si256(static_cast<const __m256i*>(ptr), a.val); }                     \
     inline void v_store_aligned_nocache(_Tp* ptr, const _Tpvec& a)    \
-    { _mm256_stream_si256((__m256i*)ptr, a.val); }                    \
+    { _mm256_stream_si256(static_cast<const __m256i*>(ptr), a.val); }                    \
     inline void v_store(_Tp* ptr, const _Tpvec& a, hal::StoreMode mode) \
     { \
         if( mode == hal::STORE_UNALIGNED ) \
-            _mm256_storeu_si256((__m256i*)ptr, a.val); \
+            _mm256_storeu_si256(static_cast<const __m256i*>(ptr), a.val); \
         else if( mode == hal::STORE_ALIGNED_NOCACHE )  \
-            _mm256_stream_si256((__m256i*)ptr, a.val); \
+            _mm256_stream_si256(static_cast<const __m256i*>(ptr), a.val); \
         else \
-            _mm256_store_si256((__m256i*)ptr, a.val); \
+            _mm256_store_si256(static_cast<const __m256i*>(ptr), a.val); \
     } \
     inline void v_store_low(_Tp* ptr, const _Tpvec& a)                \
-    { _mm_storeu_si128((__m128i*)ptr, _v256_extract_low(a.val)); }    \
+    { _mm_storeu_si128(static_cast<const __m128i*>(ptr), _v256_extract_low(a.val)); }    \
     inline void v_store_high(_Tp* ptr, const _Tpvec& a)               \
-    { _mm_storeu_si128((__m128i*)ptr, _v256_extract_high(a.val)); }
+    { _mm_storeu_si128(static_cast<const __m128i*>(ptr), _v256_extract_high(a.val)); }
 
 	OPENCV_HAL_IMPL_AVX_LOADSTORE(v_uint8x32, uchar)
 		OPENCV_HAL_IMPL_AVX_LOADSTORE(v_int8x32, schar)
@@ -1758,15 +1758,15 @@ namespace cv
 			tab[idx[24]], tab[idx[25]], tab[idx[26]], tab[idx[27]], tab[idx[28]], tab[idx[29]], tab[idx[30]], tab[idx[31]]));
 	}
 	inline v_int8x32 v256_lut_pairs(const schar* tab, const int* idx)
-	{
-		return v_int8x32(_mm256_setr_epi16(*(const short*)(tab + idx[0]), *(const short*)(tab + idx[1]), *(const short*)(tab + idx[2]), *(const short*)(tab + idx[3]),
-			*(const short*)(tab + idx[4]), *(const short*)(tab + idx[5]), *(const short*)(tab + idx[6]), *(const short*)(tab + idx[7]),
-			*(const short*)(tab + idx[8]), *(const short*)(tab + idx[9]), *(const short*)(tab + idx[10]), *(const short*)(tab + idx[11]),
-			*(const short*)(tab + idx[12]), *(const short*)(tab + idx[13]), *(const short*)(tab + idx[14]), *(const short*)(tab + idx[15])));
+	{   // TODO wrong casting
+		return v_int8x32(_mm256_setr_epi16((*static_cast<const short*>(tab + idx[0])), (*static_cast<const short*>(tab + idx[1])), (*static_cast<const short*>(tab + idx[2])), (*static_cast<const short*>(tab + idx[3])),
+			(*static_cast<const short*>(tab + idx[4])), (*static_cast<const short*>(tab + idx[5])), (*static_cast<const short*>(tab + idx[6])), (*static_cast<const short*>(tab + idx[7])),
+			(*static_cast<const short*>(tab + idx[8])), (*static_cast<const short*>(tab + idx[9])), (*static_cast<const short*>(tab + idx[10])), (*static_cast<const short*>(tab + idx[11])),
+			(*static_cast<const short*>(tab + idx[12])), (*static_cast<const short*>(tab + idx[13])), (*static_cast<const short*>(tab + idx[14])), (*static_cast<const short*>(tab + idx[15]))));
 	}
 	inline v_int8x32 v256_lut_quads(const schar* tab, const int* idx)
 	{
-		return v_int8x32(_mm256_i32gather_epi32((const int*)tab, _mm256_loadu_si256((const __m256i*)idx), 1));
+		return v_int8x32(_mm256_i32gather_epi32(static_cast<const int*>(tab), _mm256_loadu_si256(static_cast<const __m256i*>(idx)), 1));
 	}
 	inline v_uint8x32 v256_lut(const uchar* tab, const int* idx) { return v_reinterpret_as_u8(v256_lut((const schar*)tab, idx)); }
 	inline v_uint8x32 v256_lut_pairs(const uchar* tab, const int* idx) { return v_reinterpret_as_u8(v256_lut_pairs((const schar*)tab, idx)); }
@@ -1800,25 +1800,25 @@ namespace cv
 	inline v_int32x8 v256_lut_pairs(const int* tab, const int* idx)
 	{
 #if defined(__GNUC__)
-		return v_int32x8(_mm256_i32gather_epi64((const long long int*)tab, _mm_loadu_si128((const __m128i*)idx), 4));
+		return v_int32x8(_mm256_i32gather_epi64(static_cast<const long long int*>(tab), _mm_loadu_si128(static_cast<const __m128i*>(idx)), 4));
 #else
-		return v_int32x8(_mm256_i32gather_epi64((const int64*)tab, _mm_loadu_si128((const __m128i*)idx), 4));
+		return v_int32x8(_mm256_i32gather_epi64(static_cast<const int64*>(tab), _mm_loadu_si128(static_cast<const __m128i*>(idx)), 4));
 #endif
 	}
 	inline v_int32x8 v256_lut_quads(const int* tab, const int* idx)
 	{
 		return v_int32x8(_v256_combine(_mm_loadu_si128((const __m128i*)(tab + idx[0])), _mm_loadu_si128((const __m128i*)(tab + idx[1]))));
 	}
-	inline v_uint32x8 v256_lut(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut((const int*)tab, idx)); }
-	inline v_uint32x8 v256_lut_pairs(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut_pairs((const int*)tab, idx)); }
-	inline v_uint32x8 v256_lut_quads(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut_quads((const int*)tab, idx)); }
+	inline v_uint32x8 v256_lut(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut(static_cast<const int*>(tab), idx)); }
+	inline v_uint32x8 v256_lut_pairs(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut_pairs(static_cast<const int*>(tab), idx)); }
+	inline v_uint32x8 v256_lut_quads(const unsigned* tab, const int* idx) { return v_reinterpret_as_u32(v256_lut_quads(static_cast<const int*>(tab), idx)); }
 
 	inline v_int64x4 v256_lut(const int64* tab, const int* idx)
 	{
 #if defined(__GNUC__)
-		return v_int64x4(_mm256_i32gather_epi64((const long long int*)tab, _mm_loadu_si128((const __m128i*)idx), 8));
+		return v_int64x4(_mm256_i32gather_epi64(static_cast<const long long int*>(tab), _mm_loadu_si128(static_cast<const __m128i*>(idx)), 8));
 #else
-		return v_int64x4(_mm256_i32gather_epi64(tab, _mm_loadu_si128((const __m128i*)idx), 8));
+		return v_int64x4(_mm256_i32gather_epi64(tab, _mm_loadu_si128(static_cast<const __m128i*>(idx)), 8));
 #endif
 	}
 	inline v_int64x4 v256_lut_pairs(const int64* tab, const int* idx)
@@ -1832,12 +1832,12 @@ namespace cv
 	{
 		return v_float32x8(_mm256_i32gather_ps(tab, _mm256_loadu_si256((const __m256i*)idx), 4));
 	}
-	inline v_float32x8 v256_lut_pairs(const float* tab, const int* idx) { return v_reinterpret_as_f32(v256_lut_pairs((const int*)tab, idx)); }
-	inline v_float32x8 v256_lut_quads(const float* tab, const int* idx) { return v_reinterpret_as_f32(v256_lut_quads((const int*)tab, idx)); }
+	inline v_float32x8 v256_lut_pairs(const float* tab, const int* idx) { return v_reinterpret_as_f32(v256_lut_pairs(static_cast<const int*>(tab), idx)); }
+	inline v_float32x8 v256_lut_quads(const float* tab, const int* idx) { return v_reinterpret_as_f32(v256_lut_quads(static_cast<const int*>(tab), idx)); }
 
 	inline v_float64x4 v256_lut(const double* tab, const int* idx)
 	{
-		return v_float64x4(_mm256_i32gather_pd(tab, _mm_loadu_si128((const __m128i*)idx), 8));
+		return v_float64x4(_mm256_i32gather_pd(tab, _mm_loadu_si128(static_cast<const __m128i*>(idx)), 8));
 	}
 	inline v_float64x4 v256_lut_pairs(const double* tab, const int* idx) { return v_float64x4(_v256_combine(_mm_loadu_pd(tab + idx[0]), _mm_loadu_pd(tab + idx[1]))); }
 
