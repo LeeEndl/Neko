@@ -41,6 +41,9 @@
 //
 //M*/
 
+#pragma comment(lib, "include/opencv2/opencv_world470.lib")
+#pragma comment(lib, "include/opencv2/opencv_world470d.lib")
+
 #ifndef OPENCV_CORE_PERSISTENCE_HPP
 #define OPENCV_CORE_PERSISTENCE_HPP
 

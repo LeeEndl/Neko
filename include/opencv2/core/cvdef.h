@@ -409,7 +409,7 @@ Cv64suf;
 #endif
 
 #ifndef CV_EXPORTS
-# define CV_EXPORTS
+# define CV_EXPORTS 
 #endif
 
 #ifdef _MSC_VER

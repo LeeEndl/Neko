@@ -244,7 +244,7 @@ namespace cv {
 		template<typename _Tp> inline
 			_Tp* GpuMat::ptr(int y)
 		{
-			return (_Tp*)ptr(y);
+			return static_cast<_Tp*>(ptr(y));
 		}
 
 		template<typename _Tp> inline
@@ -256,13 +256,13 @@ namespace cv {
 		template <class T> inline
 			GpuMat::operator PtrStepSz<T>() const
 		{
-			return PtrStepSz<T>(rows, cols, (T*)data, step);
+			return PtrStepSz<T>(rows, cols, static_cast<T*>(data), step);
 		}
 
 		template <class T> inline
 			GpuMat::operator PtrStep<T>() const
 		{
-			return PtrStep<T>((T*)data, step);
+			return PtrStep<T>(static_cast<T*>(data), step);
 		}
 
 		inline
