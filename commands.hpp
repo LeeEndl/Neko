@@ -301,28 +301,23 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 {
 	int64_t amount = 0;
 	msg.set_content("");
-	try {
-		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::indexi64(event, "amount");
-		else amount = dpp::indexi64(event, "1");
-		if (amount <= 1 or amount > 100) return false;
-		else {
-			vector<dpp::snowflake> ids;
-			auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount);
-			if (msgs.size() <= 1) return false;
-			for (auto& msg : msgs) {
-				if (msg.second.author.username.empty()) continue;
-				ids.emplace_back(msg.second.id);
-			}
-			if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
+	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::indexi64(event, "amount");
+	else amount = dpp::indexi64(event, "1");
+	if (amount <= 1 or amount > 100) msg.add_embed(dpp::embed()
+		.set_color(dpp::colors::failed)
+		.set_description("> Can only delete 100 messages at a time.")); // TODO remove restriction
+	else {
+		vector<dpp::snowflake> ids;
+		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, dpp::ori_message(event).id, 0, amount);
+		if (msgs.size() <= 1) return false;
+		for (auto& msg : msgs) {
+			if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600) continue;
+			ids.emplace_back(msg.second.id);
 		}
+		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::failed)
-			.set_description("> Deleted `" + to_string(amount) + "` Message(s)"));
-	}
-	catch (dpp::exception) {
-		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::failed)
-			.set_description("> you cannot delete messages older then ``14 days``"));
+			.set_color(dpp::colors::success)
+			.set_description("> Deleted `" + to_string(ids.size()) + "` Message(s)"));
 	}
 	dpp::message_edit(event, msg);
 	return true;
