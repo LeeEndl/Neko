@@ -51,7 +51,11 @@ int main() {
 		event_threads.emplace_back(thread::thread(await_on_button_click, event));
 		});
 
-	bot.start(dpp::start_type::st_wait);
+	try { bot.start(dpp::start_type::st_wait); }
+	catch (dpp::exception e) {
+		print<string>(e.msg, nullptr, { newline, color::red, false }), filesystem::remove(filesystem::path("token")), sleep_for(3s);
+		system("neko.exe"); // -> TODO: find an alternative of system()
+	}
 }
 
 #ifndef CUSTOM_VERSION
