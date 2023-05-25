@@ -299,16 +299,15 @@ template<typename event_t> bool leaderboard_t(event_t event, dpp::message msg)
 }
 template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::message())
 {
-	string amount = "";
+	int64_t amount = 0;
 	msg.set_content("");
 	try {
-		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::index(event, "amount");
-		else amount = dpp::index(event, "1");
-		if (has_char(amount)) return false;
-		if (stoi(amount) <= 1 or stoi(amount) > 100) return false;
+		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::indexi64(event, "amount");
+		else amount = dpp::indexi64(event, "1");
+		if (amount <= 1 or amount > 100) return false;
 		else {
 			vector<dpp::snowflake> ids;
-			auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, stoull(amount));
+			auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount);
 			if (msgs.size() <= 1) return false;
 			for (auto& msg : msgs) {
 				if (msg.second.author.username.empty()) continue;
@@ -318,7 +317,7 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 		}
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::failed)
-			.set_description("> Deleted `" + amount + "` Message(s)"));
+			.set_description("> Deleted `" + to_string(amount) + "` Message(s)"));
 	}
 	catch (dpp::exception) {
 		msg.add_embed(dpp::embed()
@@ -719,7 +718,7 @@ void load_slashcommands()
 		about{"fish", "go fishing", dpp::permissions::p_send_messages},
 		about{"repair", "the item you wanna repair", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "id", "the item id", true}}},
 		about{"leaderboard", "see top players", dpp::permissions::p_send_messages}, about{"top", "see top players", dpp::permissions::p_send_messages},
-		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, options{option{dpp::command_option_type::co_string, "amount", "amount of messages to which be deleted", true}}},
+		about{"purge", "mass delete messages in a channel", dpp::permissions::p_administrator, options{option{dpp::command_option_type::co_integer, "amount", "amount of messages to which be deleted", true}}},
 		about{"membercount", "view all members in server", dpp::permissions::p_send_messages},
 		about{"avatar", "view someone's avatar", dpp::permissions::p_send_messages, options{option{dpp::command_option_type::co_string, "name", "person's avatar you wanna view. Empty if yourself.", false}}},
 		about{"invite", "invite " + bot.me.username + " to your server", dpp::permissions::p_send_messages},
