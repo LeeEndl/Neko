@@ -202,17 +202,9 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 			if (entry.first == GID)
 				for (auto it = giveaway_entries[entry.first].entries.begin(); it != giveaway_entries[entry.first].entries.end(); ++it)
 					if (*it == event.command.member.user_id) {
-						giveaway_entries[entry.first].entries.erase(it);
-						/* UPDATE */
-						for (auto& GIDS : giveaway_callback)
-							if (GIDS.first == GID) {
-								GIDS.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[GID].entries.size()) + " entries."));
-								bot.message_edit_sync(GIDS.second.msg);
-							}
-						event.reply(dpp::message("> You resigned from the giveaway.").set_flags(dpp::message_flags::m_ephemeral));
+						event.reply(dpp::message("> Your already in the giveaway.").set_flags(dpp::message_flags::m_ephemeral));
 						return;
 					}
-
 		giveaway_traffic traffic;
 		traffic.entries.emplace_back(event.command.member.user_id);
 		traffic.id = GID;
@@ -328,7 +320,7 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 			.set_color(dpp::colors::failed)
 			.set_description("> Deleted `" + amount + "` Message(s)"));
 	}
-	catch (dpp::exception e) {
+	catch (dpp::exception) {
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::failed)
 			.set_description("> you cannot delete messages older then ``14 days``"));
@@ -622,12 +614,14 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	msg.components[0].components[0].set_disabled(true);
 	msg.embeds[0].set_description(u8"**🎉 ∙ Giveaway Ended " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
 	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
-	string winner_list = ""; vector<dpp::snowflake> winner_vec;// orianted
-	for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().i64(1, giveaway_entries[This_GID].entries.size()).val64 - 1]);
-	for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
-	winner_list.pop_back();
-	msg.set_content("Winners: " + winner_list);
-	msg.set_allowed_mentions(false, false, false, false, winner_vec, { 0 });
+	if (not giveaway_entries[This_GID].entries.empty()) { // this would never happen in bigger servers. but it's a safe measure
+		string winner_list = ""; vector<dpp::snowflake> winner_vec;
+		for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().i64(1, giveaway_entries[This_GID].entries.size()).val64 - 1]);
+		for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
+		winner_list.pop_back();
+		msg.set_content("Winners: " + winner_list);
+		msg.set_allowed_mentions(false, false, false, false, winner_vec, { 0 });
+	}
 	dpp::message_edit(event, msg);
 	return true;
 }
