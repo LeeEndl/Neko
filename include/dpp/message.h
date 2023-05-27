@@ -215,7 +215,7 @@ namespace dpp {
 	 * using component::add_component(), so that the parent
 	 * object is an action row and the child objects are buttons.
 	 */
-	class DPP_EXPORT component : public json_interface<component> {
+	class component : public json_interface<component> {
 	public:
 		/** Component type, either a button or action row
 		 */
@@ -332,7 +332,7 @@ namespace dpp {
 		 * @param ct The dpp::channel_type
 		 * @return component& reference to self
 		 */
-		component& add_channel_type(uint8_t ct);
+		DPP_EXPORT component& add_channel_type(uint8_t ct);
 
 		/**
 		 * @brief Set the type of the component. Button components
@@ -345,7 +345,7 @@ namespace dpp {
 		 * @param ct The component type
 		 * @return component& reference to self
 		 */
-		component& set_type(component_type ct);
+		DPP_EXPORT component& set_type(component_type ct);
 
 		/**
 		 * @brief Set the text style of a text component
@@ -354,7 +354,7 @@ namespace dpp {
 		 * @param ts Text style type to set
 		 * @return component& reference to self
 		 */
-		component& set_text_style(text_style_type ts);
+		DPP_EXPORT component& set_text_style(text_style_type ts);
 
 		/**
 		 * @brief Set the label of the component, e.g. button text.
@@ -364,7 +364,7 @@ namespace dpp {
 		 * @param label Label text to set. It will be truncated to the maximum length of 80 UTF-8 characters.
 		 * @return component& Reference to self
 		 */
-		component& set_label(const std::string& label);
+		DPP_EXPORT component& set_label(const std::string& label);
 
 		/**
 		 * @brief Set the default value of the text input component.
@@ -374,7 +374,7 @@ namespace dpp {
 		 * @param val Value text to set. It will be truncated to the maximum length of 4000 UTF-8 characters.
 		 * @return component& Reference to self
 		 */
-		component& set_default_value(const std::string& val);
+		DPP_EXPORT component& set_default_value(const std::string& val);
 
 		/**
 		 * @brief Set the url for dpp::cos_link types.
@@ -384,7 +384,7 @@ namespace dpp {
 		 * @param url URL to set. It will be truncated to the maximum length of 512 UTF-8 characters.
 		 * @return component& reference to self.
 		 */
-		component& set_url(const std::string& url);
+		DPP_EXPORT component& set_url(const std::string& url);
 
 		/**
 		 * @brief Set the style of the component, e.g. button colour.
@@ -394,7 +394,7 @@ namespace dpp {
 		 * @param cs Component style to set
 		 * @return component& reference to self
 		 */
-		component& set_style(component_style cs);
+		DPP_EXPORT component& set_style(component_style cs);
 
 		/**
 		 * @brief Set the id of the component.
@@ -407,7 +407,7 @@ namespace dpp {
 		 * If your Custom ID is longer than this, it will be truncated.
 		 * @return component& Reference to self
 		 */
-		component& set_id(const std::string& id);
+		DPP_EXPORT component& set_id(const std::string& id);
 
 		/**
 		 * @brief Set the component to disabled.
@@ -416,7 +416,7 @@ namespace dpp {
 		 * @param disable True to disable, false to disable.
 		 * @return component& Reference to self
 		 */
-		component& set_disabled(bool disable);
+		DPP_EXPORT component& set_disabled(bool disable);
 
 		/**
 		 * @brief Set if this component is required.
@@ -425,7 +425,7 @@ namespace dpp {
 		 * @param require True to require this, false to make it optional.
 		 * @return component& Reference to self
 		 */
-		component& set_required(bool require);
+		DPP_EXPORT component& set_required(bool require);
 
 		/**
 		 * @brief Set the placeholder
@@ -435,7 +435,7 @@ namespace dpp {
 		 * characters for modals.
 		 * @return component& Reference to self
 		 */
-		component& set_placeholder(const std::string& placeholder);
+		DPP_EXPORT component& set_placeholder(const std::string& placeholder);
 
 		/**
 		 * @brief Set the min value
@@ -443,7 +443,7 @@ namespace dpp {
 		 * @param min_values min value to set
 		 * @return component& Reference to self
 		 */
-		component& set_min_values(uint32_t min_values);
+		DPP_EXPORT component& set_min_values(uint32_t min_values);
 
 		/**
 		 * @brief Set the max value
@@ -451,7 +451,7 @@ namespace dpp {
 		 * @param max_values max value to set (0 - 25)
 		 * @return component& Reference to self
 		 */
-		component& set_max_values(uint32_t max_values);
+		DPP_EXPORT component& set_max_values(uint32_t max_values);
 
 		/**
 		 * @brief Set the min length of text input
@@ -459,7 +459,7 @@ namespace dpp {
 		 * @param min_l min value to set (0 - 25)
 		 * @return component& Reference to self
 		 */
-		component& set_min_length(uint32_t min_l);
+		DPP_EXPORT component& set_min_length(uint32_t min_l);
 
 		/**
 		 * @brief Set the max length of text input
@@ -467,7 +467,7 @@ namespace dpp {
 		 * @param max_l max value to set
 		 * @return component& Reference to self
 		 */
-		component& set_max_length(uint32_t max_l);
+		DPP_EXPORT component& set_max_length(uint32_t max_l);
 
 		/**
 		 * @brief Add a select option
@@ -475,7 +475,7 @@ namespace dpp {
 		 * @param option option to add
 		 * @return component& Reference to self
 		 */
-		component& add_select_option(const select_option& option);
+		DPP_EXPORT component& add_select_option(const select_option& option);
 
 		/**
 		 * @brief Add a sub-component, only valid for action rows.
@@ -485,7 +485,7 @@ namespace dpp {
 		 * @param c The sub-component to add
 		 * @return component& reference to self
 		 */
-		component& add_component(const component& c);
+		DPP_EXPORT component& add_component(const component& c);
 
 		/**
 		 * @brief Set the emoji of the current sub-component.
@@ -504,13 +504,21 @@ namespace dpp {
 		 * @param animated True if the custom emoji is animated.
 		 * @return component& Reference to self
 		 */
-		component& set_emoji(const std::string& name, dpp::snowflake id = 0, bool animated = false);
+		DPP_EXPORT component& set_emoji(const std::string& name, dpp::snowflake id = 0, bool animated = false);
+		component& set_emoji(const char8_t* name, dpp::snowflake id = 0, bool animated = false)
+		{
+			if (type == cot_action_row) set_type(cot_button);
+			this->emoji.id = id;
+			this->emoji.name = reinterpret_cast<const char*>(name);
+			this->emoji.animated = animated;
+			return *this;
+		}
 
 		/** Read class values from json object
 		 * @param j A json object to read from
 		 * @return A reference to self
 		 */
-		component& fill_from_json(nlohmann::json* j);
+		DPP_EXPORT component& fill_from_json(nlohmann::json* j);
 	};
 
 	/**
