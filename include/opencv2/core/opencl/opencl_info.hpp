@@ -42,8 +42,7 @@ namespace cv {
 				stream << b << " B";
 
 			std::string s = stream.str();
-			if (s[s.size() - 1] == ' ')
-				s = s.substr(0, s.size() - 1);
+			if (s[s.size() - 1] == ' ') s.pop_back();
 			return s;
 		}
 
