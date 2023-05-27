@@ -30,14 +30,14 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				for (auto& deck : games.second.p2) games.second.p2_deck += deck.second + " ", games.second.p2_value += deck.first;
-
+				u8string emoji = u8" 💵";
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
 						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
-						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + u8" 💵")));
+						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
 					UserData data = GetUserData(stoull(games.first.second));
 					data.dollars += games.second.bet;
@@ -51,7 +51,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
-						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + u8" 💵")));
+						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
 					UserData data = GetUserData(stoull(games.first.first));
 					data.dollars += games.second.bet * 2;
@@ -140,13 +140,14 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 
 				games.second.msg.components.clear();
 				games.second.msg.embeds.clear();
+				u8string emoji = u8" 💵";
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
 						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
-					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + u8" 💵"));
+					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.second));
 					data.dollars += games.second.bet * 2;
 					SaveUserData(data, stoull(games.first.second));
@@ -160,7 +161,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
-					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + u8" 💵"));
+					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.first));
 					data.dollars += games.second.bet;
 					SaveUserData(data, stoull(games.first.first));
@@ -592,7 +593,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 		length.erase(remove(length.begin(), length.end(), 'd'), length.end()), chrono = "d";
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::PS)
-		.set_description(u8"**🎉 ∙ Giveaway Ends " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
+		.set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ends ") + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
 		.set_footer(dpp::embed_footer().set_text("0 entries.")));
 	msg.add_component(dpp::component()
 		.add_component(dpp::component()
@@ -606,7 +607,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	sleep_for(chrono == "s" ? chrono::seconds(stoull(length) - 1) : chrono == "m" ? chrono::minutes(stoull(length) - 1) :
 		chrono == "h" ? chrono::hours(stoull(length) - 1) : chrono == "d" ? chrono::hours(stoull(length) * 24 - 1) : 0s);
 	msg.components[0].components[0].set_disabled(true);
-	msg.embeds[0].set_description(u8"**🎉 ∙ Giveaway Ended " + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
+	msg.embeds[0].set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ended ") + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
 	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
 	if (not giveaway_entries[This_GID].entries.empty()) { // this would never happen in bigger servers. but it's a safe measure
 		string winner_list = ""; vector<dpp::snowflake> winner_vec;

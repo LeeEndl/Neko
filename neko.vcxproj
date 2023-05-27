@@ -49,7 +49,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4858;26800;26819;4251</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
@@ -210,7 +210,6 @@
     <ClInclude Include="include\opencv2\core\hal\hal.hpp" />
     <ClInclude Include="include\opencv2\core\hal\interface.h" />
     <ClInclude Include="include\opencv2\core\hal\intrin.hpp" />
-    <ClInclude Include="include\opencv2\core\hal\intrin_avx.hpp" />
     <ClInclude Include="include\opencv2\core\hal\intrin_avx512.hpp" />
     <ClInclude Include="include\opencv2\core\hal\intrin_cpp.hpp" />
     <ClInclude Include="include\opencv2\core\hal\intrin_forward.hpp" />

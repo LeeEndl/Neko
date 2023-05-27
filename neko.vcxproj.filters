@@ -480,9 +480,6 @@
     <ClInclude Include="include\opencv2\core\hal\intrin.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_avx.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
     <ClInclude Include="include\opencv2\core\hal\intrin_avx512.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
