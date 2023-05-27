@@ -34,7 +34,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
-						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
 						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
@@ -48,7 +48,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				if (games.second.p1POV_value > 21 or games.second.p2_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
-						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
 						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
@@ -61,7 +61,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				}
 
 				dpp::message msg = bot.message_create_sync(dpp::message(games.second.msg.channel_id, dpp::embed()
-					.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+					.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck + " [**" + to_string(games.second.p1_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")));
 
@@ -144,7 +144,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
-						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
@@ -158,7 +158,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				if (games.second.p1POV_value > 21 or games.second.p2_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
-						.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
@@ -170,7 +170,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 					return;
 				}
 				games.second.msg.add_embed(dpp::embed()
-					.set_title(GetUserData(stoull(games.first.second)).username + " VS " + GetUserData(stoull(games.first.first)).username)
+					.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck + " [**" + to_string(games.second.p1_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 				games.second.turn == 1 ? games.second.turn = 2 : games.second.turn = 1;
