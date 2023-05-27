@@ -91,7 +91,7 @@ namespace cv
 			return (uchar)_mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_int8x16
@@ -117,7 +117,7 @@ namespace cv
 			return (schar)_mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_uint16x8
@@ -140,7 +140,7 @@ namespace cv
 			return (ushort)_mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_int16x8
@@ -163,7 +163,7 @@ namespace cv
 			return (short)_mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_uint32x4
@@ -185,7 +185,7 @@ namespace cv
 			return (unsigned)_mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_int32x4
@@ -207,7 +207,7 @@ namespace cv
 			return _mm_cvtsi128_si32(val);
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_float32x4
@@ -229,7 +229,7 @@ namespace cv
 			return _mm_cvtss_f32(val);
 		}
 
-		__m128 val;
+		__m128 val = {};
 	};
 
 	struct v_uint64x2
@@ -263,7 +263,7 @@ namespace cv
 #endif
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_int64x2
@@ -297,7 +297,7 @@ namespace cv
 #endif
 		}
 
-		__m128i val;
+		__m128i val = {};
 	};
 
 	struct v_float64x2
@@ -319,7 +319,7 @@ namespace cv
 			return _mm_cvtsd_f64(val);
 		}
 
-		__m128d val;
+		__m128d val = {};
 	};
 
 	namespace hal_sse_internal
