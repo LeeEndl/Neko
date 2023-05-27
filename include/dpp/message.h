@@ -505,6 +505,7 @@ namespace dpp {
 		 * @return component& Reference to self
 		 */
 		DPP_EXPORT component& set_emoji(const std::string& name, dpp::snowflake id = 0, bool animated = false);
+#ifdef neko_std23
 		component& set_emoji(const char8_t* name, dpp::snowflake id = 0, bool animated = false)
 		{
 			if (type == cot_action_row) set_type(cot_button);
@@ -513,6 +514,7 @@ namespace dpp {
 			this->emoji.animated = animated;
 			return *this;
 		}
+#endif
 
 		/** Read class values from json object
 		 * @param j A json object to read from
