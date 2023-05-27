@@ -60,7 +60,7 @@ namespace cv {
 			{
 				m_ticksTotal = 0;
 			}
-			uint64      m_ticksTotal;
+			uint64      m_ticksTotal = 0;
 		};
 
 		class CV_EXPORTS NodeData
