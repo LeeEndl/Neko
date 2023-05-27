@@ -30,7 +30,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				for (auto& deck : games.second.p2) games.second.p2_deck += deck.second + " ", games.second.p2_value += deck.first;
+#ifdef neko_std23
 				u8string emoji = u8" 💵";
+#else
+				string emoji = u8" 💵";
+#endif
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
@@ -66,7 +70,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")));
 
 				games.second.turn = 2;
-				msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? GetUserData(stoull(games.first.second)).username : GetUserData(stoull(games.first.first)).username) + (" turn")));
+				msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" turn")));
 				msg.add_component(dpp::component()
 					.add_component(dpp::component()
 						.set_emoji(u8"👊")
@@ -97,7 +101,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				event.reply(dpp::message("<@" + (games.second.turn == 2 ? games.first.second : games.first.first) + (">. ") + (games.second.turn == 1 ? GetUserData(stoull(games.first.second)).username : GetUserData(stoull(games.first.first)).username) + (" passed there turn")).set_allowed_mentions(false, false, false, false, vector<dpp::snowflake>{ games.second.turn == 2 ? stoull(games.first.second) : stoull(games.first.first) }, { 0 }));
 				games.second.msg.components.clear();
 				games.second.turn == 1 ? games.second.turn = 2 : games.second.turn = 1;
-				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? GetUserData(stoull(games.first.second)).username : GetUserData(stoull(games.first.first)).username) + (" turn")));
+				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" turn")));
 				games.second.msg.add_component(dpp::component()
 					.add_component(dpp::component()
 						.set_emoji(u8"👊")
@@ -140,7 +144,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 
 				games.second.msg.components.clear();
 				games.second.msg.embeds.clear();
+#ifdef neko_std23
 				u8string emoji = u8" 💵";
+#else
+				string emoji = u8" 💵";
+#endif
 				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
@@ -174,7 +182,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck + " [**" + to_string(games.second.p1_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 				games.second.turn == 1 ? games.second.turn = 2 : games.second.turn = 1;
-				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? GetUserData(stoull(games.first.second)).username : GetUserData(stoull(games.first.first)).username) + (" turn")));
+				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" turn")));
 				games.second.msg.add_component(dpp::component()
 					.add_component(dpp::component()
 						.set_emoji(u8"👊")

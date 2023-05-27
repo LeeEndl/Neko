@@ -2,18 +2,21 @@
 
 #include <dpp/nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
+#if _HAS_CXX23 or _HAS_CXX20
+#define neko_std23
+#endif
 #include <dpp/dpp.h>
 #include "database.hpp"
 #include "commands.hpp"
 
 int main() {
 	if (not ifstream("token").is_open())
-		print<string>("Couldn't find Token.", nullptr, state{ newline, color::red }),
-		print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), streamsize(in.size())); }, state{ Inline, color::white });
+		neko::print<string>("Couldn't find Token.", nullptr, state{ newline, color::red }),
+		neko::print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), streamsize(in.size())); }, state{ Inline, color::white });
 	async(wrap_database).wait();
 
 	bot.on_log([](const dpp::log_t& event) {
-		print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
+		neko::print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
 		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? color::gray :
 		event.severity == dpp::ll_info ? color::normal :
 		event.severity == dpp::ll_warning ? color::yellow :
@@ -50,10 +53,9 @@ int main() {
 	bot.on_button_click([](const dpp::button_click_t& event) {
 		event_threads.emplace_back(thread::thread(await_on_button_click, event));
 		});
-
 	try { bot.start(dpp::start_type::st_wait); }
 	catch (dpp::exception e) {
-		print<string>(e.msg, nullptr, { newline, color::red, false }), filesystem::remove(filesystem::path("token")), sleep_for(3s);
+		neko::print<string>(e.msg, nullptr, { newline, color::red, false }), filesystem::remove(filesystem::path("token")), sleep_for(3s);
 		system("neko.exe"); // -> TODO: find an alternative of system()
 	}
 }

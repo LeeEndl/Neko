@@ -372,96 +372,6 @@
     <ClInclude Include="include\opencv2\core\vsx_utils.hpp">
       <Filter>opencv2\core</Filter>
     </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\block.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\border_interpolate.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\color.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\common.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\datamov_utils.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\dynamic_smem.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\emulation.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\filters.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\funcattrib.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\functional.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\limits.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\reduce.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\saturate_cast.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\scan.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\simd_functions.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\transform.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\type_traits.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\utility.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\vec_distance.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\vec_math.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\vec_traits.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\warp.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\warp_reduce.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\warp_shuffle.hpp">
-      <Filter>opencv2\core\cuda</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\color_detail.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\reduce.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\reduce_key_val.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\transform_detail.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\type_traits_detail.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\cuda\detail\vec_distance_detail.hpp">
-      <Filter>opencv2\core\cuda\detail</Filter>
-    </ClInclude>
     <ClInclude Include="include\opencv2\core\detail\async_promise.hpp">
       <Filter>opencv2\core\detail</Filter>
     </ClInclude>
@@ -1071,9 +981,6 @@
     <ClInclude Include="include\opencv2\imgproc\types_c.h">
       <Filter>opencv2\imgproc</Filter>
     </ClInclude>
-    <ClInclude Include="include\opencv2\imgproc\detail\gcgraph.hpp">
-      <Filter>opencv2\imgproc\detail</Filter>
-    </ClInclude>
     <ClInclude Include="include\opencv2\imgproc\hal\hal.hpp">
       <Filter>opencv2\imgproc\hal</Filter>
     </ClInclude>
@@ -1199,12 +1106,6 @@
     <Filter Include="opencv2\core">
       <UniqueIdentifier>{927c934d-eb43-461e-b772-a5f570db21ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="opencv2\core\cuda">
-      <UniqueIdentifier>{6cffb3e7-7a2d-4307-8d94-6f6593ff0d13}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="opencv2\core\cuda\detail">
-      <UniqueIdentifier>{a08ffa2d-217c-41a4-8dc8-822c8f9f81c8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="opencv2\core\detail">
       <UniqueIdentifier>{e3a5612d-ec3c-462f-942c-28f8064ef304}</UniqueIdentifier>
     </Filter>
@@ -1303,9 +1204,6 @@
     </Filter>
     <Filter Include="opencv2\imgproc">
       <UniqueIdentifier>{6198fb50-be0b-4631-9b5d-e67edf5fbc86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="opencv2\imgproc\detail">
-      <UniqueIdentifier>{dc03c078-4992-45c2-a233-42633c6b1079}</UniqueIdentifier>
     </Filter>
     <Filter Include="opencv2\imgproc\hal">
       <UniqueIdentifier>{45b4b274-93fd-4f40-bddb-7b71371f2877}</UniqueIdentifier>
