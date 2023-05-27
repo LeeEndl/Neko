@@ -406,7 +406,7 @@ namespace cv {
 				@return reference to this parameter structure.
 				*/
 				Params<Net>&
-					cfgOutputPrecision(detail::ParamDesc::PrecisionMapT precision_map) {
+					cfgOutputPrecision(const detail::ParamDesc::PrecisionMapT precision_map) {
 					desc.output_precision = precision_map;
 					return *this;
 				}
