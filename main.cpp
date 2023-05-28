@@ -1,5 +1,7 @@
 ﻿/* Copyright(c) LeeEndl; License Apache License 2.0 */
 
+#include <vcruntime.h>
+#if _HAS_CXX17 or _HAS_CXX20 or _HAS_CXX23
 #include <dpp/nlohmann/json.hpp>
 #include <opencv2/opencv.hpp>
 #if _HAS_CXX23 or _HAS_CXX20
@@ -63,4 +65,7 @@ int main() {
 #ifndef CUSTOM_VERSION
 #error "recommended to run neko on D++ custom version: https://github.com/LeeEndl/Neko \
 do not worry, we stay up-to-date with D++ version"
+#endif
+#else 
+#error please use /std:c++17 or above.
 #endif
