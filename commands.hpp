@@ -564,11 +564,11 @@ template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 			im.at<cv::Vec4b>(i, j)[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
 		}
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, 6);
-	cv::putText(im, "Level " + to_string(data.level), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
-	cv::putText(im, static_cast<cv::String>(to_string(data.exp)), cv::Point(67, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2);
-	cv::putText(im, to_string(data.level * 200), cv::Point(543, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2);
+	cv::putText(im, "Level " + to_string(data.lvl[0]), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2);
+	cv::putText(im, static_cast<cv::String>(to_string(data.lvl[1])), cv::Point(67, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2);
+	cv::putText(im, to_string(data.lvl[0] * 200), cv::Point(543, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2);
 	cv::line(im,
-		cv::Point(static_cast<int>(65 + data.exp * (data.level * 200 < 565 ? 565 / (data.level * 200) : (data.level * 200) / 565)), static_cast<int>(640 / 4.2)),
+		cv::Point(static_cast<int>(65 + data.lvl[1] * (data.lvl[0] * 200 < 565 ? 565 / (data.lvl[0] * 200) : (data.lvl[0] * 200) / 565)), static_cast<int>(640 / 4.2)),
 		cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(300, 300, 300, 100), 50, 6);
 	try {
 		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, { cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION, 9 });
@@ -665,7 +665,7 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 		for (auto& member : members) if (member.first == event.msg.member.user_id) {
 			tm* last = dpp::utility::mtm(member.second.last_exp);
 			time_t ct = dpp::utility::mt_t(last, last->tm_sec + 15, last->tm_min, last->tm_hour, last->tm_wday, last->tm_mday, last->tm_mon);
-			if (ct < time(0)) data.exp++, data.last_exp = time(0);
+			if (ct < time(0)) data.lvl[1]++, data.last_exp = time(0);
 		}
 		SaveUserData(data, event.msg.member.user_id);
 	}

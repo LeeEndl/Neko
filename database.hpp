@@ -4,9 +4,9 @@
 namespace command { map<string, dpp::snowflake> name_to_id; }
 
 struct UserData {
-	JINT daily = time(0), last_on = 0, last_exp = 0, exp = 0, level = 1, user_id = 0, dollars = 0;
+	JINT daily = time(0), last_on = 0, last_exp = 0, user_id = 0, dollars = 0;
 	JSTRING username = "";
-
+	JVECTOR<JINT> lvl = { 1, 0 };
 	bool failed = false;
 }; map<dpp::snowflake, UserData> members;
 struct GuildData {
@@ -28,23 +28,19 @@ inline UserData GetUserData(dpp::snowflake user_id)
 		data.last_on = ELEMENT_JI("last_on")
 		data.username = ELEMENT_JS("username")
 		data.user_id = ELEMENT_JI("user_id")
-		data.exp = ELEMENT_JI("exp")
-		data.level = ELEMENT_JI("level")
+		data.lvl = ELEMENT_JVI("lvl_ratio")
 		J = json();
 	return data;
 }
 inline void SaveUserData(UserData data, dpp::snowflake user)
 {
-	J.dump(1);
 	J["daily"] = data.daily;
 	J["dollars"] = data.dollars;
 	J["last_on"] = data.last_on;
 	J["username"] = data.username;
 	J["user_id"] = data.user_id;
-	J["exp"] = data.exp;
-	J["level"] = data.level;
-	ofstream("database/users/" + to_string(user) + ".txt") << setw(2) << J;
-	J = json();
+	J["lvl_ratio"] = data.lvl;
+	ofstream("database/users/" + to_string(user) + ".txt") << setw(2) << J; J = json();\
 }
 inline void new_user(dpp::snowflake user_id)
 {
@@ -54,8 +50,8 @@ inline void new_user(dpp::snowflake user_id)
 	data.dollars = 0;
 	data.last_on = 0;
 	data.user_id = bot.user_get_sync(user_id).id;
-	data.exp = 0, data.level = 1;
 	data.failed = false;
+	data.lvl = { 1, 0 };
 	SaveUserData(data, user_id); {
 		UserData data = GetUserData(user_id);
 		members.emplace(bot.user_get_sync(user_id).id, data);
