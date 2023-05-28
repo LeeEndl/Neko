@@ -19494,8 +19494,11 @@ using nlohmann::literals::json_literals::operator "" _json_pointer;
 using JINT = uint64_t;
 using JBOOLEAN = bool;
 using JSTRING = std::string;
+template<typename T> using JVECTOR = std::vector<T>;
 nlohmann::json J = nlohmann::json();
 
 #define ELEMENT_JS(what) not (J.find(what) not_eq J.end()) ? "" : J[what].get<JSTRING>();
+#define ELEMENT_JVS(what) not (J.find(what) not_eq J.end()) ? JVECTOR<JSTRING>{} : J[what].get<JVECTOR<JSTRING>>();
 #define ELEMENT_JI(what) not (J.find(what) not_eq J.end()) ? 0 : J[what].get<JINT>();
+#define ELEMENT_JVI(what) not (J.find(what) not_eq J.end()) ? JVECTOR<JINT>{} : J[what].get<JVECTOR<JINT>>();
 #define ELEMENT_JB(what) not (J.find(what) not_eq J.end()) ? false : J[what].get<JBOOLEAN>();
