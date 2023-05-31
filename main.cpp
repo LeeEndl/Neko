@@ -61,11 +61,6 @@ int main() {
 		system("neko.exe"); // -> TODO: find an alternative of system()
 	}
 }
-
-#ifndef CUSTOM_VERSION
-#error "recommended to run neko on D++ custom version: https://github.com/LeeEndl/Neko \
-do not worry, we stay up-to-date with D++ version"
-#endif
 #else 
 #error please use /std:c++17 or above.
 #endif
