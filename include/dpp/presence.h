@@ -66,7 +66,9 @@ namespace dpp {
 		/// DND
 		ps_dnd = 2,
 		/// Idle
-		ps_idle = 3
+		ps_idle = 3,
+		/// Invisible (show as offline)
+		ps_invisible = 4,
 	};
 
 	/**
@@ -216,8 +218,8 @@ namespace dpp {
 	class activity {
 	public:
 		/** Name of activity
-		 * e.g. "Fortnite"
-		 */
+			 * e.g. "Fortnite"
+			 */
 		std::string name;
 		activity& set_name(std::string str) { name = str; return *this; }
 
@@ -232,9 +234,9 @@ namespace dpp {
 		 */
 		activity_assets assets;
 		/** URL.
-		 * Only applicable for certain sites such a YouTube
-		 * Alias: details
-		 */
+			 * Only applicable for certain sites such a YouTube
+			 * Alias: details
+			 */
 		std::string url;
 		activity& set_url(std::string str) { url = str; return *this; }
 		/** The custom buttons shown in the Rich Presence (max 2)
@@ -250,7 +252,7 @@ namespace dpp {
 		 */
 		activity_secrets secrets;
 		/** Activity type
-		 */
+			 */
 		activity_type type;
 		activity& set_type(activity_type act_type) { type = act_type; return *this; }
 		/** Time activity was created

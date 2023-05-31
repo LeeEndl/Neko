@@ -58,6 +58,7 @@ namespace dpp {
 		 * @brief Construct a new webhook object using the Webhook URL provided by Discord
 		 *
 		 * @param webhook_url a fully qualified web address of an existing webhook
+		 * @throw logic_exception if the webhook url could not be parsed
 		 */
 		webhook(const std::string& webhook_url);
 

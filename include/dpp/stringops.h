@@ -165,7 +165,7 @@ namespace dpp {
 	 */
 	template <uint32_t> uint32_t from_string(const std::string& s)
 	{
-		return std::stoul(s, 0, 10);
+		return (uint32_t)std::stoul(s, 0, 10);
 	}
 
 	/**
@@ -205,7 +205,7 @@ namespace dpp {
 	template <typename T> std::string leading_zeroes(T i, size_t width)
 	{
 		std::stringstream stream;
-		stream << std::setfill('0') << std::setw(width) << std::dec << i;
+		stream << std::setfill('0') << std::setw((int)width) << std::dec << i;
 		return stream.str();
 	}
 	template<typename T> std::string remove_tail(T Ty) {

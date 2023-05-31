@@ -19,10 +19,11 @@
  *
  ************************************************************************************/
 #pragma once
-#define DPP_EXPORT __declspec(dllimport)
 #include <WinSock2.h>
+#define DPP_EXPORT __declspec(dllimport)
 #include <dpp/version.h>
 #include <fstream>
+#include <functional>
 #include <dpp/exception.h>
 #include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>

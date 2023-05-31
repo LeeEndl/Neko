@@ -34,7 +34,9 @@ namespace dpp {
 		/// YouTube integration
 		i_youtube,
 		/// Discord integration
-		i_discord
+		i_discord,
+		/// Subscription
+		i_guild_subscription,
 	};
 
 	/**

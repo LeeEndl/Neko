@@ -42,6 +42,8 @@ namespace dpp {
 	 * @brief Flags for a bot or application
 	 */
 	enum application_flags : uint32_t {
+		/// Indicates if an app uses the Auto Moderation API
+		apf_application_automod_rule_create_badge = (1 << 6),
 		/// Has gateway presence intent
 		apf_gateway_presence = (1 << 12),
 		/// Has gateway presence intent for <100 guilds

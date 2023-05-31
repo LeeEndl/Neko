@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-
 #include <dpp/cluster.h>
 #include <time.h>
 #include <map>

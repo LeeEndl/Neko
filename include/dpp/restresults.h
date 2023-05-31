@@ -20,7 +20,6 @@
  ************************************************************************************/
 
 #pragma once
-
 #include <string>
 #include <map>
 #include <variant>
@@ -128,6 +127,7 @@ namespace dpp {
 	 *
 	 */
 	typedef std::variant <
+		active_threads,
 		application_role_connection,
 		application_role_connection_metadata_list,
 		confirmation,

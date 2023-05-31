@@ -39,6 +39,7 @@
 #include <dpp/scheduled_event.h>
 #include <dpp/stage_instance.h>
 #include <dpp/integration.h>
+#include <dpp/auditlog.h>
 #include <functional>
 #include <variant>
 #include <exception>
@@ -468,17 +469,6 @@ namespace dpp {
 		void delete_original_response(command_completion_event_t callback = utility::log_error()) const;
 
 		/**
-		 * @brief Get a command line parameter
-		 *
-		 * @note Doesn't work on subcommands. If you want to get a parameter from a subcommand, you have to loop through the options by yourself.
-		 *
-		 * @param name The command line parameter to retrieve
-		 * @return const command_value& If the command line parameter does not
-		 * exist, an empty variant is returned.
-		 */
-		const virtual command_value& get_parameter(const std::string& name) const;
-
-		/**
 		 * @brief command interaction
 		 */
 		interaction command;
@@ -487,13 +477,23 @@ namespace dpp {
 		 * @brief Destroy this object
 		 */
 		virtual ~interaction_create_t() = default;
+
+		/**
+		 * @brief Get a slashcommand parameter
+		 *
+		 * @param name The name of the command line parameter to retrieve the value for
+		 * @return command_value Returns the value of the first option that matches the given name.
+		 * If no matches are found, an empty variant is returned.
+		 *
+		 * @throw dpp::logic_exception if the interaction is not for a command
+		 */
+		virtual command_value get_parameter(const std::string& name) const;
 	};
 
 	/**
 	 * @brief User has issued a slash command
 	 */
 	struct DPP_EXPORT slashcommand_t : public interaction_create_t {
-	public:
 		/** Constructor
 		 * @param client The shard the event originated on
 		 * @param raw Raw event text as JSON
@@ -508,6 +508,7 @@ namespace dpp {
 	private:
 		using interaction_create_t::get_parameter;
 	public:
+
 		/** Constructor
 		 * @param client The shard the event originated on
 		 * @param raw Raw event text as JSON
@@ -528,6 +529,7 @@ namespace dpp {
 	private:
 		using interaction_create_t::get_parameter;
 	public:
+
 		/** Constructor
 		 * @param client The shard the event originated on
 		 * @param raw Raw event text as JSON
@@ -579,7 +581,10 @@ namespace dpp {
 	 * user or message.
 	 */
 	struct DPP_EXPORT context_menu_t : public interaction_create_t {
+	private:
+		using interaction_create_t::get_parameter;
 	public:
+
 		/** Constructor
 		 * @param client The shard the event originated on
 		 * @param raw Raw event text as JSON
@@ -899,7 +904,12 @@ namespace dpp {
 		 */
 		guild_member reacting_member;
 		/**
-		 * @brief channel the reaction happened on
+		 * @brief Channel ID the reaction happened on
+		 */
+		snowflake channel_id;
+		/**
+		 * @brief channel the reaction happened on (Optional)
+		 * @note only filled when the channel is cached
 		 */
 		channel* reacting_channel;
 		/**
@@ -945,7 +955,12 @@ namespace dpp {
 		 */
 		dpp::snowflake reacting_user_id;
 		/**
-		 * @brief channel the reaction happened on
+		 * @brief Channel ID the reaction was removed in
+		 */
+		snowflake channel_id;
+		/**
+		 * @brief channel the reaction happened on (optional)
+		 * @note only filled when the channel is cached
 		 */
 		channel* reacting_channel;
 		/**
@@ -1023,7 +1038,12 @@ namespace dpp {
 		 */
 		guild* reacting_guild;
 		/**
-		 * @brief channel the reaction happened on
+		 * @brief Channel ID the reactions was removed in
+		 */
+		snowflake channel_id;
+		/**
+		 * @brief channel the reaction happened on (optional)
+		 * @note only filled when the channel is cached
 		 */
 		channel* reacting_channel;
 		/**
@@ -1132,7 +1152,12 @@ namespace dpp {
 		 */
 		guild* reacting_guild;
 		/**
-		 * @brief channel the reaction happened on
+		 * @brief Channel ID the reactions was removed in
+		 */
+		snowflake channel_id;
+		/**
+		 * @brief channel the reaction happened on (optional)
+		 * @note only filled when the channel is cached
 		 */
 		channel* reacting_channel;
 		/**
@@ -1381,6 +1406,19 @@ namespace dpp {
 		 * @note confirmation_callback_t::value contains a message object on success. On failure, value is undefined and confirmation_callback_t::is_error() is true.
 		 */
 		void reply(message&& msg, bool mention_replied_user = false, command_completion_event_t callback = utility::log_error()) const;
+	};
+
+	/** @brief Guild audit log entry create */
+	struct DPP_EXPORT guild_audit_log_entry_create_t : public event_dispatch_t {
+		/** Constructor
+		 * @param client The shard the event originated on
+		 * @param raw Raw event text as JSON
+		 */
+		guild_audit_log_entry_create_t(class discord_client* client, const std::string& raw);
+		/**
+		 * @brief created audit log entry
+		 */
+		audit_entry entry;
 	};
 
 	/** @brief Guild ban add */

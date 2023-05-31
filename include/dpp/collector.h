@@ -18,7 +18,6 @@
  *    limitations under the License.
  */
 #pragma once
-
 #include <dpp/cluster.h>
 #include <dpp/timed_listener.h>
 #include <time.h>
@@ -77,7 +76,7 @@ namespace dpp {
 				if (v) {
 					stored.push_back(*v);
 				}
-			};
+				};
 			tl = new dpp::timed_listener<event_router_t<T>, std::function<void(const T&)>>(cl, duration, event, f, [this](dpp::timer timer_handle) {
 				if (!triggered) {
 					triggered = true;

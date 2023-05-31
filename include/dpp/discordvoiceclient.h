@@ -19,7 +19,6 @@
  *
  ************************************************************************************/
 #pragma once
-
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -45,13 +44,13 @@
 #include <functional>
 #include <chrono>
 
-using json = nlohmann::json;
-
 struct OpusDecoder;
 struct OpusEncoder;
 struct OpusRepacketizer;
 
 namespace dpp {
+	using json = nlohmann::json;
+
 	// Forward declaration
 	class cluster;
 
@@ -399,6 +398,7 @@ namespace dpp {
 		 * @brief Called by ssl_client when there is data to be
 		 * read. At this point we insert that data into the
 		 * input queue.
+		 * @throw dpp::voice_exception if voice support is not compiled into D++
 		 */
 		void read_ready();
 

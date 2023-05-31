@@ -20,7 +20,6 @@
  ************************************************************************************/
 
 #pragma once
-
 #include <string>
 #include <map>
 #include <variant>
@@ -42,6 +41,7 @@
 #include <algorithm>
 #include <iostream>
 #include <shared_mutex>
+#include <cstring>
 #include <dpp/restresults.h>
 #include <dpp/event_router.h>
 
@@ -400,6 +400,7 @@ namespace dpp {
 		/**
 		 * @brief on voice state update event
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#voice-state-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type voice_state_update_t&, and returns void.
 		 */
@@ -446,6 +447,7 @@ namespace dpp {
 		 * Interactions are created by discord when commands you have registered are issued
 		 * by a user. For an example of this in action please see \ref slashcommands
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#interaction-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type interaction_create_t&, and returns void.
 		 *
@@ -528,6 +530,7 @@ namespace dpp {
 		 * explicitly with dpp::cluster::guild_delete, or via the guild being unavailable due to
 		 * an outage.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_delete_t&, and returns void.
 		 */
@@ -539,6 +542,7 @@ namespace dpp {
 		 * channel should not be retained long-term as they will be deleted by the garbage
 		 * collector.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#channel-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type channel_delete_t&, and returns void.
 		 */
@@ -549,6 +553,7 @@ namespace dpp {
 		 * The new channel details have already been applied to the guild when you
 		 * receive this event.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#channel-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type channel_update_t&, and returns void.
 		 */
@@ -558,6 +563,7 @@ namespace dpp {
 		 * @brief Called when a shard is connected and ready.
 		 * A set of cluster::on_guild_create events will follow this event.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#ready
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type ready_t&, and returns void.
 		 */
@@ -568,6 +574,7 @@ namespace dpp {
 		 * The message has already been deleted from Discord when you
 		 * receive this event.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_delete_t&, and returns void.
 		 */
@@ -576,6 +583,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a user leaves a guild (either through being kicked, or choosing to leave)
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-member-remove
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_member_remove_t&, and returns void.
 		 */
@@ -586,6 +594,7 @@ namespace dpp {
 		 * A resumed session does not need to re-synchronise guilds, members, etc.
 		 * This is generally non-fatal and informational only.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#resumed
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type resumed_t&, and returns void.
 		 */
@@ -594,6 +603,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new role is created on a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-role-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_role_create_t&, and returns void.
 		 */
@@ -602,6 +612,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a user is typing on a channel.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#typing-start
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type typing_start_t&, and returns void.
 		 */
@@ -610,6 +621,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new reaction is added to a message.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-reaction-add
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_reaction_add_t&, and returns void.
 		 */
@@ -620,6 +632,7 @@ namespace dpp {
 		 * D++ will request these for all new guilds if needed, after the cluster::on_guild_create
 		 * events.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-members-chunk
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_members_chunk_t&, and returns void.
 		 */
@@ -628,6 +641,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a single reaction is removed from a message.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-reaction-remove
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_reaction_remove_t&, and returns void.
 		 */
@@ -637,6 +651,7 @@ namespace dpp {
 		 * @brief Called when a new guild is created.
 		 * D++ will request members for the guild for its cache using guild_members_chunk.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_create_t&, and returns void.
 		 */
@@ -645,6 +660,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new channel is created on a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#channel-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type channel_create_t&, and returns void.
 		 */
@@ -653,6 +669,7 @@ namespace dpp {
 		/**
 		 * @brief Called when all reactions for a particular emoji are removed from a message.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-reaction-remove-emoji
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_reaction_remove_emoji_t&, and returns void.
 		 */
@@ -661,6 +678,7 @@ namespace dpp {
 		/**
 		 * @brief Called when multiple messages are deleted from a channel or DM.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-delete-bulk
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_delete_bulk_t&, and returns void.
 		 */
@@ -669,6 +687,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an existing role is updated on a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-role-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_role_update_t&, and returns void.
 		 */
@@ -677,6 +696,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a role is deleted in a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-role-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_role_delete_t&, and returns void.
 		 */
@@ -687,6 +707,7 @@ namespace dpp {
 		 * Note that the pinned message is not returned to this event, just the timestamp
 		 * of the last pinned message.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#channel-pins-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type channel_pins_update_t&, and returns void.
 		 */
@@ -695,6 +716,7 @@ namespace dpp {
 		/**
 		 * @brief Called when all reactions are removed from a message.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-reaction-remove-all
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_reaction_remove_all_t&, and returns void.
 		 */
@@ -714,6 +736,7 @@ namespace dpp {
 		 * @brief Called when new emojis are added to a guild.
 		 * The complete set of emojis is sent every time.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-emojis-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_emojis_update_t&, and returns void.
 		 */
@@ -723,6 +746,7 @@ namespace dpp {
 		 * @brief Called when new stickers are added to a guild.
 		 * The complete set of stickers is sent every time.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-stickers-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_stickers_update_t&, and returns void.
 		 */
@@ -735,6 +759,7 @@ namespace dpp {
 		 * increase your bot's CPU usage. If you don't need them it is recommended to not ask
 		 * for them.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#presence-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type presence_update_t&, and returns void.
 		 */
@@ -743,6 +768,7 @@ namespace dpp {
 		/**
 		 * @brief Called when the webhooks for a guild are updated.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#webhooks-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type webhooks_update_t&, and returns void.
 		 */
@@ -751,6 +777,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new automod rule is created.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#auto-moderation-rule-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type automod_rule_create_t&, and returns void.
 		 */
@@ -759,6 +786,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an automod rule is updated.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#auto-moderation-rule-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type automod_rule_update_t&, and returns void.
 		 */
@@ -767,6 +795,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an automod rule is deleted.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#auto-moderation-rule-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type automod_rule_delete_t&, and returns void.
 		 */
@@ -775,6 +804,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an automod rule is triggered/executed.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#auto-moderation-action-execution
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type automod_rule_execute_t&, and returns void.
 		 */
@@ -783,6 +813,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new member joins a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-member-add
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_member_add_t&, and returns void.
 		 */
@@ -791,6 +822,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an invite is deleted from a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#invite-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type invite_delete_t&, and returns void.
 		 */
@@ -799,6 +831,7 @@ namespace dpp {
 		/**
 		 * @brief Called when details of a guild are updated.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_update_t&, and returns void.
 		 */
@@ -810,6 +843,7 @@ namespace dpp {
 		 * An integration is a connection to a guild of a user's associated accounts,
 		 * e.g. youtube or twitch, for automatic assignment of roles etc.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-integrations-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_integrations_update_t&, and returns void.
 		 */
@@ -818,6 +852,7 @@ namespace dpp {
 		/**
 		 * @brief Called when details of a guild member (e.g. their roles or nickname) are updated.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-member-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_member_update_t&, and returns void.
 		 */
@@ -826,6 +861,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new invite is created for a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#invite-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type invite_create_t&, and returns void.
 		 */
@@ -834,6 +870,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a message is updated (edited).
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_update_t&, and returns void.
 		 */
@@ -844,6 +881,7 @@ namespace dpp {
 		 * This is separate to cluster::on_guild_member_update and includes things such as an avatar change,
 		 * username change, discriminator change or change in subscription status for nitro.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#user-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type user_update_t&, and returns void.
 		 */
@@ -856,14 +894,25 @@ namespace dpp {
 		 * the roadmap to be supported as it consumes excessive amounts of RAM.
 		 * For an example for caching of messages, please see \ref caching-messages
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#message-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type message_create_t&, and returns void.
 		 */
 		event_router_t<message_create_t> on_message_create;
 
 		/**
+		 * @brief Called when a guild audit log entry is created.
+		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-audit-log-entry-create
+		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
+		 * The function signature for this event takes a single `const` reference of type guild_audit_log_entry_create_t&, and returns void.
+		 */
+		event_router_t<guild_audit_log_entry_create_t> on_guild_audit_log_entry_create;
+
+		/**
 		 * @brief Called when a ban is added to a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-ban-add
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_ban_add_t&, and returns void.
 		 */
@@ -872,6 +921,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a ban is removed from a guild.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-ban-remove
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_ban_remove_t&, and returns void.
 		 */
@@ -882,6 +932,7 @@ namespace dpp {
 		 * An integration is a connection to a guild of a user's associated accounts,
 		 * e.g. youtube or twitch, for automatic assignment of roles etc.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#integration-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type integration_create_t&, and returns void.
 		 */
@@ -893,6 +944,7 @@ namespace dpp {
 		 * An integration is a connection to a guild of a user's associated accounts,
 		 * e.g. youtube or twitch, for automatic assignment of roles etc.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#integration-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type integration_update_t&, and returns void.
 		 */
@@ -903,6 +955,7 @@ namespace dpp {
 		 * An integration is a connection to a guild of a user's associated accounts,
 		 * e.g. youtube or twitch, for automatic assignment of roles etc.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#integration-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type integration_delete_t&, and returns void.
 		 */
@@ -912,6 +965,7 @@ namespace dpp {
 		 * @brief Called when a thread is created.
 		 * Note that threads are not cached by D++, but a list of thread IDs is accessible in a guild object
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_create_t&, and returns void.
 		 */
@@ -920,6 +974,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a thread is updated
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_update_t&, and returns void.
 		 */
@@ -928,6 +983,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a thread is deleted
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_delete_t&, and returns void.
 		 */
@@ -937,6 +993,7 @@ namespace dpp {
 		 * @brief Called when thread list is synced (upon gaining access to a channel).
 		 * Note that threads are not cached by D++, but a list of thread IDs is accessible in a guild object
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-list-sync
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_list_sync_t&, and returns void.
 		 */
@@ -945,6 +1002,7 @@ namespace dpp {
 		/**
 		 * @brief Called when current user's thread member object is updated
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-member-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_member_update_t&, and returns void.
 		 */
@@ -953,6 +1011,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a thread's member list is updated (without GUILD_MEMBERS intent, is only called for current user)
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#thread-members-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type thread_members_update_t&, and returns void.
 		 */
@@ -961,6 +1020,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new scheduled event is created
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-scheduled-event-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_scheduled_event_create_t&, and returns void.
 		 */
@@ -969,6 +1029,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new scheduled event is updated
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-scheduled-event-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_scheduled_event_update_t&, and returns void.
 		 */
@@ -977,6 +1038,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a new scheduled event is deleted
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-scheduled-event-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_scheduled_event_delete_t&, and returns void.
 		 */
@@ -985,6 +1047,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a user is added to a scheduled event
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-scheduled-event-user-add
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_scheduled_event_user_add_t&, and returns void.
 		 */
@@ -993,6 +1056,7 @@ namespace dpp {
 		/**
 		 * @brief Called when a user is removed to a scheduled event
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#guild-scheduled-event-user-remove
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type guild_scheduled_event_user_remove_t&, and returns void.
 		 */
@@ -1066,14 +1130,16 @@ namespace dpp {
 		/**
 		 * @brief Called when a new stage instance is created on a stage channel.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#stage-instance-create
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
-		 *
+		 * The function signature for this event takes a single `const` reference of type stage_instance_create_t&, and returns void.
 		 */
 		event_router_t<stage_instance_create_t> on_stage_instance_create;
 
 		/**
 		 * @brief Called when a stage instance is updated.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#stage-instance-update
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type stage_instance_update_t&, and returns void.
 		 */
@@ -1082,6 +1148,7 @@ namespace dpp {
 		/**
 		 * @brief Called when an existing stage instance is deleted from a stage channel.
 		 *
+		 * @see https://discord.com/developers/docs/topics/gateway-events#stage-instance-delete
 		 * @note Use operator() to attach a lambda to this event, and the detach method to detach the listener using the returned ID.
 		 * The function signature for this event takes a single `const` reference of type stage_instance_delete_t&, and returns void.
 		 */
@@ -1098,8 +1165,9 @@ namespace dpp {
 		 * @param callback Function to call when the HTTP call completes. The callback parameter will contain amongst other things, the decoded json.
 		 * @param filename Filename to post for POST requests (for uploading files)
 		 * @param filecontent File content to post for POST requests (for uploading files)
+		 * @param filemimetype File content to post for POST requests (for uploading files)
 		 */
-		void post_rest(const std::string& endpoint, const std::string& major_parameters, const std::string& parameters, http_method method, const std::string& postdata, json_encode_t callback, const std::string& filename = "", const std::string& filecontent = "");
+		void post_rest(const std::string& endpoint, const std::string& major_parameters, const std::string& parameters, http_method method, const std::string& postdata, json_encode_t callback, const std::string& filename = "", const std::string& filecontent = "", const std::string& filemimetype = "");
 
 		/**
 		 * @brief Post a multipart REST request. Where possible use a helper method instead like message_create
@@ -1112,8 +1180,9 @@ namespace dpp {
 		 * @param callback Function to call when the HTTP call completes. The callback parameter will contain amongst other things, the decoded json.
 		 * @param filename List of filenames to post for POST requests (for uploading files)
 		 * @param filecontent List of file content to post for POST requests (for uploading files)
+		 * @param filemimetypes List of mime types for each file to post for POST requests (for uploading files)
 		 */
-		void post_rest_multipart(const std::string& endpoint, const std::string& major_parameters, const std::string& parameters, http_method method, const std::string& postdata, json_encode_t callback, const std::vector<std::string>& filename = {}, const std::vector<std::string>& filecontent = {});
+		void post_rest_multipart(const std::string& endpoint, const std::string& major_parameters, const std::string& parameters, http_method method, const std::string& postdata, json_encode_t callback, const std::vector<std::string>& filename = {}, const std::vector<std::string>& filecontent = {}, const std::vector<std::string>& filemimetypes = {});
 
 		/**
 		 * @brief Make a HTTP(S) request. For use when wanting asynchronous access to HTTP APIs outside of Discord.
@@ -1153,6 +1222,7 @@ namespace dpp {
 		/**
 		 * @brief Create a followup message to a slash command
 		 *
+		 * @see https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response
 		 * @param token Token for the interaction webhook
 		 * @param m followup message to create
 		 * @param callback Function to call when the API call completes.
@@ -1173,8 +1243,9 @@ namespace dpp {
 		void interaction_followup_edit_original(const std::string& token, const message& m, command_completion_event_t callback = utility::log_error());
 
 		/**
-		 * @brief
+		 * @brief Delete the initial interaction response
 		 *
+		 * @see https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
 		 * @param token Token for the interaction webhook
 		 * @param callback Function to call when the API call completes.
 		 * On success the callback will contain a dpp::confirmation object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
@@ -1184,6 +1255,8 @@ namespace dpp {
 		/**
 		 * @brief Edit followup message to a slash command
 		 * The message ID in the message you pass should be correctly set to that of a followup message you previously sent
+		 *
+		 * @see https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message
 		 * @param token Token for the interaction webhook
 		 * @param m message to edit, the ID should be set
 		 * @param callback Function to call when the API call completes.
@@ -1193,6 +1266,8 @@ namespace dpp {
 
 		/**
 		 * @brief Get the followup message to a slash command
+		 *
+		 * @see https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message
 		 * @param token Token for the interaction webhook
 		 * @param message_id message to retrieve
 		 * @param callback Function to call when the API call completes.
@@ -1740,11 +1815,11 @@ namespace dpp {
 		 * @brief Get details about an invite
 		 *
 		 * @see https://discord.com/developers/docs/resources/invite#get-invite
-		 * @param invite Invite code to get information on
+		 * @param invite_code Invite code to get information on
 		 * @param callback Function to call when the API call completes.
 		 * On success the callback will contain a dpp::invite object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
 		 */
-		void invite_get(const std::string& invite, command_completion_event_t callback);
+		void invite_get(const std::string& invite_code, command_completion_event_t callback);
 
 		/**
 		 * @brief Delete an invite
@@ -2269,7 +2344,7 @@ namespace dpp {
 		/**
 		 * @brief Get all emojis for a guild
 		 *
-		 * @see https://discord.com/developers/docs/resources/emoji#get-guild-emojis
+		 * @see https://discord.com/developers/docs/resources/emoji#list-guild-emojis
 		 * @param guild_id Guild ID to get emojis for
 		 * @param callback Function to call when the API call completes.
 		 * On success the callback will contain a dpp::emoji_map object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
@@ -2304,7 +2379,7 @@ namespace dpp {
 		 * @brief Edit a single emoji.
 		 *
 		 * You must ensure that the emoji passed contained image data using the emoji::load_image() method.
-		 * @see https://discord.com/developers/docs/resources/emoji#get-guild-emoji
+		 * @see https://discord.com/developers/docs/resources/emoji#modify-guild-emoji
 		 * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
 		 * @param guild_id Guild ID to edit emoji on
 		 * @param newemoji Emoji to edit
@@ -2868,7 +2943,7 @@ namespace dpp {
 		 * @brief Create a thread
 		 * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
 		 *
-		 * @see https://discord.com/developers/docs/resources/guild#create-guild-channel
+		 * @see https://discord.com/developers/docs/resources/channel#start-thread-without-message
 		 * @param thread_name Name of the thread
 		 * @param channel_id Channel in which thread to create
 		 * @param auto_archive_duration Duration after which thread auto-archives. Can be set to - 60, 1440 (for boosted guilds can also be: 4320, 10080)
@@ -2883,7 +2958,7 @@ namespace dpp {
 		/**
 		 * @brief Create a thread with a message (Discord: ID of a thread is same as message ID)
 		 * @note This method supports audit log reasons set by the cluster::set_audit_reason() method.
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#start-thread-from-message
 		 * @param thread_name Name of the thread
 		 * @param channel_id Channel in which thread to create
 		 * @param message_id message to start thread with
@@ -2896,7 +2971,7 @@ namespace dpp {
 
 		/**
 		 * @brief Join a thread
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#join-thread
 		 * @param thread_id Thread ID to join
 		 * @param callback Function to call when the API call completes.
 		 * On success the callback will contain a dpp::confirmation object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
@@ -2905,7 +2980,7 @@ namespace dpp {
 
 		/**
 		 * @brief Leave a thread
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#leave-thread
 		 * @param thread_id Thread ID to leave
 		 * @param callback Function to call when the API call completes.
 		 * On success the callback will contain a dpp::confirmation object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
@@ -2914,7 +2989,7 @@ namespace dpp {
 
 		/**
 		 * @brief Add a member to a thread
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#add-thread-member
 		 * @param thread_id Thread ID to add to
 		 * @param user_id Member ID to add
 		 * @param callback Function to call when the API call completes.
@@ -2924,7 +2999,7 @@ namespace dpp {
 
 		/**
 		 * @brief Remove a member from a thread
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#remove-thread-member
 		 * @param thread_id Thread ID to remove from
 		 * @param user_id Member ID to remove
 		 * @param callback Function to call when the API call completes.
@@ -2934,7 +3009,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get a thread member
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#get-thread-member
 		 * @param thread_id Thread to get member for
 		 * @param user_id ID of the user to get
 		 * @param callback Function to call when the API call completes
@@ -2944,7 +3019,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get members of a thread
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#list-thread-members
 		 * @param thread_id Thread to get members for
 		 * @param callback Function to call when the API call completes
 		 * On success the callback will contain a dpp::thread_member_map object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
@@ -2952,17 +3027,17 @@ namespace dpp {
 		void thread_members_get(snowflake thread_id, command_completion_event_t callback);
 
 		/**
-		 * @brief Get active threads in a guild (Sorted by ID in descending order)
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @brief Get all active threads in the guild, including public and private threads. Threads are ordered by their id, in descending order.
+		 * @see https://discord.com/developers/docs/resources/guild#list-active-guild-threads
 		 * @param guild_id Guild to get active threads for
 		 * @param callback Function to call when the API call completes
-		 * On success the callback will contain a dpp::thread_map object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
+		 * On success the callback will contain a dpp::active_threads object in confirmation_callback_t::value. On failure, the value is undefined and confirmation_callback_t::is_error() method will return true. You can obtain full error details with confirmation_callback_t::get_error().
 		 */
 		void threads_get_active(snowflake guild_id, command_completion_event_t callback);
 
 		/**
 		 * @brief Get public archived threads in a channel (Sorted by archive_timestamp in descending order)
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#list-public-archived-threads
 		 * @param channel_id Channel to get public archived threads for
 		 * @param before_timestamp Get threads before this timestamp
 		 * @param limit Number of threads to get
@@ -2973,7 +3048,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get private archived threads in a channel (Sorted by archive_timestamp in descending order)
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#list-private-archived-threads
 		 * @param channel_id Channel to get public archived threads for
 		 * @param before_timestamp Get threads before this timestamp
 		 * @param limit Number of threads to get
@@ -2984,8 +3059,7 @@ namespace dpp {
 
 		/**
 		 * @brief Get private archived threads in a channel which current user has joined (Sorted by ID in descending order)
-
-		 * @see https://discord.com/developers/docs/topics/threads
+		 * @see https://discord.com/developers/docs/resources/channel#list-joined-private-archived-threads
 		 * @param channel_id Channel to get public archived threads for
 		 * @param before_id Get threads before this id
 		 * @param limit Number of threads to get
@@ -3278,5 +3352,8 @@ namespace dpp {
 		void automod_rule_delete(snowflake guild_id, snowflake rule_id, command_completion_event_t callback = utility::log_error());
 
 #include <dpp/cluster_sync_calls.h>
+#ifdef DPP_CORO
+#include <dpp/cluster_coro_calls.h>
+#endif
 	};
 };

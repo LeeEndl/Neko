@@ -204,17 +204,17 @@ namespace dpp {
 	};
 
 	/**
-	 * @brief Represents the component object.
-	 * A component is a clickable button or drop down list
-	 * within a discord message, where the buttons emit
-	 * on_button_click events when the user interacts with
-	 * them.
-	 *
-	 * You should generally define one component object and
-	 * then insert one or more additional components into it
-	 * using component::add_component(), so that the parent
-	 * object is an action row and the child objects are buttons.
-	 */
+		 * @brief Represents the component object.
+		 * A component is a clickable button or drop down list
+		 * within a discord message, where the buttons emit
+		 * on_button_click events when the user interacts with
+		 * them.
+		 *
+		 * You should generally define one component object and
+		 * then insert one or more additional components into it
+		 * using component::add_component(), so that the parent
+		 * object is an action row and the child objects are buttons.
+		 */
 	class component : public json_interface<component> {
 	public:
 		/** Component type, either a button or action row
@@ -529,7 +529,7 @@ namespace dpp {
 	struct DPP_EXPORT embed_footer {
 		/** Footer text */
 		std::string text;
-		/** Footer icon url */
+		/** Footer icon url (only supports http(s) and attachments) */
 		std::string icon_url;
 		/** Proxied icon url */
 		std::string proxy_url;
@@ -583,9 +583,9 @@ namespace dpp {
 	struct DPP_EXPORT embed_author {
 		/** Author name */
 		std::string name;
-		/** Author url */
+		/** Author url (only supports http(s)) */
 		std::string url;
-		/** Author icon url */
+		/** Author icon url (only supports http(s) and attachments) */
 		std::string icon_url;
 		/** Proxied icon url */
 		std::string proxy_icon_url;
@@ -595,9 +595,9 @@ namespace dpp {
 	 * @brief A dpp::embed may contain zero or more fields
 	 */
 	struct DPP_EXPORT embed_field {
-		/** Name of field */
+		/** Name of field (max length 256) */
 		std::string name;
-		/** Value of field (max length 1000) */
+		/** Value of field (max length 1024) */
 		std::string value;
 		/** True if the field is to be displayed inline */
 		bool is_inline;
@@ -665,7 +665,7 @@ namespace dpp {
 
 		/** Set the footer of the embed. Returns the embed itself so these method calls may be "chained"
 		 * @param text string to set as footer text. It will be truncated to the maximum length of 2048 UTF-8 characters.
-		 * @param icon_url an url to set as footer icon url
+		 * @param icon_url an url to set as footer icon url (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
 		embed& set_footer(const std::string& text, const std::string& icon_url);
@@ -704,8 +704,8 @@ namespace dpp {
 
 		/** Set embed author. Returns the embed itself so these method calls may be "chained"
 		 * @param name The name of the author. It will be truncated to the maximum length of 256 UTF-8 characters.
-		 * @param url The url of the author
-		 * @param icon_url The icon URL of the author
+		 * @param url The url of the author (only supports http(s))
+		 * @param icon_url The icon URL of the author (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
 		embed& set_author(const std::string& name, const std::string& url, const std::string& icon_url);
@@ -718,7 +718,7 @@ namespace dpp {
 		embed& set_provider(const std::string& name, const std::string& url);
 
 		/** Set embed image. Returns the embed itself so these method calls may be "chained"
-		 * @param url The embed image URL
+		 * @param url The embed image URL (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
 		embed& set_image(const std::string& url);
@@ -730,7 +730,7 @@ namespace dpp {
 		embed& set_video(const std::string& url);
 
 		/** Set embed thumbnail. Returns the embed itself so these method calls may be "chained"
-		 * @param url The embed thumbnail url
+		 * @param url The embed thumbnail url (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
 		embed& set_thumbnail(const std::string& url);
@@ -790,6 +790,10 @@ namespace dpp {
 		std::string content_type;
 		/** Whether this attachment is ephemeral, if applicable */
 		bool ephemeral;
+		/** The duration of the audio file (currently for voice messages) */
+		double duration_secs;
+		/** base64 encoded bytearray representing a sampled waveform (currently for voice messages) */
+		std::string waveform;
 		/** Owning message */
 		struct message* owner;
 
@@ -985,6 +989,8 @@ namespace dpp {
 		m_thread_mention_failed = 1 << 8,
 		/// this message will not trigger push and desktop notifications
 		m_suppress_notifications = 1 << 12,
+		/// this message is a voice message
+		m_is_voice_message = 1 << 13,
 	};
 
 	/**
@@ -1186,6 +1192,9 @@ namespace dpp {
 
 		/** File content to upload (raw binary) */
 		std::vector<std::string>	filecontent;
+
+		/** Mime type of files to upload */
+		std::vector<std::string>	filemimetype;
 
 		/**
 		 * @brief Reference to another message, e.g. a reply
@@ -1416,6 +1425,13 @@ namespace dpp {
 		bool suppress_notifications() const;
 
 		/**
+		 * @brief True if the message is a voice message
+		 *
+		 * @return True if voice message
+		 */
+		bool is_voice_message() const;
+
+		/**
 		 * @brief Add a component (button) to message
 		 *
 		 * @param c component to add
@@ -1470,9 +1486,10 @@ namespace dpp {
 		 *
 		 * @param filename filename
 		 * @param filecontent raw file content contained in std::string
+		 * @param filemimetype optional mime type of the file
 		 * @return message& reference to self
 		 */
-		message& add_file(const std::string& filename, const std::string& filecontent);
+		message& add_file(const std::string& filename, const std::string& filecontent, const std::string& filemimetype = "");
 
 		/**
 		 * @brief Set the message content

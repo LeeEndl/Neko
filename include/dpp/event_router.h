@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <mutex>
 #include <shared_mutex>
+#include <cstring>
 
 using  json = nlohmann::json;
 
@@ -96,10 +97,17 @@ namespace dpp {
 		 */
 		std::map<event_handle, std::function<void(const T&)>> dispatch_container;
 
+#ifdef DPP_CORO
+		/**
+		 * @brief Container for event listeners (coroutines only)
+		 */
+		std::map<event_handle, std::function<dpp::task(T)>> coroutine_container;
+#else
 		/**
 		 * @brief Dummy container to keep the struct size same
 		 */
 		std::map<event_handle, std::function<void(T)>> dummy_container;
+#endif
 
 		/**
 		 * @brief A function to be called whenever the method is called, to check
@@ -145,6 +153,13 @@ namespace dpp {
 					ev.second(event);
 				}
 				});
+#ifdef DPP_CORO
+			std::for_each(coroutine_container.begin(), coroutine_container.end(), [&](auto& ev) {
+				if (!event.is_cancelled()) {
+					ev.second(event);
+				}
+				});
+#endif
 		};
 
 		/**
@@ -201,6 +216,14 @@ namespace dpp {
 			return h;
 		}
 
+#ifdef DPP_CORO
+		event_handle co_attach(std::function<dpp::task(T)> func) {
+			std::unique_lock l(lock);
+			event_handle h = next_handle++;
+			coroutine_container.emplace(h, func);
+			return h;
+		}
+#endif
 		/**
 		 * @brief Detach a listener from the event using a previously obtained ID.
 		 *
