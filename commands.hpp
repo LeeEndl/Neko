@@ -41,7 +41,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
-						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
+						.set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
 					UserData data = GetUserData(stoull(games.first.second));
 					data.dollars += games.second.bet;
@@ -55,7 +55,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
-						.set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
+						.set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
 					UserData data = GetUserData(stoull(games.first.first));
 					data.dollars += games.second.bet * 2;
@@ -98,7 +98,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 	if (event.custom_id.find("bjstand_") not_eq -1 and index[1] == to_string(event.command.member.user_id)) {
 		for (auto& games : bj_callback) {
 			if (games.first.first == index[1] and games.second.turn == 2 or games.first.second == index[1] and games.second.turn == 1) {
-				event.reply(dpp::message("<@" + (games.second.turn == 2 ? games.first.second : games.first.first) + (">. ") + (games.second.turn == 1 ? GetUserData(stoull(games.first.second)).username : GetUserData(stoull(games.first.first)).username) + (" passed there turn")).set_allowed_mentions(false, false, false, false, vector<dpp::snowflake>{ games.second.turn == 2 ? stoull(games.first.second) : stoull(games.first.first) }, { 0 }));
+				event.reply(dpp::message("<@" + (games.second.turn == 2 ? games.first.second : games.first.first) + (">. ") + (games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" passed there turn")).set_allowed_mentions(false, false, false, false, vector<dpp::snowflake>{ games.second.turn == 2 ? stoull(games.first.second) : stoull(games.first.first) }, { 0 }));
 				games.second.msg.components.clear();
 				games.second.turn == 1 ? games.second.turn = 2 : games.second.turn = 1;
 				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" turn")));
@@ -155,7 +155,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
-					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
+					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.second));
 					data.dollars += games.second.bet * 2;
 					SaveUserData(data, stoull(games.first.second));
@@ -169,7 +169,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
-					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(GetUserData(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
+					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.first));
 					data.dollars += games.second.bet;
 					SaveUserData(data, stoull(games.first.first));
