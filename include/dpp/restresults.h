@@ -29,7 +29,6 @@
 #include <dpp/timer.h>
 #include <dpp/discordclient.h>
 #include <dpp/voiceregion.h>
-#include <dpp/dtemplate.h>
 #include <dpp/prune.h>
 #include <dpp/auditlog.h>
 #include <dpp/queues.h>
@@ -150,8 +149,6 @@ namespace dpp {
 		role_map,
 		invite,
 		invite_map,
-		dtemplate,
-		dtemplate_map,
 		emoji,
 		emoji_map,
 		ban,

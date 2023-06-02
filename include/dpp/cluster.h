@@ -30,7 +30,6 @@
 #include <dpp/discordclient.h>
 #include <dpp/discordvoiceclient.h>
 #include <dpp/voiceregion.h>
-#include <dpp/dtemplate.h>
 #include <dpp/prune.h>
 #include <dpp/auditlog.h>
 #include <dpp/queues.h>
@@ -379,6 +378,8 @@ namespace dpp {
 		 * @param p The presence to set. Only the online status and the first activity are sent.
 		 */
 		void set_presence(const class dpp::presence& p);
+
+
 
 		/**
 		 * @brief Get a shard by id, returning the discord_client
