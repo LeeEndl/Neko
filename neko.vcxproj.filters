@@ -978,19 +978,10 @@
     <ClInclude Include="include\dpp\dispatcher.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\dns.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\dpp.h">
       <Filter>dpp</Filter>
     </ClInclude>
-    <ClInclude Include="include\dpp\dtemplate.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
     <ClInclude Include="include\dpp\emoji.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\etf.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\event.h">
@@ -1075,9 +1066,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\sync.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\sysdep.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\timed_listener.h">

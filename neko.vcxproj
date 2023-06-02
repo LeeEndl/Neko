@@ -109,11 +109,8 @@
     <ClInclude Include="include\dpp\discordevents.h" />
     <ClInclude Include="include\dpp\discordvoiceclient.h" />
     <ClInclude Include="include\dpp\dispatcher.h" />
-    <ClInclude Include="include\dpp\dns.h" />
     <ClInclude Include="include\dpp\dpp.h" />
-    <ClInclude Include="include\dpp\dtemplate.h" />
     <ClInclude Include="include\dpp\emoji.h" />
-    <ClInclude Include="include\dpp\etf.h" />
     <ClInclude Include="include\dpp\event.h" />
     <ClInclude Include="include\dpp\event_router.h" />
     <ClInclude Include="include\dpp\event_t.h" />
@@ -142,7 +139,6 @@
     <ClInclude Include="include\dpp\stage_instance.h" />
     <ClInclude Include="include\dpp\stringops.h" />
     <ClInclude Include="include\dpp\sync.h" />
-    <ClInclude Include="include\dpp\sysdep.h" />
     <ClInclude Include="include\dpp\timed_listener.h" />
     <ClInclude Include="include\dpp\timer.h" />
     <ClInclude Include="include\dpp\user.h" />
