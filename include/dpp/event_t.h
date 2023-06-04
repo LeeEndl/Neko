@@ -23,7 +23,4 @@ namespace dpp {
 	void message_edit(const dpp::slashcommand_t& event, dpp::message msg) { event.edit_original_response(msg); }
 	void message_delete(const dpp::message_create_t& event, dpp::snowflake msg_id, dpp::snowflake channel_id) { bot.message_delete(msg_id, channel_id); }
 	void message_delete(const dpp::slashcommand_t& event, dpp::snowflake msg_id, dpp::snowflake channel_id) { event.delete_original_response(); }
-	string content(const dpp::message_create_t& event) { return event.msg.content; }
-	dpp::message ori_message(const dpp::message_create_t& event) { return event.msg; }
-	dpp::message ori_message(const dpp::slashcommand_t& event) { return event.command.msg; }
 }

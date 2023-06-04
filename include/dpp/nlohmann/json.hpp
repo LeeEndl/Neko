@@ -8211,26 +8211,26 @@ namespace detail
 
 				const auto half = static_cast<unsigned int>((byte1 << 8u) + byte2);
 				const double val = [&half]
-				{
-					const int exp = (half >> 10u) & 0x1Fu;
-					const unsigned int mant = half & 0x3FFu;
-					JSON_ASSERT(0 <= exp && exp <= 32);
-					JSON_ASSERT(mant <= 1024);
-					switch (exp)
 					{
-					case 0:
-						return std::ldexp(mant, -24);
-					case 31:
-						return (mant == 0)
-							? std::numeric_limits<double>::infinity()
-							: std::numeric_limits<double>::quiet_NaN();
-					default:
-						return std::ldexp(mant + 1024, exp - 25);
-					}
-				}();
-				return sax->number_float((half & 0x8000u) != 0
-					? static_cast<number_float_t>(-val)
-					: static_cast<number_float_t>(val), "");
+						const int exp = (half >> 10u) & 0x1Fu;
+						const unsigned int mant = half & 0x3FFu;
+						JSON_ASSERT(0 <= exp && exp <= 32);
+						JSON_ASSERT(mant <= 1024);
+						switch (exp)
+						{
+						case 0:
+							return std::ldexp(mant, -24);
+						case 31:
+							return (mant == 0)
+								? std::numeric_limits<double>::infinity()
+								: std::numeric_limits<double>::quiet_NaN();
+						default:
+							return std::ldexp(mant + 1024, exp - 25);
+						}
+					}();
+					return sax->number_float((half & 0x8000u) != 0
+						? static_cast<number_float_t>(-val)
+						: static_cast<number_float_t>(val), "");
 			}
 
 			case 0xFA:
@@ -8947,10 +8947,10 @@ namespace detail
 		bool get_msgpack_binary(binary_t& result)
 		{
 			auto assign_and_return_true = [&result](std::int8_t subtype)
-			{
-				result.set_subtype(static_cast<std::uint8_t>(subtype));
-				return true;
-			};
+				{
+					result.set_subtype(static_cast<std::uint8_t>(subtype));
+					return true;
+				};
 
 			switch (current)
 			{
@@ -9616,26 +9616,26 @@ namespace detail
 
 				const auto half = static_cast<unsigned int>((byte2 << 8u) + byte1);
 				const double val = [&half]
-				{
-					const int exp = (half >> 10u) & 0x1Fu;
-					const unsigned int mant = half & 0x3FFu;
-					JSON_ASSERT(0 <= exp && exp <= 32);
-					JSON_ASSERT(mant <= 1024);
-					switch (exp)
 					{
-					case 0:
-						return std::ldexp(mant, -24);
-					case 31:
-						return (mant == 0)
-							? std::numeric_limits<double>::infinity()
-							: std::numeric_limits<double>::quiet_NaN();
-					default:
-						return std::ldexp(mant + 1024, exp - 25);
-					}
-				}();
-				return sax->number_float((half & 0x8000u) != 0
-					? static_cast<number_float_t>(-val)
-					: static_cast<number_float_t>(val), "");
+						const int exp = (half >> 10u) & 0x1Fu;
+						const unsigned int mant = half & 0x3FFu;
+						JSON_ASSERT(0 <= exp && exp <= 32);
+						JSON_ASSERT(mant <= 1024);
+						switch (exp)
+						{
+						case 0:
+							return std::ldexp(mant, -24);
+						case 31:
+							return (mant == 0)
+								? std::numeric_limits<double>::infinity()
+								: std::numeric_limits<double>::quiet_NaN();
+						default:
+							return std::ldexp(mant + 1024, exp - 25);
+						}
+					}();
+					return sax->number_float((half & 0x8000u) != 0
+						? static_cast<number_float_t>(-val)
+						: static_cast<number_float_t>(val), "");
 			}
 
 			case 'd':
@@ -15590,9 +15590,9 @@ private:
 		using AllocatorTraits = std::allocator_traits<AllocatorType<T>>;
 
 		auto deleter = [&](T* obj)
-		{
-			AllocatorTraits::deallocate(alloc, obj, 1);
-		};
+			{
+				AllocatorTraits::deallocate(alloc, obj, 1);
+			};
 		std::unique_ptr<T, decltype(deleter)> obj(AllocatorTraits::allocate(alloc, 1), deleter);
 		AllocatorTraits::construct(alloc, obj.get(), std::forward<Args>(args)...);
 		JSON_ASSERT(obj != nullptr);
@@ -18870,116 +18870,116 @@ public:
 		enum class patch_operations { add, remove, replace, move, copy, test, invalid };
 
 		const auto get_op = [](const std::string& op)
-		{
-			if (op == "add")
 			{
-				return patch_operations::add;
-			}
-			if (op == "remove")
-			{
-				return patch_operations::remove;
-			}
-			if (op == "replace")
-			{
-				return patch_operations::replace;
-			}
-			if (op == "move")
-			{
-				return patch_operations::move;
-			}
-			if (op == "copy")
-			{
-				return patch_operations::copy;
-			}
-			if (op == "test")
-			{
-				return patch_operations::test;
-			}
+				if (op == "add")
+				{
+					return patch_operations::add;
+				}
+				if (op == "remove")
+				{
+					return patch_operations::remove;
+				}
+				if (op == "replace")
+				{
+					return patch_operations::replace;
+				}
+				if (op == "move")
+				{
+					return patch_operations::move;
+				}
+				if (op == "copy")
+				{
+					return patch_operations::copy;
+				}
+				if (op == "test")
+				{
+					return patch_operations::test;
+				}
 
-			return patch_operations::invalid;
-		};
+				return patch_operations::invalid;
+			};
 
 		const auto operation_add = [&result](json_pointer& ptr, basic_json val)
-		{
-			if (ptr.empty())
 			{
-				result = val;
-				return;
-			}
-
-			json_pointer top_pointer = ptr.top();
-			if (top_pointer != ptr)
-			{
-				result.at(top_pointer);
-			}
-
-			const auto last_path = ptr.back();
-			ptr.pop_back();
-			basic_json& parent = result.at(ptr);
-
-			switch (parent.m_type)
-			{
-			case value_t::null:
-			case value_t::object:
-			{
-				parent[last_path] = val;
-				break;
-			}
-
-			case value_t::array:
-			{
-				if (last_path == "-")
+				if (ptr.empty())
 				{
-					parent.push_back(val);
+					result = val;
+					return;
 				}
-				else
+
+				json_pointer top_pointer = ptr.top();
+				if (top_pointer != ptr)
 				{
-					const auto idx = json_pointer::template array_index<basic_json_t>(last_path);
-					if (JSON_HEDLEY_UNLIKELY(idx > parent.size()))
+					result.at(top_pointer);
+				}
+
+				const auto last_path = ptr.back();
+				ptr.pop_back();
+				basic_json& parent = result.at(ptr);
+
+				switch (parent.m_type)
+				{
+				case value_t::null:
+				case value_t::object:
+				{
+					parent[last_path] = val;
+					break;
+				}
+
+				case value_t::array:
+				{
+					if (last_path == "-")
 					{
-						JSON_THROW(out_of_range::create(401, detail::concat("array index ", std::to_string(idx), " is out of range"), &parent));
+						parent.push_back(val);
 					}
+					else
+					{
+						const auto idx = json_pointer::template array_index<basic_json_t>(last_path);
+						if (JSON_HEDLEY_UNLIKELY(idx > parent.size()))
+						{
+							JSON_THROW(out_of_range::create(401, detail::concat("array index ", std::to_string(idx), " is out of range"), &parent));
+						}
 
-					parent.insert(parent.begin() + static_cast<difference_type>(idx), val);
+						parent.insert(parent.begin() + static_cast<difference_type>(idx), val);
+					}
+					break;
 				}
-				break;
-			}
 
-			case value_t::string:
-			case value_t::boolean:
-			case value_t::number_integer:
-			case value_t::number_unsigned:
-			case value_t::number_float:
-			case value_t::binary:
-			case value_t::discarded:
-			default:
-				JSON_ASSERT(false);
-			}
-		};
+				case value_t::string:
+				case value_t::boolean:
+				case value_t::number_integer:
+				case value_t::number_unsigned:
+				case value_t::number_float:
+				case value_t::binary:
+				case value_t::discarded:
+				default:
+					JSON_ASSERT(false);
+				}
+			};
 
 		const auto operation_remove = [this, &result](json_pointer& ptr)
-		{
-			const auto last_path = ptr.back();
-			ptr.pop_back();
-			basic_json& parent = result.at(ptr);
+			{
+				const auto last_path = ptr.back();
+				ptr.pop_back();
+				basic_json& parent = result.at(ptr);
 
-			if (parent.is_object())
-			{
-				auto it = parent.find(last_path);
-				if (JSON_HEDLEY_LIKELY(it != parent.end()))
+				if (parent.is_object())
 				{
-					parent.erase(it);
+					auto it = parent.find(last_path);
+					if (JSON_HEDLEY_LIKELY(it != parent.end()))
+					{
+						parent.erase(it);
+					}
+					else
+					{
+						JSON_THROW(out_of_range::create(403, detail::concat("key '", last_path, "' not found"), this));
+					}
 				}
-				else
+				else if (parent.is_array())
 				{
-					JSON_THROW(out_of_range::create(403, detail::concat("key '", last_path, "' not found"), this));
+					parent.erase(json_pointer::template array_index<basic_json_t>(last_path));
 				}
-			}
-			else if (parent.is_array())
-			{
-				parent.erase(json_pointer::template array_index<basic_json_t>(last_path));
-			}
-		};
+			};
 
 		if (JSON_HEDLEY_UNLIKELY(!json_patch.is_array()))
 		{
@@ -18991,23 +18991,23 @@ public:
 			const auto get_value = [&val](const std::string& op,
 				const std::string& member,
 				bool string_type) -> basic_json&
-			{
-				auto it = val.m_value.object->find(member);
-
-				const auto error_msg = (op == "op") ? "operation" : detail::concat("operation '", op, '\'');
-
-				if (JSON_HEDLEY_UNLIKELY(it == val.m_value.object->end()))
 				{
-					JSON_THROW(parse_error::create(105, 0, detail::concat(error_msg, " must have member '", member, "'"), &val));
-				}
+					auto it = val.m_value.object->find(member);
 
-				if (JSON_HEDLEY_UNLIKELY(string_type && !it->second.is_string()))
-				{
-					JSON_THROW(parse_error::create(105, 0, detail::concat(error_msg, " must have string member '", member, "'"), &val));
-				}
+					const auto error_msg = (op == "op") ? "operation" : detail::concat("operation '", op, '\'');
 
-				return it->second;
-			};
+					if (JSON_HEDLEY_UNLIKELY(it == val.m_value.object->end()))
+					{
+						JSON_THROW(parse_error::create(105, 0, detail::concat(error_msg, " must have member '", member, "'"), &val));
+					}
+
+					if (JSON_HEDLEY_UNLIKELY(string_type && !it->second.is_string()))
+					{
+						JSON_THROW(parse_error::create(105, 0, detail::concat(error_msg, " must have string member '", member, "'"), &val));
+					}
+
+					return it->second;
+				};
 
 			if (JSON_HEDLEY_UNLIKELY(!val.is_object()))
 			{
