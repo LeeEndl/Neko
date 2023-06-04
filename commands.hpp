@@ -314,16 +314,16 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 	else amount = dpp::indexi64(event, "1");
 	if (amount <= 1 or amount > 100) msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::failed)
-		.set_description("> Can only delete 100 messages at a time.")); // TODO remove restriction
+		.set_description("> Can only delete 2-100 messages at a time.")); // TODO remove restriction
 	else {
 		vector<dpp::snowflake> ids;
-		auto msgs = bot.messages_get_sync(dpp::channel_id(event), 0, dpp::ori_message(event).id, 0, amount);
+		dpp::message_map msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount);
 		if (msgs.size() <= 1) return false;
 		for (auto& msg : msgs) {
 			if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600) continue;
 			ids.emplace_back(msg.second.id);
 		}
-		if (not ids.empty()) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
+		if (ids.size() > 1) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
 		msg.add_embed(dpp::embed()
 			.set_color(dpp::colors::success)
 			.set_description("> Deleted `" + to_string(ids.size()) + "` Message(s)"));
