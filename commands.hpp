@@ -665,20 +665,28 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	i_share.unlock();
 }
 vector<thread> commands_executed;
-bool is_command(const dpp::message_create_t& event) { /* TODO: case chain this. */
+int is_command(const dpp::message_create_t& event) {
 	GuildData g_data = GetGuildData(event.msg.guild_id);
-	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "daily") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "profile ") not_eq -1 or event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "membercount") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "invite") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "nick ") not_eq -1 or event.msg.content.find(g_data.prefix + "ping") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1 or event.msg.content.find(g_data.prefix + "help") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 or event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1 or
-		event.msg.content.find(g_data.prefix + "level") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) return true;
-	return false;
+	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) return 0;
+	else if (event.msg.content.find(g_data.prefix + "daily") not_eq -1) return 1;
+	else if (event.msg.content.find(g_data.prefix + "profile ") not_eq -1) return 2;
+	else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) return 3;
+	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) return 4;
+	else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) return 5;
+	else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1) return 6;
+	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) return 7;
+	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) return 8;
+	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) return 9;
+	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) return 10;
+	else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) return 11;
+	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_moderate_members) return 12;
+	else if (event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1) return 13;
+	else if (event.msg.content.find(g_data.prefix + "level") not_eq -1) return 14;
+	else if (event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) return 15;
+	return -1;
 }
 inline void await_on_message_create(const dpp::message_create_t& event) {
-	if (async(is_command, event).get()) {
+	if (async(is_command, event).get() not_eq -1) {
 		dpp::message msg_handler = dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request..."));
 		while (true) {
 			sleep_for(10ms);
@@ -697,32 +705,24 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 			}
 			SaveUserData(data, event.msg.member.user_id);
 		}
-		if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
-		else if (event.msg.content.find(g_data.prefix + "daily") not_eq -1) async(daily_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "profile ") not_eq -1) async(profile_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) async(leaderboard_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(purge_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event, true, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "avatar") not_eq -1) async(avatar_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) async(help_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_moderate_members) async(timeout_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1 or event.msg.content.find(g_data.prefix + "bj ") not_eq -1) async(blackjack_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "level") not_eq -1 or event.msg.content.find(g_data.prefix + "lvl") not_eq -1) async(level_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) async(giveaway_t<const dpp::message_create_t&>, event, msg_handler);
-		else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
-			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-				.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-		else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1)
-			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-				.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-		else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1)
-			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-				.set_description("> Sorry, you need **timeout members** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-		else return;
+		switch (async(is_command, event).get()) {
+		case 0: async(prefix_t, event); break;
+		case 1: async(daily_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 2: async(profile_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 3: async(leaderboard_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 4: async(purge_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 5: async(membercount_t<const dpp::message_create_t&>, event, true, msg_handler); break;
+		case 6: async(avatar_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 7: async(invite_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 8: async(nick_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 9: async(ping_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 10: async(serverinfo_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 11: async(help_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 12: async(timeout_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 13: async(blackjack_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 14: async(level_t<const dpp::message_create_t&>, event, msg_handler); break;
+		case 15: async(giveaway_t<const dpp::message_create_t&>, event, msg_handler); break;
+		}
 		{
 			UserData data = GetUserData(event.msg.member.user_id);
 			data.last_on = time(0);
