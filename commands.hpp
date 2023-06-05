@@ -32,7 +32,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				for (auto& deck : games.second.p2) games.second.p2_deck += deck.second + " ", games.second.p2_value += deck.first;
-#ifdef neko_std23
+#if _HAS_CXX23 or _HAS_CXX20
 				u8string emoji = u8" 💵";
 #else
 				string emoji = u8" 💵";
@@ -146,7 +146,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 
 				games.second.msg.components.clear();
 				games.second.msg.embeds.clear();
-#ifdef neko_std23
+#if _HAS_CXX23 or _HAS_CXX20
 				u8string emoji = u8" 💵";
 #else
 				string emoji = u8" 💵";
