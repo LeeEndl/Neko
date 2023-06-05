@@ -1,6 +1,8 @@
 ﻿/* Copyright(c) LeeEndl; License Apache License 2.0 */
 #pragma once
 
+mutex i_share;
+
 inline void await_on_button_click(const dpp::button_click_t& event) {
 	UserData data = GetUserData(event.command.member.user_id);
 	vector<string> index = dpp::index(event.custom_id, '_');
@@ -630,75 +632,103 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 }
 
 inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
+	dpp::message msg_handler = dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request..."));
+	while (true) {
+		sleep_for(10ms);
+		if (i_share.try_lock()) break;
+		else continue;
+	}
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
 	UserData data = GetUserData(event.command.member.user_id);
 	if (data.failed) async(new_user, event.command.member.user_id).wait();
-	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "profile") async(profile_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "leaderboard" or event.command.get_command_name() == "top") async(leaderboard_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "purge") async(purge_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "membercount") async(membercount_t<const dpp::slashcommand_t&>, event, true, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "avatar") async(avatar_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "help") async(help_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "timeout") async(timeout_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "blackjack" or event.command.get_command_name() == "bj") async(blackjack_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "level" or event.command.get_command_name() == "lvl") async(level_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.command.get_command_name() == "giveaway") async(giveaway_t<const dpp::slashcommand_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
+	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "profile") async(profile_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "leaderboard" or event.command.get_command_name() == "top") async(leaderboard_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "purge") async(purge_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "membercount") async(membercount_t<const dpp::slashcommand_t&>, event, true, msg_handler);
+	else if (event.command.get_command_name() == "avatar") async(avatar_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "invite") async(invite_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "nick") async(nick_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "ping") async(ping_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "serverinfo") async(serverinfo_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "help") async(help_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "timeout") async(timeout_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "blackjack" or event.command.get_command_name() == "bj") async(blackjack_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "level" or event.command.get_command_name() == "lvl") async(level_t<const dpp::slashcommand_t&>, event, msg_handler);
+	else if (event.command.get_command_name() == "giveaway") async(giveaway_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else return;
 	{
 		UserData data = GetUserData(event.command.member.user_id);
 		data.last_on = time(0);
 		SaveUserData(data, event.command.member.user_id);
 	}
+	i_share.unlock();
 }
 vector<thread> commands_executed;
-inline void await_on_message_create(const dpp::message_create_t& event) {
+bool is_command(const dpp::message_create_t& event) { /* TODO: case chain this. */
 	GuildData g_data = GetGuildData(event.msg.guild_id);
-	if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
-	{
-		UserData data = GetUserData(event.msg.member.user_id);
-		if (data.failed) async(new_user, event.msg.member.user_id).wait();
-		for (auto& member : members) if (member.first == event.msg.member.user_id) {
-			tm* last = dpp::utility::mtm(member.second.last_exp);
-			time_t ct = dpp::utility::mt_t(last, last->tm_sec + 15, last->tm_min, last->tm_hour, last->tm_wday, last->tm_mday, last->tm_mon);
-			if (ct < time(0)) data.lvl[1]++, data.last_exp = time(0);
+	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "daily") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "profile ") not_eq -1 or event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "membercount") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "invite") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "nick ") not_eq -1 or event.msg.content.find(g_data.prefix + "ping") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1 or event.msg.content.find(g_data.prefix + "help") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 or event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1 or
+		event.msg.content.find(g_data.prefix + "level") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) return true;
+	return false;
+}
+inline void await_on_message_create(const dpp::message_create_t& event) {
+	if (async(is_command, event).get()) {
+		dpp::message msg_handler = dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request..."));
+		while (true) {
+			sleep_for(10ms);
+			if (i_share.try_lock()) break;
+			else continue;
 		}
-		SaveUserData(data, event.msg.member.user_id);
-	}
-	if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
-	else if (event.msg.content.find(g_data.prefix + "daily") not_eq -1) async(daily_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "profile ") not_eq -1) async(profile_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) async(leaderboard_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(purge_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event, true, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "avatar") not_eq -1) async(avatar_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) async(help_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_moderate_members) async(timeout_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1 or event.msg.content.find(g_data.prefix + "bj ") not_eq -1) async(blackjack_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "level") not_eq -1 or event.msg.content.find(g_data.prefix + "lvl") not_eq -1) async(level_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) async(giveaway_t<const dpp::message_create_t&>, event, dpp::message_create(event, dpp::message(dpp::channel_id(event), "> Processing Request...")));
-	else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-			.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-	else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1)
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-			.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-	else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1)
-		event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
-			.set_description("> Sorry, you need **timeout members** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
-	else return;
-	{
-		UserData data = GetUserData(event.msg.member.user_id);
-		data.last_on = time(0);
-		SaveUserData(data, event.msg.member.user_id);
+		GuildData g_data = GetGuildData(event.msg.guild_id);
+		if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
+		{
+			UserData data = GetUserData(event.msg.member.user_id);
+			if (data.failed) async(new_user, event.msg.member.user_id).wait();
+			for (auto& member : members) if (member.first == event.msg.member.user_id) {
+				tm* last = dpp::utility::mtm(member.second.last_exp);
+				time_t ct = dpp::utility::mt_t(last, last->tm_sec + 15, last->tm_min, last->tm_hour, last->tm_wday, last->tm_mday, last->tm_mon);
+				if (ct < time(0)) data.lvl[1]++, data.last_exp = time(0);
+			}
+			SaveUserData(data, event.msg.member.user_id);
+		}
+		if (event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(prefix_t, event);
+		else if (event.msg.content.find(g_data.prefix + "daily") not_eq -1) async(daily_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "profile ") not_eq -1) async(profile_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "leaderboard") not_eq -1 or event.msg.content.find(g_data.prefix + "top") not_eq -1) async(leaderboard_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_administrator) async(purge_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "membercount") not_eq -1) async(membercount_t<const dpp::message_create_t&>, event, true, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "avatar ") not_eq -1 or event.msg.content.find(g_data.prefix + "avatar") not_eq -1) async(avatar_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "invite") not_eq -1) async(invite_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_manage_nicknames) async(nick_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) async(ping_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "serverinfo") not_eq -1) async(serverinfo_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "help") not_eq -1) async(help_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1 and dpp::find_guild(event.msg.guild_id)->base_permissions(dpp::find_user(event.msg.member.user_id)) & dpp::p_moderate_members) async(timeout_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "blackjack ") not_eq -1 or event.msg.content.find(g_data.prefix + "bj ") not_eq -1) async(blackjack_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "level") not_eq -1 or event.msg.content.find(g_data.prefix + "lvl") not_eq -1) async(level_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1) async(giveaway_t<const dpp::message_create_t&>, event, msg_handler);
+		else if (event.msg.content.find(g_data.prefix + "nick ") not_eq -1)
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+				.set_description("> Sorry, you need **manage nicknames** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+		else if (event.msg.content.find(g_data.prefix + "purge ") not_eq -1 or event.msg.content.find(g_data.prefix + "prefix ") not_eq -1 or event.msg.content.find(g_data.prefix + "giveaway ") not_eq -1)
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+				.set_description("> Sorry, you need **administrator** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+		else if (event.msg.content.find(g_data.prefix + "timeout ") not_eq -1)
+			event.reply(dpp::message(dpp::channel_id(event), dpp::embed().set_color(dpp::colors::failed)
+				.set_description("> Sorry, you need **timeout members** permission to preform this command")).set_flags(dpp::message_flags::m_ephemeral));
+		else return;
+		{
+			UserData data = GetUserData(event.msg.member.user_id);
+			data.last_on = time(0);
+			SaveUserData(data, event.msg.member.user_id);
+		}
+		i_share.unlock();
 	}
 }
 void load_slashcommands()
