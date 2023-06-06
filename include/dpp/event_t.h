@@ -2,7 +2,7 @@
 using namespace std;
 using namespace this_thread;
 vector<thread> event_threads;
-dpp::cluster bot("", static_cast<uint32_t>(dpp::i_all_intents));
+dpp::cluster bot("", dpp::i_all_intents, 1);
 
 namespace dpp {
 	dpp::guild_member member(const dpp::message_create_t& event) { return event.msg.member; }
