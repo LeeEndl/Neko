@@ -379,8 +379,6 @@ namespace dpp {
 		 */
 		void set_presence(const class dpp::presence& p);
 
-
-
 		/**
 		 * @brief Get a shard by id, returning the discord_client
 		 *
