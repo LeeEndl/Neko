@@ -556,20 +556,17 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 }
 template<typename event_t> bool level_t(event_t event, dpp::message msg) {
 	UserData data = GetUserData(dpp::member(event).user_id);
-	cv::Mat im(256, 640, CV_8UC4);
-	CV_Assert(im.channels() == 4);
-	for (int i = 0; i < im.rows; ++i)
-		for (int j = 0; j < im.cols; ++j) {
-			im.at<cv::Vec4b>(i, j)[0] = UCHAR_MAX;
-			im.at<cv::Vec4b>(i, j)[1] = cv::saturate_cast<uchar>(UCHAR_MAX);
-			im.at<cv::Vec4b>(i, j)[2] = cv::saturate_cast<uchar>(UCHAR_MAX);
-		}
+	cv::Mat im(256, 640, CV_64FC4);
+	for (int row = 0; row < im.rows; ++row) for (int col = 0; col < im.cols; ++col)
+		im.at<cv::Vec4b>(row, col)[0] = cv::saturate_cast<uchar>(_UI64_MAX),
+		im.at<cv::Vec4b>(row, col)[1] = cv::saturate_cast<uchar>(_UI64_MAX),
+		im.at<cv::Vec4b>(row, col)[2] = cv::saturate_cast<uchar>(_UI64_MAX);
 	cv::line(im, cv::Point(65, static_cast<int>(640 / 4.2)), cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(150, 150, 150, 100), 50, cv::LINE_AA);
 	cv::putText(im, "Level " + to_string(data.lvl[0]), cv::Point(246, static_cast<int>(640 / 6.1)), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(150, 150, 150, 100), 2, cv::LINE_AA);
-	cv::putText(im, static_cast<cv::String>(to_string(data.lvl[1])), cv::Point(67, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2, cv::LINE_AA);
-	cv::putText(im, to_string(data.lvl[0] * 200), cv::Point(543, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2, cv::LINE_AA);
+	cv::putText(im, static_cast<cv::String>(to_string(data.lvl[1])), cv::Point(66, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2, cv::LINE_AA);
+	cv::putText(im, to_string(data.lvl[0] * 200), cv::Point(540, static_cast<int>(640 / 5.6)), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(150, 150, 150, 100), 2, cv::LINE_AA);
 	cv::line(im,
-		cv::Point(static_cast<int>(65 + data.lvl[1] * (data.lvl[0] * 200 < 565 ? 565 / (data.lvl[0] * 200) : (data.lvl[0] * 200) / 565)), static_cast<int>(640 / 4.2)),
+		cv::Point(min(max(static_cast<int>(65 + data.lvl[1] * 565 / (data.lvl[0] * 200)), 0), 565), static_cast<int>(640 / 4.2)),
 		cv::Point(565, static_cast<int>(640 / 4.2)), cv::Scalar(300, 300, 300, 100), 50, cv::LINE_AA);
 	try {
 		imwrite("CDN\\" + username(to_string(dpp::member(event).user_id)) + ".png", im, { cv::ImwriteFlags::IMWRITE_PNG_COMPRESSION, 9 });
