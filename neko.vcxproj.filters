@@ -1095,6 +1095,9 @@
     <ClInclude Include="include\dpp\wsclient.h">
       <Filter>dpp</Filter>
     </ClInclude>
+    <ClInclude Include="include\dpp\nlohmann\json.hpp">
+      <Filter>dpp\nlohmann</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="opencv2">
@@ -1243,6 +1246,9 @@
     </Filter>
     <Filter Include="dpp">
       <UniqueIdentifier>{58e186f6-f709-400d-8e6c-65e92416d522}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dpp\nlohmann">
+      <UniqueIdentifier>{3929a96f-f2ef-434f-a54d-30dddaa0d9c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

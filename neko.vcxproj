@@ -124,6 +124,7 @@
     <ClInclude Include="include\dpp\managed.h" />
     <ClInclude Include="include\dpp\message.h" />
     <ClInclude Include="include\dpp\misc-enum.h" />
+    <ClInclude Include="include\dpp\nlohmann\json.hpp" />
     <ClInclude Include="include\dpp\once.h" />
     <ClInclude Include="include\dpp\permissions.h" />
     <ClInclude Include="include\dpp\presence.h" />
