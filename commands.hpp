@@ -270,7 +270,6 @@ template<typename event_t> bool profile_t(event_t event, dpp::message msg)
 	else name = dpp::index(event, "1");
 	if (has_char(username(name))) return false;
 	UserData data = GetUserData(stoull(username(name)));
-	if (data.failed) new_user(stoull(username(name)));
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::PS)
 		.set_title(":mag_right: Profile Viewer")
@@ -640,7 +639,6 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	}
 	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
 	UserData data = GetUserData(event.command.member.user_id);
-	if (data.failed) async(new_user, event.command.member.user_id).wait();
 	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else if (event.command.get_command_name() == "profile") async(profile_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else if (event.command.get_command_name() == "leaderboard" or event.command.get_command_name() == "top") async(leaderboard_t<const dpp::slashcommand_t&>, event, msg_handler);
@@ -695,16 +693,13 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 		}
 		GuildData g_data = GetGuildData(event.msg.guild_id);
 		if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
-		{
-			UserData data = GetUserData(event.msg.member.user_id);
-			if (data.failed) async(new_user, event.msg.member.user_id).wait();
-			for (auto& member : members) if (member.first == event.msg.member.user_id) {
-				tm* last = dpp::utility::mtm(member.second.last_exp);
-				time_t ct = dpp::utility::mt_t(last, last->tm_sec + 15, last->tm_min, last->tm_hour, last->tm_wday, last->tm_mday, last->tm_mon);
-				if (ct < time(0)) data.lvl[1]++, data.last_exp = time(0);
-			}
-			SaveUserData(data, event.msg.member.user_id);
+		UserData data = GetUserData(event.msg.member.user_id);
+		for (auto& member : members) if (member.first == event.msg.member.user_id) {
+			tm* last = dpp::utility::mtm(member.second.last_exp);
+			time_t ct = dpp::utility::mt_t(last, last->tm_sec + 15, last->tm_min, last->tm_hour, last->tm_wday, last->tm_mday, last->tm_mon);
+			if (ct < time(0)) data.lvl[1]++, data.last_exp = time(0);
 		}
+		SaveUserData(data, event.msg.member.user_id);
 		switch (async(is_command, event).get()) {
 		case 0: async(prefix_t, event); break;
 		case 1: async(daily_t<const dpp::message_create_t&>, event, msg_handler); break;

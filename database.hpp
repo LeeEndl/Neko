@@ -6,7 +6,6 @@ namespace command { map<string, dpp::snowflake> name_to_id; }
 struct UserData {
 	JINT daily = 0, last_on = 0, last_exp = 0, user_id = 0, dollars = 0;
 	JVECTOR<JINT> lvl = { 1, 0 };
-	bool failed = false;
 }; map<dpp::snowflake, UserData> members;
 struct GuildData {
 	JBOOLEAN joined = false;
@@ -14,12 +13,26 @@ struct GuildData {
 
 	string prefix = "$";
 };
+inline void SaveUserData(UserData data, dpp::snowflake user_id)
+{
+	J["daily"] = data.daily;
+	J["dollars"] = data.dollars;
+	J["last_on"] = data.last_on;
+	J["user_id"] = data.user_id;
+	J["lvl"] = data.lvl;
+	ofstream("database/users/" + to_string(user_id) + ".txt") << setw(2) << J; J = json(); \
+}
 inline UserData GetUserData(dpp::snowflake user_id)
 {
 	UserData data;
 	if (not ifstream("database/users/" + to_string(user_id) + ".txt").is_open()) {
-		data.failed = true;
-		return data;
+		UserData data = UserData();
+		data.user_id = user_id;
+		SaveUserData(data, user_id); {
+			UserData data = GetUserData(user_id);
+			members.emplace(user_id, data);
+			return data;
+		}
 	}
 	ifstream("database/users/" + to_string(user_id) + ".txt") >> J;
 	data.daily = ELEMENT_JI("daily")
@@ -29,25 +42,6 @@ inline UserData GetUserData(dpp::snowflake user_id)
 		data.lvl = ELEMENT_JVI("lvl")
 		J = json();
 	return data;
-}
-inline void SaveUserData(UserData data, dpp::snowflake user)
-{
-	J["daily"] = data.daily;
-	J["dollars"] = data.dollars;
-	J["last_on"] = data.last_on;
-	J["user_id"] = data.user_id;
-	J["lvl"] = data.lvl;
-	ofstream("database/users/" + to_string(user) + ".txt") << setw(2) << J; J = json(); \
-}
-inline void new_user(dpp::snowflake user_id)
-{
-	UserData data = GetUserData(user_id);
-	data.user_id = bot.user_get_sync(user_id).id;
-	data.failed = false;
-	SaveUserData(data, user_id); {
-		UserData data = GetUserData(user_id);
-		members.emplace(bot.user_get_sync(user_id).id, data);
-	}
 }
 inline GuildData GetGuildData(dpp::snowflake guild_id)
 {
