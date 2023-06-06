@@ -89,8 +89,6 @@ inline void wrap_database() {
 	}
 }
 
-auto Beg = chrono::high_resolution_clock::now(), End = chrono::high_resolution_clock::now();
-
 struct blackjack {
 	blackjack& set_msg(dpp::message omsg) { msg = omsg; return *this; };
 	blackjack& set_bet(JINT Bet) { bet = Bet; return *this; };

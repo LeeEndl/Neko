@@ -419,11 +419,11 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 }
 template<typename event_t> bool ping_t(event_t event, dpp::message msg) {
 	msg.set_content("");
-	End = chrono::high_resolution_clock::now();
-	msg.add_embed(dpp::embed().set_color(dpp::colors::success)
-		.set_title(":ping_pong: Pong!")
-		.set_description("> Response time: " + to_string(chrono::duration_cast<chrono::milliseconds>(End - Beg).count()) + "." + to_string(chrono::duration_cast<chrono::microseconds>(End - Beg).count()) + "ms\n\
-                          > API Ping: " + to_string(bot.rest_ping)));
+	for (auto& shard : bot.get_shards()) {
+		msg.add_embed(dpp::embed().set_color(dpp::colors::success)
+			.set_title(":ping_pong: Pong!")
+			.set_description("shard #" + to_string(shard.second->shard_id) + "\n> Response: " + to_string(static_cast<int>((bot.rest_ping + bot.get_shard(shard.second->shard_id)->websocket_ping) * 1000)) + " ms"));
+	}
 	dpp::message_edit(event, msg);
 	return true;
 }
@@ -634,7 +634,6 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 		if (i_share.try_lock()) break;
 		else continue;
 	}
-	if (event.command.get_command_name() == "ping") Beg = chrono::high_resolution_clock::now();
 	UserData data = GetUserData(event.command.member.user_id);
 	if (event.command.get_command_name() == "daily") async(daily_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else if (event.command.get_command_name() == "profile") async(profile_t<const dpp::slashcommand_t&>, event, msg_handler);
@@ -689,7 +688,6 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 			else continue;
 		}
 		GuildData g_data = GetGuildData(event.msg.guild_id);
-		if (event.msg.content.find(g_data.prefix + "ping") not_eq -1) Beg = chrono::high_resolution_clock::now();
 		UserData data = GetUserData(event.msg.member.user_id);
 		for (auto& member : members) if (member.first == event.msg.member.user_id) {
 			tm* last = dpp::utility::mtm(member.second.last_exp);
