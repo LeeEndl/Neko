@@ -95,13 +95,13 @@ struct blackjack {
 	dpp::message msg = dpp::message();
 	JINT bet = 0;
 	short turn = 0;
+	bool accepted = false;
 
 	map<pair<int, int>, pair<string, string>> p1;
+	vector<string> p1_deck = { "", "" };
+	vector<int> p1_value = { 0, 0 };
+
 	map<int, string> p2;
-
-	string p1_deck = "", p1POV_deck = "";
-	int p1_value = 0, p1POV_value = 0;
-
 	string p2_deck = "";
 	int p2_value = 0;
 };
