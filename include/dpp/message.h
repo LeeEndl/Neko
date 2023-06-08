@@ -603,10 +603,16 @@ namespace dpp {
 		bool is_inline;
 	};
 
+	enum colors {
+		blue = 0x3f6deb,
+		red = 0xec3457,
+		green = 0x37dd33
+	};
+
 	/**
 	 * @brief A rich embed for display within a dpp::message
 	 */
-	struct DPP_EXPORT embed {
+	struct embed {
 		/** Optional: title of embed */
 		std::string			title;
 		/** Optional: type of embed (always "rich" for webhook embeds) */
@@ -635,58 +641,61 @@ namespace dpp {
 		std::vector<embed_field>	fields;
 
 		/** Constructor */
-		embed();
+		DPP_EXPORT embed();
 
 		/** Constructor to build embed from json object
 		 * @param j JSON to read content from
 		 */
-		embed(nlohmann::json* j);
+		DPP_EXPORT embed(nlohmann::json* j);
 
 		/** Destructor */
-		~embed();
+		DPP_EXPORT ~embed();
 
 		/** Set embed title. Returns the embed itself so these method calls may be "chained"
 		 * @param text The text of the title. It will be truncated to the maximum length of 256 UTF-8 characters.
 		 * @return A reference to self
 		 */
-		embed& set_title(const std::string& text);
+		DPP_EXPORT embed& set_title(const std::string& text);
 
 		/** Set embed description. Returns the embed itself so these method calls may be "chained"
 		 * @param text The text of the title. It will be truncated to the maximum length of 4096 UTF-8 characters.
 		 * @return A reference to self
 		 */
-		embed& set_description(const std::string& text);
+		DPP_EXPORT embed& set_description(const std::string& text);
 
 		/** Set the footer of the embed. Returns the embed itself so these method calls may be "chained"
 		 * @param f the footer to set
 		 * @return A reference to self
 		 */
-		embed& set_footer(const embed_footer& f);
+		DPP_EXPORT embed& set_footer(const embed_footer& f);
 
 		/** Set the footer of the embed. Returns the embed itself so these method calls may be "chained"
 		 * @param text string to set as footer text. It will be truncated to the maximum length of 2048 UTF-8 characters.
 		 * @param icon_url an url to set as footer icon url (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
-		embed& set_footer(const std::string& text, const std::string& icon_url);
+		DPP_EXPORT embed& set_footer(const std::string& text, const std::string& icon_url);
 
 		/** Set embed colour. Returns the embed itself so these method calls may be "chained"
 		 * @param col The colour of the embed
 		 * @return A reference to self
 		 */
-		embed& set_color(uint32_t col);
+		embed& set_color(dpp::colors col) {
+			color = col & 0x00FFFFFF;
+			return *this;
+		}
 
 		/** Set embed timestamp. Returns the embed itself so these method calls may be "chained"
 		 * @param tstamp The timestamp to show in the footer, should be in UTC
 		 * @return A reference to self
 		 */
-		embed& set_timestamp(time_t tstamp);
+		DPP_EXPORT embed& set_timestamp(time_t tstamp);
 
 		/** Set embed url. Returns the embed itself so these method calls may be "chained"
 		 * @param url the url of the embed
 		 * @return A reference to self
 		 */
-		embed& set_url(const std::string& url);
+		DPP_EXPORT embed& set_url(const std::string& url);
 
 		/** Add an embed field. Returns the embed itself so these method calls may be "chained"
 		 * @param name The name of the field. It will be truncated to the maximum length of 256 UTF-8 characters.
@@ -694,13 +703,13 @@ namespace dpp {
 		 * @param is_inline Whether or not to display the field 'inline' or on its own line
 		 * @return A reference to self
 		 */
-		embed& add_field(const std::string& name, const std::string& value, bool is_inline = false);
+		DPP_EXPORT embed& add_field(const std::string& name, const std::string& value, bool is_inline = false);
 
 		/** Set embed author. Returns the embed itself so these method calls may be "chained"
 		 * @param a The author to set
 		 * @return A reference to self
 		 */
-		embed& set_author(const dpp::embed_author& a);
+		DPP_EXPORT embed& set_author(const dpp::embed_author& a);
 
 		/** Set embed author. Returns the embed itself so these method calls may be "chained"
 		 * @param name The name of the author. It will be truncated to the maximum length of 256 UTF-8 characters.
@@ -708,32 +717,32 @@ namespace dpp {
 		 * @param icon_url The icon URL of the author (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
-		embed& set_author(const std::string& name, const std::string& url, const std::string& icon_url);
+		DPP_EXPORT embed& set_author(const std::string& name, const std::string& url, const std::string& icon_url);
 
 		/** Set embed provider. Returns the embed itself so these method calls may be "chained"
 		 * @param name The provider name. It will be truncated to the maximum length of 256 UTF-8 characters.
 		 * @param url The provider url
 		 * @return A reference to self
 		 */
-		embed& set_provider(const std::string& name, const std::string& url);
+		DPP_EXPORT embed& set_provider(const std::string& name, const std::string& url);
 
 		/** Set embed image. Returns the embed itself so these method calls may be "chained"
 		 * @param url The embed image URL (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
-		embed& set_image(const std::string& url);
+		DPP_EXPORT embed& set_image(const std::string& url);
 
 		/** Set embed video. Returns the embed itself so these method calls may be "chained"
 		 * @param url The embed video url
 		 * @return A reference to self
 		 */
-		embed& set_video(const std::string& url);
+		DPP_EXPORT embed& set_video(const std::string& url);
 
 		/** Set embed thumbnail. Returns the embed itself so these method calls may be "chained"
 		 * @param url The embed thumbnail url (only supports http(s) and attachments)
 		 * @return A reference to self
 		 */
-		embed& set_thumbnail(const std::string& url);
+		DPP_EXPORT embed& set_thumbnail(const std::string& url);
 	};
 
 	/**
