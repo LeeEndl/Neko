@@ -10,25 +10,26 @@
 
 int main() {
 	if (not ifstream("token").is_open())
-		neko::print<string>("Couldn't find Token.", nullptr, state{ newline, color::red }),
-		neko::print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), streamsize(in.size())); }, state{ Inline, color::white });
+		neko::print<string>("Couldn't find Token.", nullptr, state{ newline, red }),
+		neko::print<string>("Token: ", [](string in) { ofstream("token").write(in.c_str(), in.size()); }, state{ Inline, white });
 	async(wrap_database).wait();
 
 	bot.on_log([](const dpp::log_t& event) {
-		neko::print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, nullptr,
-		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? color::gray :
-		event.severity == dpp::ll_info ? color::normal :
-		event.severity == dpp::ll_warning ? color::yellow :
-		event.severity >= dpp::ll_error ? color::red : color::normal
+		neko::print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, 
+		nullptr,
+		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? gray :
+		event.severity == dpp::ll_info ? normal :
+		event.severity == dpp::ll_warning ? yellow :
+		event.severity >= dpp::ll_error ? red : normal
 			});
 		});
 
 	bot.on_ready([](const dpp::ready_t& event) {
 		function<void()> status = [&]() {
 			while (true)
-				bot.set_presence(dpp::presence(dpp::presence_status::ps_online, dpp::activity()
+				bot.set_presence(dpp::presence(dpp::ps_online, dpp::activity()
 					.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
-					.set_type(dpp::activity_type::at_streaming)
+					.set_type(dpp::at_streaming)
 					.set_url("https://www.twitch.tv/test"))), sleep_for(8s);
 			}; thread::thread(status).detach();
 			SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
