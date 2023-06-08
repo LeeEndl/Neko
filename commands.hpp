@@ -9,7 +9,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 	if (event.custom_id.find("bjd_") not_eq -1 and index[1] == to_string(event.command.member.user_id))
 		for (auto& games : bj_callback) {
 			games.second.msg.embeds[0].description = "<@" + index[1] + "> has declined your invitation";
-			games.second.msg.embeds[0].color = dpp::colors::failed;
+			games.second.msg.embeds[0].color = dpp::colors::red;
 			games.second.msg.components.clear();
 			if (games.first.first == index[1]) bot.message_edit_sync(games.second.msg);
 			bj_callback.erase(games.first);
@@ -22,7 +22,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				data.dollars -= games.second.bet;
 				SaveUserData(data, stoull(games.first.second));
 				games.second.msg.embeds[0].description = "<@" + index[1] + "> has accepted your invitation";
-				games.second.msg.embeds[0].color = dpp::colors::success;
+				games.second.msg.embeds[0].color = dpp::colors::green;
 				games.second.msg.components.clear();
 				bot.message_edit_sync(games.second.msg);
 				{ randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(0, cards[draw.val32].second), make_pair(card_back, cards[draw.val32].first)); }
@@ -40,7 +40,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 #endif
 				if (games.second.p2_value > 21 or games.second.p1_value[1] == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
-						.set_color(dpp::colors::success)
+						.set_color(dpp::colors::green)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
@@ -54,7 +54,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				}
 				if (games.second.p1_value[1] > 21 or games.second.p2_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
-						.set_color(dpp::colors::success)
+						.set_color(dpp::colors::green)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
@@ -154,7 +154,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 #endif
 				if (games.second.p2_value > 21 or games.second.p1_value[1] == 21) {
 					games.second.msg.add_embed(dpp::embed()
-						.set_color(dpp::colors::failed)
+						.set_color(dpp::colors::red)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
@@ -168,7 +168,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				}
 				if (games.second.p1_value[1] > 21 or games.second.p2_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
-						.set_color(dpp::colors::failed)
+						.set_color(dpp::colors::red)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
 						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
@@ -253,12 +253,12 @@ template<typename event_t> bool daily_t(event_t event, dpp::message msg)
 		data.daily = time(0);
 		data.dollars += rand.val64;
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_description("> claimed " + to_string(rand.val64) + " :dollar:"));
 		SaveUserData(data, dpp::member(event).user_id);
 	}
 	else msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::failed)
+		.set_color(dpp::colors::red)
 		.set_description("> Next Daily **" + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + "**"));
 	dpp::message_edit(event, msg);
 	return true;
@@ -272,7 +272,7 @@ template<typename event_t> bool profile_t(event_t event, dpp::message msg)
 	if (has_char(username(name))) return false;
 	UserData data = GetUserData(stoull(username(name)));
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::PS)
+		.set_color(dpp::colors::blue)
 		.set_title(":mag_right: Profile Viewer")
 		.set_description(("<@" + username(name) + "> ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
 		.add_field(
@@ -302,7 +302,7 @@ template<typename event_t> bool leaderboard_t(event_t event, dpp::message msg)
 		}
 	}
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::PS)
+		.set_color(dpp::colors::blue)
 		.set_title("Leaderboard: ")
 		.set_description(oriented));
 	dpp::message_edit(event, msg);
@@ -315,7 +315,7 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::indexi64(event, "amount");
 	else amount = dpp::indexi64(event, "1");
 	if (amount <= 1 or amount > 100) msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::failed)
+		.set_color(dpp::colors::red)
 		.set_description("> Can only delete 2-100 messages at a time.")); // TODO remove restriction
 	else {
 		vector<dpp::snowflake> ids;
@@ -327,7 +327,7 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 		}
 		if (ids.size() > 1) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_description("> Deleted `" + to_string(ids.size()) + "` Message(s)"));
 	}
 	dpp::message_edit(event, msg);
@@ -348,7 +348,7 @@ template<typename event_t> string membercount_t(event_t event, bool send_embed =
 	if (send_embed) {
 		msg.set_content("");
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_description("> " + bot.guild_get_sync(dpp::guild_id(event)).name + " (**" + dpp::remove_tail(membercount) + "**)")
 			.set_footer(dpp::embed_footer().set_text("did you know? " + dpp::remove_tail(stod(dpp::comma(static_cast<double>(bots / membercount * 100)))) + "% of members are bots.")));
 		dpp::message_edit(event, msg);
@@ -369,7 +369,7 @@ template<typename event_t> bool avatar_t(event_t event, dpp::message msg)
 		url = bot.user_get_sync(stoull(username(name))).get_avatar_url(256, dpp::image_type::i_png), mention = stoull(username(name));
 	}
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::success)
+		.set_color(dpp::colors::green)
 		.set_description(("<@") + (url == dpp::member(event).get_user()->get_avatar_url(256, dpp::image_type::i_png) ? to_string(dpp::member(event).user_id) : to_string(mention)) + (">'s Avatar"))
 		.set_image(url));
 	dpp::message_edit(event, msg);
@@ -379,7 +379,7 @@ template<typename event_t> bool invite_t(event_t event, dpp::message msg)
 {
 	msg.set_content("");
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::success)
+		.set_color(dpp::colors::green)
 		.set_author("Click me!", "https://discord.com/api/oauth2/authorize?client_id=" +
 			to_string(bot.me.id) + "&permissions=" + to_string(dpp::permissions::p_administrator) + "&scope=bot%20applications.commands", ""));
 	dpp::message_edit(event, msg);
@@ -393,7 +393,7 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 		else name = dpp::index(event, "1"), nickname = dpp::index(event, "2");
 		if (nickname.size() < 1 or nickname.size() > 32) {
 			msg.add_embed(dpp::embed()
-				.set_color(dpp::colors::failed)
+				.set_color(dpp::colors::red)
 				.set_description("> Nickname must contain 1-32 characters")
 				.set_footer(dpp::embed_footer().set_text("length: " + to_string(nickname.size()))))
 				.set_flags(dpp::message_flags::m_ephemeral);
@@ -405,12 +405,12 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 		gm.nickname = nickname;
 		bot.guild_edit_member_sync(gm);
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_description("> <@" + username(name) + "> name changed to **" + nickname + "**"));
 	}
 	catch (dpp::exception e) {
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::failed)
+			.set_color(dpp::colors::red)
 			.set_description("> Cannot modify <@" + username(name) + ">'s nickname")
 			.set_footer(dpp::embed_footer()
 				.set_text(e.msg)));
@@ -421,7 +421,7 @@ template<typename event_t> bool nick_t(event_t event, dpp::message msg) {
 template<typename event_t> bool ping_t(event_t event, dpp::message msg) {
 	msg.set_content("");
 	for (auto& shard : bot.get_shards()) {
-		msg.add_embed(dpp::embed().set_color(dpp::colors::success)
+		msg.add_embed(dpp::embed().set_color(dpp::colors::green)
 			.set_title(":ping_pong: Pong!")
 			.set_description("shard #" + to_string(shard.second->shard_id) + "\n> Response: " + to_string(static_cast<int>((bot.rest_ping + bot.get_shard(shard.second->shard_id)->websocket_ping) * 1000)) + " ms"));
 	}
@@ -433,17 +433,17 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 	dpp::guild guild = bot.guild_get_sync(dpp::guild_id(event));
 	if (guild.has_banner())
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_title(guild.name + ":")
 			.set_description("> **Banner**: ")
 			.set_image(guild.get_banner_url(128, dpp::i_png, guild.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::success)
+		.set_color(dpp::colors::green)
 		.set_title(guild.name + ":")
 		.set_description("> **Icon**: ")
 		.set_image(guild.get_icon_url(128, dpp::i_png, guild.has_animated_icon() ? true : false)));
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::success)
+		.set_color(dpp::colors::green)
 		.set_description("> **Ownership**: <@" + to_string(guild.owner_id) + "> \n\
                           > **Members**: " + membercount_t(event, false) + " \n\
                           > **Roles**: " + to_string(bot.roles_get_sync(dpp::guild_id(event)).size()) + " \n\
@@ -454,7 +454,7 @@ template<typename event_t> bool serverinfo_t(event_t event, dpp::message msg) {
 template<typename event_t> bool help_t(event_t event, dpp::message msg) {
 	msg.set_content("");
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::success)
+		.set_color(dpp::colors::green)
 		.set_title(bot.me.username + " Commands")
 		.set_description(":moneybag: **__Economy__**:\n\
                           > </daily:" + to_string(command::name_to_id["daily"]) + ">: daily reward.\n\
@@ -496,12 +496,12 @@ template<typename event_t> bool timeout_t(event_t event, dpp::message msg) {
 			length.erase(remove(length.begin(), length.end(), 'd'), length.end()), duration_type = " day" + string(stoi(length) <= 1 ? "" : "s") + "**";
 		bot.guild_member_timeout_sync(dpp::guild_id(event), stoull(username(name)), ct);
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::success)
+			.set_color(dpp::colors::green)
 			.set_description("> <@" + username(name) + "> has been timed out for **" + length + duration_type));
 	}
 	catch (dpp::exception e) {
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::failed)
+			.set_color(dpp::colors::red)
 			.set_description("> Cannot timeout <@" + username(name) + ">")
 			.set_footer(dpp::embed_footer()
 				.set_text(e.msg)));
@@ -518,7 +518,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 	for (auto& games : bj_callback) {
 		if (username(name) == games.first.first) {
 			msg.add_embed(dpp::embed()
-				.set_color(dpp::colors::failed)
+				.set_color(dpp::colors::red)
 				.set_description("> <@" + username(name) + "> is already invited to a game."));
 			dpp::message_edit(event, msg);
 			return false;
@@ -530,7 +530,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 			if (members.second.user_id == stoull(username(name))) {
 				if (members.second.get_user()->is_bot()) { is_bot = true; break; }
 				msg.add_embed(dpp::embed()
-					.set_color(dpp::colors::PS)
+					.set_color(dpp::colors::blue)
 					.set_description("> **<@" + username(to_string(dpp::member(event).user_id)) + "> has invited <@" + username(name) + ">**\n> blackjack bet: **" + bet + "** :dollar:"));
 				msg.add_component(dpp::component()
 					.add_component(dpp::component()
@@ -550,7 +550,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 	}
 	if (msg.embeds.empty())
 		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::failed)
+			.set_color(dpp::colors::red)
 			.set_description(string(is_bot ? "> <@" + username(name) + "> is not human." : "> <@" + username(name) + "> is not in this server.")));
 	dpp::message_edit(event, msg);
 	sleep_for(1min);
@@ -559,7 +559,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 			if (games.second.accepted) break;
 			else {
 				games.second.msg.components.clear();
-				games.second.msg.embeds[0].color = dpp::colors::failed;
+				games.second.msg.embeds[0].color = dpp::colors::red;
 				games.second.msg.embeds[0].description = "this invitation expired.";
 				dpp::message_edit(event, games.second.msg);
 			}
@@ -611,7 +611,7 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min, giveaway->tm_hour, giveaway->tm_wday + stoi(length), giveaway->tm_mday + stoi(length), giveaway->tm_mon),
 		length.erase(remove(length.begin(), length.end(), 'd'), length.end()), chrono = "d";
 	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::PS)
+		.set_color(dpp::colors::blue)
 		.set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ends ") + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
 		.set_footer(dpp::embed_footer().set_text("0 entries.")));
 	msg.add_component(dpp::component()
