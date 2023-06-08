@@ -17,6 +17,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 	if (event.custom_id.find("bja_") not_eq -1 and index[1] == to_string(event.command.member.user_id))
 		for (auto& games : bj_callback) {
 			if (games.first.first == index[1]) {
+				games.second.accepted = true;
 				UserData data = GetUserData(stoull(games.first.second));
 				data.dollars -= games.second.bet;
 				SaveUserData(data, stoull(games.first.second));
@@ -26,8 +27,8 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				bot.message_edit_sync(games.second.msg);
 				{ randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(0, cards[draw.val32].second), make_pair(card_back, cards[draw.val32].first)); }
 				{ randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(cards[draw.val32].second, cards[draw.val32].second), make_pair(cards[draw.val32].first, cards[draw.val32].first)); }
-				for (auto& deck : games.second.p1) games.second.p1_deck += deck.second.first + " ", games.second.p1_value += deck.first.first;
-				for (auto& deck : games.second.p1) games.second.p1POV_deck += deck.second.second + " ", games.second.p1POV_value += deck.first.second;
+				for (auto& deck : games.second.p1) games.second.p1_deck[0] += deck.second.first + " ", games.second.p1_value[0] += deck.first.first;
+				for (auto& deck : games.second.p1) games.second.p1_deck[1] += deck.second.second + " ", games.second.p1_value[1] += deck.first.second;
 
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
 				{ randomx draw = randomx().i32(1, 52); games.second.p2.emplace(cards[draw.val32].second, cards[draw.val32].first); }
@@ -37,11 +38,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 #else
 				string emoji = u8" 💵";
 #endif
-				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
+				if (games.second.p2_value > 21 or games.second.p1_value[1] == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
+						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
 						.set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
@@ -51,11 +52,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 					bj_callback.erase(games.first);
 					return;
 				}
-				if (games.second.p1POV_value > 21 or games.second.p2_value == 21) {
+				if (games.second.p1_value[1] > 21 or games.second.p2_value == 21) {
 					dpp::message msg = dpp::message(games.second.msg.channel_id, dpp::embed()
 						.set_color(dpp::colors::success)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
+						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")
 						.set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data()))));
 					event.reply(msg);
@@ -68,7 +69,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 
 				dpp::message msg = bot.message_create_sync(dpp::message(games.second.msg.channel_id, dpp::embed()
 					.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck + " [**" + to_string(games.second.p1_value) + "**]\n\n\
+					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[0] + " [**" + to_string(games.second.p1_value[0]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]")));
 
 				games.second.turn = 2;
@@ -96,7 +97,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 		}
 	if (event.custom_id.find("bjview_") not_eq -1 and index[1] == to_string(event.command.member.user_id))
 		for (auto& games : bj_callback)
-			if (games.first.second == index[1]) event.reply(dpp::message(event.command.channel_id, games.second.p1POV_deck + "\ntotal: " + to_string(games.second.p1POV_value)).set_flags(dpp::message_flags::m_ephemeral));
+			if (games.first.second == index[1]) event.reply(dpp::message(event.command.channel_id, games.second.p1_deck[1] + "\ntotal: " + to_string(games.second.p1_value[1])).set_flags(dpp::message_flags::m_ephemeral));
 	if (event.custom_id.find("bjstand_") not_eq -1 and index[1] == to_string(event.command.member.user_id)) {
 		for (auto& games : bj_callback) {
 			if (games.first.first == index[1] and games.second.turn == 2 or games.first.second == index[1] and games.second.turn == 1) {
@@ -133,8 +134,8 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 			if (games.first.first == index[1] and games.second.turn == 2 or games.first.second == index[1] and games.second.turn == 1) {
 				if (games.second.turn == 1) {
 					randomx draw = randomx().i32(1, 52); games.second.p1.emplace(make_pair(cards[draw.val32].second, cards[draw.val32].second), make_pair(cards[draw.val32].first, cards[draw.val32].first));
-					games.second.p1_deck += cards[draw.val32].first, games.second.p1POV_deck += cards[draw.val32].first;
-					games.second.p1_value += cards[draw.val32].second, games.second.p1POV_value += cards[draw.val32].second;
+					games.second.p1_deck[0] += cards[draw.val32].first, games.second.p1_deck[1] += cards[draw.val32].first;
+					games.second.p1_value[0] += cards[draw.val32].second, games.second.p1_value[1] += cards[draw.val32].second;
 					event.reply(dpp::message(event.command.channel_id, cards[draw.val32].first).set_flags(dpp::message_flags::m_ephemeral));
 				}
 				else {
@@ -151,11 +152,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 #else
 				string emoji = u8" 💵";
 #endif
-				if (games.second.p2_value > 21 or games.second.p1POV_value == 21) {
+				if (games.second.p2_value > 21 or games.second.p1_value[1] == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
+						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.second)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.second));
@@ -165,11 +166,11 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 					bj_callback.erase(games.first);
 					return;
 				}
-				if (games.second.p1POV_value > 21 or games.second.p2_value == 21) {
+				if (games.second.p1_value[1] > 21 or games.second.p2_value == 21) {
 					games.second.msg.add_embed(dpp::embed()
 						.set_color(dpp::colors::failed)
 						.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1POV_deck + " [**" + to_string(games.second.p1POV_value) + "**]\n\n\
+						.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[1] + " [**" + to_string(games.second.p1_value[1]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 					games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text(bot.user_get_sync(stoull(games.first.first)).username + " won " + to_string(games.second.bet * 2) + reinterpret_cast<const char*>(emoji.data())));
 					UserData data = GetUserData(stoull(games.first.first));
@@ -181,7 +182,7 @@ inline void await_on_button_click(const dpp::button_click_t& event) {
 				}
 				games.second.msg.add_embed(dpp::embed()
 					.set_title(bot.user_get_sync(stoull(games.first.second)).username + " VS " + bot.user_get_sync(stoull(games.first.first)).username)
-					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck + " [**" + to_string(games.second.p1_value) + "**]\n\n\
+					.set_description("**<@" + games.first.second + "> Deck: **\n> " + games.second.p1_deck[0] + " [**" + to_string(games.second.p1_value[0]) + "**]\n\n\
                                           **<@" + games.first.first + "> Deck: **\n> " + games.second.p2_deck + " [**" + to_string(games.second.p2_value) + "**]"));
 				games.second.turn == 1 ? games.second.turn = 2 : games.second.turn = 1;
 				games.second.msg.embeds[0].set_footer(dpp::embed_footer().set_text((games.second.turn == 1 ? bot.user_get_sync(stoull(games.first.second)).username : bot.user_get_sync(stoull(games.first.first)).username) + (" turn")));
@@ -321,7 +322,7 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 		dpp::message_map msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount);
 		if (msgs.size() <= 1) return false;
 		for (auto& msg : msgs) {
-			if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600) continue;
+			if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600 or msg.second.pinned) continue;
 			ids.emplace_back(msg.second.id);
 		}
 		if (ids.size() > 1) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
@@ -552,6 +553,18 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 			.set_color(dpp::colors::failed)
 			.set_description(string(is_bot ? "> <@" + username(name) + "> is not human." : "> <@" + username(name) + "> is not in this server.")));
 	dpp::message_edit(event, msg);
+	sleep_for(1min);
+	for (auto& games : bj_callback) {
+		if (username(name) == games.first.first) {
+			if (games.second.accepted) break;
+			else {
+				games.second.msg.components.clear();
+				games.second.msg.embeds[0].color = dpp::colors::failed;
+				games.second.msg.embeds[0].description = "this invitation expired.";
+				dpp::message_edit(event, games.second.msg);
+			}
+		}
+	}
 	return true;
 }
 template<typename event_t> bool level_t(event_t event, dpp::message msg) {
