@@ -63,7 +63,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>include/dpp/dpp.lib;include/opencv2/opencv_world470.lib;include/opencv2/opencv_world470d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>include/dpp/dpp.lib;include/opencv2/opencv_world470.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
       <SwapRunFromNET>false</SwapRunFromNET>
       <NoEntryPoint>false</NoEntryPoint>
@@ -442,10 +442,6 @@
     <ClInclude Include="include\opencv2\video\tracking.hpp" />
     <ClInclude Include="include\opencv2\video\video.hpp" />
     <ClInclude Include="include\opencv2\world.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="include\opencv2\opencv_world470.lib" />
-    <Library Include="include\opencv2\opencv_world470d.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

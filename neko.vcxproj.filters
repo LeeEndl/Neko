@@ -1212,12 +1212,4 @@
       <UniqueIdentifier>{3929a96f-f2ef-434f-a54d-30dddaa0d9c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="include\opencv2\opencv_world470.lib">
-      <Filter>opencv2</Filter>
-    </Library>
-    <Library Include="include\opencv2\opencv_world470d.lib">
-      <Filter>opencv2</Filter>
-    </Library>
-  </ItemGroup>
 </Project>
