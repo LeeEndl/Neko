@@ -15,8 +15,7 @@ int main() {
 	async(wrap_database).wait();
 
 	bot.on_log([](const dpp::log_t& event) {
-		neko::print<string>({ bot.me.username.empty() ? "" : "[", bot.me.username.empty() ? "" : bot.me.format_username(), bot.me.username.empty() ? "" : "] ", event.message }, 
-		nullptr,
+		neko::print<string>({ event.message}, nullptr,
 		state{ newline, event.severity == dpp::ll_trace or event.severity == dpp::ll_debug ? gray :
 		event.severity == dpp::ll_info ? normal :
 		event.severity == dpp::ll_warning ? yellow :
@@ -31,9 +30,10 @@ int main() {
 					.set_name(to_string(bot.current_user_get_guilds_sync().size()) + " servers")
 					.set_type(dpp::at_streaming)
 					.set_url("https://www.twitch.tv/test"))), sleep_for(8s);
-			}; thread::thread(status).detach();
-			SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
-			thread::thread(load_slashcommands).detach();
+			};
+		thread::thread(status).detach();
+		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
+		thread::thread(load_slashcommands).detach();
 		});
 
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
