@@ -1532,6 +1532,9 @@ namespace dpp {
 		bool is_dm() const;
 	};
 
+	/** A group of message ids */
+	typedef std::vector<dpp::snowflake> message_ids;
+
 	/** A group of messages */
 	typedef std::unordered_map<snowflake, message> message_map;
 
