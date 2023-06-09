@@ -31,9 +31,9 @@ int main() {
 					.set_type(dpp::at_streaming)
 					.set_url("https://www.twitch.tv/test"))), sleep_for(8s);
 			};
-		thread::thread(status).detach();
+		if (dpp::run_once<struct update_bot_status>()) thread::thread(status).detach();
 		SetConsoleTitleA(LPCSTR(bot.me.format_username().c_str()));
-		thread::thread(load_slashcommands).detach();
+		if (dpp::run_once<struct register_bot_commands>()) thread::thread(load_slashcommands).detach();
 		});
 
 	bot.on_guild_create([](const dpp::guild_create_t& event) {
