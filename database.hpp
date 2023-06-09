@@ -4,7 +4,7 @@
 namespace command { map<string, dpp::snowflake> name_to_id; }
 
 struct UserData {
-	JINT daily = 0, last_on = 0, last_exp = 0, user_id = 0, dollars = 0;
+	JINT daily = 0, last_exp = 0, user_id = 0, dollars = 0;
 	JVECTOR<JINT> lvl = { 1, 0 };
 }; map<dpp::snowflake, UserData> members;
 struct GuildData {
@@ -17,7 +17,6 @@ inline void SaveUserData(UserData data, dpp::snowflake user_id)
 {
 	J["daily"] = data.daily;
 	J["dollars"] = data.dollars;
-	J["last_on"] = data.last_on;
 	J["user_id"] = data.user_id;
 	J["lvl"] = data.lvl;
 	ofstream("database/users/" + to_string(user_id) + ".txt") << setw(2) << J; J = json(); \
@@ -35,12 +34,11 @@ inline UserData GetUserData(dpp::snowflake user_id)
 		}
 	}
 	ifstream("database/users/" + to_string(user_id) + ".txt") >> J;
-	data.daily = ELEMENT_JI("daily")
-		data.dollars = ELEMENT_JI("dollars")
-		data.last_on = ELEMENT_JI("last_on")
-		data.user_id = ELEMENT_JI("user_id")
-		data.lvl = ELEMENT_JVI("lvl")
-		J = json();
+	data.daily = ELEMENT_JI("daily");
+	data.dollars = ELEMENT_JI("dollars");
+	data.user_id = ELEMENT_JI("user_id");
+	data.lvl = ELEMENT_JVI("lvl");
+	J = json();
 	return data;
 }
 inline GuildData GetGuildData(dpp::snowflake guild_id)
