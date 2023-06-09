@@ -737,7 +737,6 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 }
 void load_slashcommands()
 {
-	if (dpp::run_once<struct register_bot_commands>()) { /* for multi sharding */
 		struct option {
 			dpp::command_option_type v_type;
 			string name, description;
@@ -789,5 +788,4 @@ void load_slashcommands()
 		dpp::slashcommand_map results = bot.global_bulk_command_create_sync(slashcommand);
 		for (auto& command : results) command::name_to_id.emplace(command.second.name, command.second.id);
 		if (results.size() == commands.size()) bot.log(dpp::loglevel::ll_trace, "Successfully added all slashcommands");
-	}
 }
