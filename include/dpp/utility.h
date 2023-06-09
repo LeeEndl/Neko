@@ -583,37 +583,34 @@ namespace neko { /* unqiue way of calling functions outside of std */
 	public:
 		print(ty out, std::function<void(ty)> in = nullptr, state s = state()) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
-			std::clog << out, s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+			std::clog << out, s.option == option::newline ? std::clog << '\n' : std::clog << std::flush;
 			if (s.freeze) while (true); // -> stop here
 			if (in not_eq nullptr) {
-				std::function<void(ty)> get_in = [&](ty it) {
-					std::cin >> input;
-					}; std::thread::thread(get_in, input).std::thread::join();
-					in(input);
+				ty input = "";
+				std::cin >> input;
+				in(input);
 			}
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 		}
 		print(std::map<ty, state> out, std::function<void(ty)> in = nullptr) {
 			for (auto& it : out) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), it.second.color),
-				std::clog << it.first, it.second.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+				std::clog << it.first, it.second.option == option::newline ? std::clog << '\n' : std::clog << std::flush;
 			if (in not_eq nullptr) {
-				std::function<void(ty)> get_in = [&](ty it) {
-					std::cin >> input;
-					}; std::thread::thread(get_in, input).std::thread::join();
-					in(input);
+				ty input = "";
+				std::cin >> input;
+				in(input);
 			}
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 		}
 		print(std::vector<ty> out, std::function<void(ty)> in = nullptr, state s = state()) {
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), s.color);
 			for (auto& it : out) std::clog << it;
-			s.option == option::newline ? std::clog << std::endl : std::clog << std::flush;
+			s.option == option::newline ? std::clog << '\n' : std::clog << std::flush;
 			if (s.freeze) while (true); // -> stop here
 			if (in not_eq nullptr) {
-				std::function<void(ty)> get_in = [&](ty it) {
-					std::cin >> input;
-					}; std::thread::thread(get_in, input).std::thread::join();
-					in(input);
+				ty input = "";
+				std::cin >> input;
+				in(input);
 			}
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color::normal);
 		}
