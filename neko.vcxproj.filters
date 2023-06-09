@@ -228,49 +228,13 @@
     <ClInclude Include="include\opencv2\core\hal\intrin.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_avx512.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_cpp.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
     <ClInclude Include="include\opencv2\core\hal\intrin_forward.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_lasx.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_msa.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_neon.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_rvv.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_rvv_scalable.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_rvv071.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
     <ClInclude Include="include\opencv2\core\hal\intrin_sse.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
     <ClInclude Include="include\opencv2\core\hal\intrin_sse_em.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_vsx.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\intrin_wasm.hpp">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\msa_macros.h">
-      <Filter>opencv2\core\hal</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opencv2\core\hal\simd_utils.impl.hpp">
       <Filter>opencv2\core\hal</Filter>
     </ClInclude>
     <ClInclude Include="include\opencv2\core\opencl\ocl_defs.hpp">
@@ -958,9 +922,6 @@
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\collector.h">
-      <Filter>dpp</Filter>
-    </ClInclude>
-    <ClInclude Include="include\dpp\colors.h">
       <Filter>dpp</Filter>
     </ClInclude>
     <ClInclude Include="include\dpp\commandhandler.h">
