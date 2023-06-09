@@ -314,22 +314,23 @@ template<typename event_t> bool purge_t(event_t event, dpp::message msg = dpp::m
 	msg.set_content("");
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) amount = dpp::indexi64(event, "amount");
 	else amount = dpp::indexi64(event, "1");
-	if (amount <= 1 or amount > 100) msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::red)
-		.set_description("> Can only delete 2-100 messages at a time.")); // TODO remove restriction
-	else {
-		vector<dpp::snowflake> ids;
-		dpp::message_map msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount);
-		if (msgs.size() <= 1) return false;
-		for (auto& msg : msgs) {
-			if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600 or msg.second.pinned) continue;
-			ids.emplace_back(msg.second.id);
-		}
-		if (ids.size() > 1) bot.message_delete_bulk_sync(ids, dpp::channel_id(event));
-		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::green)
-			.set_description("> Deleted `" + to_string(ids.size()) + "` Message(s)"));
+	dpp::message_ids ids;
+	dpp::message_map msgs = bot.messages_get_sync(dpp::channel_id(event), 0, 0, 0, amount); 
+	msgs.erase(msg.id);
+	for (auto& msg : msgs) {
+		if (msg.second.author.username.empty() or msg.second.sent > time(0) + 1209600 or msg.second.pinned) continue;
+		ids.emplace_back(msg.second.id);
 	}
+	int64_t foreach = 0;
+	while (true) {
+		/*TODO assume foreach is above ids.size() | ids.end() == nullptr. */
+		bot.message_delete_bulk_sync(dpp::message_ids(ids.begin() + foreach, ids.end()), dpp::channel_id(event));
+		foreach += 100;
+		if (ids.size() < foreach) break;
+	}
+	msg.add_embed(dpp::embed()
+		.set_color(dpp::colors::green)
+		.set_description("> Deleted `" + to_string(amount) + "` Message(s)"));
 	dpp::message_edit(event, msg);
 	return true;
 }
