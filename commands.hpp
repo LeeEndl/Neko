@@ -274,7 +274,7 @@ template<typename event_t> bool profile_t(event_t event, dpp::message msg)
 	msg.add_embed(dpp::embed()
 		.set_color(dpp::colors::blue)
 		.set_title(":mag_right: Profile Viewer")
-		.set_description(("<@" + username(name) + "> ") + (data.last_on == 0 ? "inactive" : "last online " + dpp::utility::timestamp(data.last_on, dpp::utility::tf_relative_time)))
+		.set_description(("<@" + username(name) + "> "))
 		.add_field(
 			"Inventory: ",
 			"> :dollar: " + to_string(data.dollars)));
@@ -554,6 +554,7 @@ template<typename event_t> bool blackjack_t(event_t event, dpp::message msg) {
 			.set_color(dpp::colors::red)
 			.set_description(string(is_bot ? "> <@" + username(name) + "> is not human." : "> <@" + username(name) + "> is not in this server.")));
 	dpp::message_edit(event, msg);
+	i_share.unlock(); // -> this'll be improved later
 	sleep_for(1min);
 	for (auto& games : bj_callback) {
 		if (username(name) == games.first.first) {
@@ -665,11 +666,6 @@ inline void await_on_slashcommand(const dpp::slashcommand_t& event) {
 	else if (event.command.get_command_name() == "level" or event.command.get_command_name() == "lvl") async(level_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else if (event.command.get_command_name() == "giveaway") async(giveaway_t<const dpp::slashcommand_t&>, event, msg_handler);
 	else return;
-	{
-		UserData data = GetUserData(event.command.member.user_id);
-		data.last_on = time(0);
-		SaveUserData(data, event.command.member.user_id);
-	}
 	i_share.unlock();
 }
 vector<thread> commands_executed;
@@ -726,11 +722,6 @@ inline void await_on_message_create(const dpp::message_create_t& event) {
 		case 13: async(blackjack_t<const dpp::message_create_t&>, event, msg_handler); break;
 		case 14: async(level_t<const dpp::message_create_t&>, event, msg_handler); break;
 		case 15: async(giveaway_t<const dpp::message_create_t&>, event, msg_handler); break;
-		}
-		{
-			UserData data = GetUserData(event.msg.member.user_id);
-			data.last_on = time(0);
-			SaveUserData(data, event.msg.member.user_id);
 		}
 		i_share.unlock();
 	}
