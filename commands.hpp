@@ -484,21 +484,20 @@ template<typename event_t> bool timeout_t(event_t event, dpp::message msg) {
 		if (is_same_v<decltype(event), const dpp::slashcommand_t&>) name = dpp::index(event, "name"), length = dpp::index(event, "length");
 		else name = dpp::index(event, "1"), length = dpp::index(event, "2");
 		if (has_char(username(name))) return false;
-		time_t ct = time(0);
-		string duration_type = "";
-		tm* timeout = dpp::utility::mtm(ct);
-		if (length.find("s") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec + stoi(length), timeout->tm_min, timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 's'), length.end()), duration_type = " second" + string(stoi(length) <= 1 ? "" : "s") + "**";
-		else if (length.find("m") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min + stoi(length), timeout->tm_hour, timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'm'), length.end()), duration_type = " minute" + string(stoi(length) <= 1 ? "" : "s") + "**";
-		else if (length.find("h") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour + stoi(length), timeout->tm_wday, timeout->tm_mday, timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'h'), length.end()), duration_type = " hour" + string(stoi(length) <= 1 ? "" : "s") + "**";
-		else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(timeout, timeout->tm_sec, timeout->tm_min, timeout->tm_hour, timeout->tm_wday + stoi(length), timeout->tm_mday + stoi(length), timeout->tm_mon),
-			length.erase(remove(length.begin(), length.end(), 'd'), length.end()), duration_type = " day" + string(stoi(length) <= 1 ? "" : "s") + "**";
-		bot.guild_member_timeout_sync(dpp::guild_id(event), stoull(username(name)), ct);
-		msg.add_embed(dpp::embed()
-			.set_color(dpp::colors::green)
-			.set_description("> <@" + username(name) + "> has been timed out for **" + length + duration_type));
+		time_index t_i;
+		if (not t_i.valid(length)) {
+			msg.add_embed(dpp::embed()
+				.set_color(dpp::colors::red)
+				.set_description("you provided a invalid length. examples: **60s**, **30m**, **12h**, **1d**"));
+		}
+		else {
+			bot.guild_member_timeout_sync(dpp::guild_id(event), stoull(username(name)), t_i.format(length));
+			msg.add_embed(dpp::embed()
+				.set_color(dpp::colors::green)
+				.set_description("> <@" + username(name) + "> has been timed out for **" +
+					length.substr(0, length.size() - 1) + " " + (length.substr(0, length.size() - 1) == "1" ? t_i.type.substr(0, t_i.type.size() - 1) : t_i.type) + "**"
+				));
+		}
 	}
 	catch (dpp::exception e) {
 		msg.add_embed(dpp::embed()
@@ -601,42 +600,39 @@ template<typename event_t> bool giveaway_t(event_t event, dpp::message msg) {
 	int64_t winners = 0, This_GID = randomx().i64(100000, 999999).val64;
 	if (is_same_v<decltype(event), const dpp::slashcommand_t&>) prize = dpp::index(event, "prize"), winners = dpp::indexi64(event, "winners"), length = dpp::index(event, "length");
 	else prize = dpp::index(event, "1"), winners = dpp::indexi64(event, "2"), length = dpp::index(event, "3");
-	time_t ct = time(0);
-	tm* giveaway = dpp::utility::mtm(ct);
-	string chrono = "";
-	if (length.find("s") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec + stoi(length), giveaway->tm_min, giveaway->tm_hour, giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
-		length.erase(remove(length.begin(), length.end(), 's'), length.end()), chrono = "s";
-	else if (length.find("m") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min + stoi(length), giveaway->tm_hour, giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
-		length.erase(remove(length.begin(), length.end(), 'm'), length.end()), chrono = "m";
-	else if (length.find("h") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min, giveaway->tm_hour + stoi(length), giveaway->tm_wday, giveaway->tm_mday, giveaway->tm_mon),
-		length.erase(remove(length.begin(), length.end(), 'h'), length.end()), chrono = "h";
-	else if (length.find("d") not_eq -1) ct = dpp::utility::mt_t(giveaway, giveaway->tm_sec, giveaway->tm_min, giveaway->tm_hour, giveaway->tm_wday + stoi(length), giveaway->tm_mday + stoi(length), giveaway->tm_mon),
-		length.erase(remove(length.begin(), length.end(), 'd'), length.end()), chrono = "d";
-	msg.add_embed(dpp::embed()
-		.set_color(dpp::colors::blue)
-		.set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ends ") + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
-		.set_footer(dpp::embed_footer().set_text("0 entries.")));
-	msg.add_component(dpp::component()
-		.add_component(dpp::component()
-			.set_emoji("giveaway", 1107511917544738939, true)
-			.set_label("Join")
-			.set_disabled(false)
-			.set_style(dpp::cos_primary)
-			.set_id("GID_" + to_string(This_GID))));
-	dpp::message_edit(event, msg);
-	giveaway_callback.emplace(This_GID, giveaway_traffic().set_msg(msg));
-	sleep_for(chrono == "s" ? chrono::seconds(stoull(length) - 1) : chrono == "m" ? chrono::minutes(stoull(length) - 1) :
-		chrono == "h" ? chrono::hours(stoull(length) - 1) : chrono == "d" ? chrono::hours(stoull(length) * 24 - 1) : 0s);
-	msg.components[0].components[0].set_disabled(true);
-	msg.embeds[0].set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ended ") + dpp::utility::timestamp(ct, dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
-	msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
-	if (not giveaway_entries[This_GID].entries.empty()) { // this would never happen in bigger servers. but it's a safe measure
-		string winner_list = ""; vector<dpp::snowflake> winner_vec;
-		for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().i64(1, giveaway_entries[This_GID].entries.size()).val64 - 1]);
-		for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
-		winner_list.pop_back();
-		msg.set_content("Winners: " + winner_list);
-		msg.set_allowed_mentions(false, false, false, false, winner_vec, { 0 });
+	time_index t_i;
+	if (not t_i.valid(length)) {
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::red)
+			.set_description("you provided a invalid length. examples: **60s**, **30m**, **12h**, **1d**"));
+	}
+	else {
+		msg.add_embed(dpp::embed()
+			.set_color(dpp::colors::blue)
+			.set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ends ") + dpp::utility::timestamp(t_i.format(length), dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ")
+			.set_footer(dpp::embed_footer().set_text("0 entries.")));
+		msg.add_component(dpp::component()
+			.add_component(dpp::component()
+				.set_emoji("giveaway", 1107511917544738939, true)
+				.set_label("Join")
+				.set_disabled(false)
+				.set_style(dpp::cos_primary)
+				.set_id("GID_" + to_string(This_GID))));
+		dpp::message_edit(event, msg);
+		giveaway_callback.emplace(This_GID, giveaway_traffic().set_msg(msg));
+		sleep_for(t_i.type == "seconds" ? chrono::seconds(stoull(length) - 1) : t_i.type == "minutes" ? chrono::minutes(stoull(length) - 1) :
+			t_i.type == "hours" ? chrono::hours(stoull(length) - 1) : t_i.type == "days" ? chrono::hours(stoull(length) * 24 - 1) : 0s);
+		msg.components[0].components[0].set_disabled(true);
+		msg.embeds[0].set_description(reinterpret_cast<const char*>(u8"**🎉 ∙ Giveaway Ended ") + dpp::utility::timestamp(t_i.format(length), dpp::utility::tf_relative_time) + " ** \n\n> **Host:** <@" + to_string(dpp::member(event).user_id) + "> \n> **Winners:** " + to_string(winners) + " \n> **Prize**: " + prize + " ");
+		msg.embeds[0].set_footer(dpp::embed_footer().set_text(to_string(giveaway_entries[This_GID].entries.size()) + " entries."));
+		if (not giveaway_entries[This_GID].entries.empty()) { // this would never happen in bigger servers. but it's a safe measure
+			string winner_list = ""; vector<dpp::snowflake> winner_vec;
+			for (int i = 0; i < winners; i++) winner_vec.emplace_back(giveaway_entries[This_GID].entries[randomx().i64(1, giveaway_entries[This_GID].entries.size()).val64 - 1]);
+			for (dpp::snowflake& winner : winner_vec) winner_list = " <@" + to_string(winner) + ">,";
+			winner_list.pop_back();
+			msg.set_content("Winners: " + winner_list);
+			msg.set_allowed_mentions(false, false, false, false, winner_vec, { 0 });
+		}
 	}
 	dpp::message_edit(event, msg);
 	return true;
