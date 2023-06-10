@@ -632,3 +632,36 @@ struct first {
 		return p(left.first, right.first);
 	}
 };
+
+/**
+* @brief get time type through user input
+*/
+class time_index {
+public:
+	/**
+	 * @brief contains the time type. example: "s" = "seconds"
+	*/
+	std::string type;
+
+	/**
+	 * @brief checks if user provided valid time type
+	*/
+	bool valid(std::string str) {
+		if (str.find("s") not_eq -1) type = "seconds";
+		else if (str.find("m") not_eq -1) type = "minutes";
+		else if (str.find("h") not_eq -1) type = "hours";
+		else if (str.find("d") not_eq -1) type = "days";
+		else return false;
+		return true;
+	}
+	/**
+	 * @brief convert stringed time into time_t. example: 5s = time(0) + 5
+	*/
+	time_t format(std::string str) { // -> didn't use tm* for simplicity
+		time_t _time;
+		std::cout << stoull(str) << std::endl;
+		type == "seconds" ? _time = std::time(0) + stoi(str) : type == "minutes" ? _time = std::time(0) + (stoull(str) * 60) :
+			type == "hours" ? _time = std::time(0) + ((stoull(str) * 60) * 60) : type == "days" ? _time = std::time(0) + ((stoull(str) * 60) * 60 * 24) : _time = time(0);
+		return _time;
+	}
+};
