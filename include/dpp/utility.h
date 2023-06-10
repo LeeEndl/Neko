@@ -647,10 +647,10 @@ public:
 	 * @brief checks if user provided valid time type
 	*/
 	bool valid(std::string str) {
-		if (str.find("s") not_eq -1) type = "seconds";
-		else if (str.find("m") not_eq -1) type = "minutes";
-		else if (str.find("h") not_eq -1) type = "hours";
-		else if (str.find("d") not_eq -1) type = "days";
+		if (str.find_last_of("s") not_eq -1 and str.find_first_not_of("s") not_eq -1) type = "seconds";
+		else if (str.find_last_of("m") not_eq -1 and str.find_first_not_of("m") not_eq -1) type = "minutes";
+		else if (str.find_last_of("h") not_eq -1 and str.find_first_not_of("h") not_eq -1) type = "hours";
+		else if (str.find_last_of("d") not_eq -1 and str.find_first_not_of("d") not_eq -1) type = "days";
 		else return false;
 		return true;
 	}
