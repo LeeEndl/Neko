@@ -49,7 +49,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>./include/</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4858;26800;26819;4251</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
@@ -63,7 +63,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>include/dpp/dpp.lib;include/opencv2/opencv_world470.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dpp/dpp.lib;opencv2/opencv_world470.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
       <SwapRunFromNET>false</SwapRunFromNET>
       <NoEntryPoint>false</NoEntryPoint>
@@ -71,6 +71,7 @@
       <PerUserRedirection>false</PerUserRedirection>
       <ProgramDatabaseFile />
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
+      <AdditionalLibraryDirectories>./include/</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
